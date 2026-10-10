@@ -1,0 +1,22 @@
+00–08s — Qriollo — Truco Cuantico
+A single-qubit learning game for two people on one device. Build a real Qiskit circuit; see amplitudes, phase and probabilities.
+
+08–16s — A real quantum composer
+Choose one card and use up to three individual gate tokens. The Bloch trajectory comes from actual Qiskit evolution. Order and interference matter.
+
+16–24s — Private turns, shared device
+A neutral handoff hides cards, gates and previews. A checkbox followed by a deliberate reveal reduces accidental disclosure. Confirming locks the circuit.
+
+24–32s — Measurement fixes identity
+Observed LOCAL DEVELOPMENT result: X changed the selected card to its linked identity. Envido shows private results, then only public totals. This screen is NOT IonQ.
+
+32–40s — A real IonQ probe succeeded
+Qollab: IonQ Aria 1 simulator, noise model aria-1. H circuit, shots=1, returned counts {"1": 1}. Python 3.14.2; Qiskit 2.5.2. Separate diagnostic, not a complete IonQ match.
+
+40–48s — The platform blocker is real
+A second submission in the same run was rejected: ConnectionError, one-job limit. Successive on-demand measurements remain blocked. No early measurement or hidden fallback.
+
+48–56s — Honest partial delivery
+MIT source, tests, tutorial and documentation. 95 automated tests passed. No public GitHub repository by owner choice. The full hackathon MVP is NOT complete.
+
+This effort is supported by Qollab & IonQ.

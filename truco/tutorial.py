@@ -1,0 +1,9 @@
+"""Tutorial circuits are real previews; samples are never scripted."""
+LESSONS = [
+    {'title':'Bienvenido a la mesa', 'text':'Bot Q te acompaña solo aquí. Una partida llega a 15 puntos; cada mano tiene tres cartas y hasta tres bazas. Espada se liga con copa; basto con oro. Las identidades codifican |0⟩ y |1⟩ de un qubit simulado. Pasá el dispositivo antes de revelar información privada.', 'circuits':[[]], 'sample':False},
+    {'title':'1 · X desde |0⟩', 'text':'X rota π alrededor de X. Desde |0⟩ llega a |1⟩: el modelo ideal asigna 100 % a la ligada. En otros estados X intercambia amplitudes; no elige siempre la ligada.', 'circuits':[['X']], 'sample':True},
+    {'title':'2 · H, Envido y medición', 'text':'H desde |0⟩ crea una superposición con 50 % para cada resultado. Bot Q canta Envido: al aceptar se mide. Antes de medir no había una carta clásica escondida. El resultado queda fijo.', 'circuits':[['H']], 'sample':True},
+    {'title':'3 · Rotaciones RY', 'text':'Después de H, RY(+π/6) da 25/75 y RY(−π/6) da 75/25. Directamente desde |0⟩, RY(+π/6) da 93,3/6,7. Un resultado menos probable también puede ocurrir.', 'circuits':[['H','RY+'],['H','RY-'],['RY+']], 'sample':True},
+    {'title':'4 · Orden, fase e interferencia', 'text':'H→X y X→H tienen iguales porcentajes en Z pero vectores de Bloch opuestos. Z cambia fase relativa; H convierte esa diferencia en interferencia: H→Z→H termina en |1⟩. No hay entrelazamiento ni ventaja cuántica.', 'circuits':[['H','X'],['X','H'],['H','Z','H']], 'sample':True},
+    {'title':'Mano guiada con Bot Q', 'text':'Elegí una carta y hasta tres fichas. Bot Q cantará Truco: usá Envido va primero. Al resolverlo, Bot Q reafirma Truco; respondé y jugá las bazas. Las mediciones no se fuerzan. Solo esta mano tiene bot.', 'circuits':[], 'sample':False},
+]

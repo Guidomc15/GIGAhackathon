@@ -1,0 +1,2 @@
+# Local verified version. Qollab compatibility must be checked in its runtime.
+qiskit[visualization]>=2.5.2,<3.0.0
