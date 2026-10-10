@@ -39,12 +39,16 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         path = urlsplit(self.path).path.lstrip('/')
         if path in ('', 'index.html'):
-            html = (ROOT / 'index.html').read_text()
-            # Resolve Qollab's Python import to the HTTP bridge only when served locally.
-            html = html.replace('<head>', '<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">\n'
-                                '<title>Truco Cuántico · Qriollo</title>\n'
-                                '<script type="importmap">{"imports":{"truco.service":"/local-engine.js"}}</script>')
-            html = '<!doctype html><html lang="es">' + html + '</html>'
+            body = (ROOT / 'index.html').read_text()
+            # Qollab consumes a body fragment and loads main.js/main.css itself.
+            # Only the local runner builds a document and maps Python to HTTP.
+            html = ('<!doctype html><html lang="es"><head>'
+                    '<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
+                    '<title>Truco Cuántico · Qriollo</title>'
+                    '<script type="importmap">{"imports":{"truco.service":"/local-engine.js"}}</script>'
+                    '<link rel="stylesheet" href="main.css">'
+                    '<script type="module" src="main.js"></script>'
+                    '</head><body>' + body + '</body></html>')
             self.respond(200, html.encode(), 'text/html; charset=utf-8')
         elif path in PUBLIC and (ROOT / path).is_file():
             self.respond(200, (ROOT / path).read_bytes(), TYPES[Path(path).suffix])

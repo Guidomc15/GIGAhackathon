@@ -26,6 +26,25 @@ Para verificar reglas, partidas, Qiskit, sesiones HTTP y recuperación de errore
 .venv/bin/python -m unittest discover -s tests -v
 ```
 
-La versión Qollab conserva su importación `truco.service` y su backend inyectado.
-Solo el servidor local agrega un import map que conecta esa importación con
-`local-engine.js`. No se realizan trabajos IonQ en el servidor local.
+## Ejecutar en Qollab
+
+Elegí el tipo de proyecto **JS / Qiskit**. Subí `main.js`, `main.css`,
+`index.html`, todos los módulos JavaScript y la carpeta `truco/` completa,
+incluidos `__init__.py`, `service.py` y `gates.py`. Conservá también
+`requirements.txt` y los recursos del proyecto. El archivo `main.py` es una
+prueba de backend; no reemplaza el punto de entrada del juego en JavaScript.
+
+`index.html` contiene únicamente el contenido del cuerpo, sin `<html>`,
+`<head>`, `<body>` ni etiquetas para cargar `main.js` o `main.css`.
+Qollab carga esos archivos automáticamente mediante su wrapper, que resuelve
+`import * as engine from 'truco.service'` como un módulo Python.
+
+El error `Failed to resolve module specifier 'truco.service'` indica que el
+import fue tratado como JavaScript nativo. Revisá el tipo JS / Qiskit, la
+presencia de la carpeta Python y que no se cargue `main.js` con un `<script>`
+manual en `index.html`. No cambies ese import por `./local-engine.js`:
+ese puente necesita el servidor HTTP local y no proporciona Python en Qollab.
+
+Solo `serve.py` agrega el documento HTML, los recursos y el import map local.
+Las pruebas de navegador locales verifican ese camino; la ejecución de esta
+corrección dentro del runtime de Qollab queda por confirmar en la plataforma.

@@ -5,8 +5,19 @@ import threading
 import unittest
 import urllib.error
 import urllib.request
+from html.parser import HTMLParser
 
-from serve import LocalServer
+from serve import LocalServer, ROOT
+
+
+class Tags(HTMLParser):
+    def __init__(self, html):
+        super().__init__()
+        self.tags = []
+        self.feed(html)
+
+    def handle_starttag(self, tag, attrs):
+        self.tags.append((tag, dict(attrs)))
 
 
 class LocalServerTests(unittest.TestCase):
@@ -36,6 +47,14 @@ class LocalServerTests(unittest.TestCase):
             html = response.read()
             self.assertIn(b'"truco.service":"/local-engine.js"', html)
             self.assertTrue(html.startswith(b'<!doctype html><html lang="es">'))
+        # Qollab's wrapper must be the only loader of the Python-backed entrypoint.
+        fragment_tags = Tags((ROOT / 'index.html').read_text()).tags
+        self.assertFalse(any(tag in ('html','head','body','script','link') for tag, _ in fragment_tags))
+        tags = Tags(html.decode()).tags
+        scripts = [attrs for tag, attrs in tags if tag == 'script']
+        self.assertEqual([s.get('type') for s in scripts], ['importmap','module'])
+        self.assertEqual(scripts[1]['src'], 'main.js')
+        self.assertEqual(sum(tag == 'link' and attrs.get('href') == 'main.css' for tag,attrs in tags), 1)
         with self.client.open(self.url + '/local-engine.js') as response:
             self.assertEqual(response.headers['Content-Type'], 'text/javascript')
         for path in ('/.git/config', '/serve.py', '/requirements.txt', '/../serve.py'):
