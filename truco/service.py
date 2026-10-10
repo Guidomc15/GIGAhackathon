@@ -31,7 +31,7 @@ class Session:
         lesson = LESSONS[self.tutorial_index]
         result['tutorial'] = {**lesson,'index':self.tutorial_index,'total':len(LESSONS),
                               'previews':[preview(c) for c in lesson['circuits']],
-                              'result':self.tutorial_result}
+                              'result':self.tutorial_result, 'pending':self.tutorial_pending is not None}
         return result
     def bot(self):
         if not self.guided or not self.game: return
@@ -43,27 +43,37 @@ class Session:
                 g.dispatch('truco'); break
             if g.phase == 'respond': g.dispatch('accept')
             elif g.phase == 'reassert': g.dispatch('reassert')
-            elif g.phase in ('envido_reveal','report'): g.dispatch('hide')
             elif g.phase == 'play': g.dispatch('play', next(i for i in range(3) if i not in g.played[1]))
             else: break
     def action(self, payload):
         self.error = None
         action = payload['action']; value = payload.get('value')
+        if self.tutorial_pending is not None and action not in ('public','reveal','dev_mode'):
+            raise ValueError('El tutorial tiene una medición pendiente. Consultá su resultado antes de continuar.')
+        if action in ('new','guided','tutorial') and self.needs_measurement():
+            raise ValueError('Hay una medición pendiente. Completala o consultá su resultado antes de cambiar de partida o lección.')
         if action == 'dev_mode':
             if type(value) is not bool: raise ValueError('Modo inválido')
             if self.host_local and not value: raise ValueError('El servidor local solo admite modo de desarrollo')
+            if value != self.local and self.remote and self.remote.started is not None:
+                raise ValueError('Consultá el resultado IonQ pendiente antes de cambiar el modo de medición.')
             self.local = value
         elif action == 'new':
+            game = Game(value.get('names'), privacy=value.get('privacy', False)) if isinstance(value, dict) else Game(value)
             self.guided = False
-            self.game = Game(value)
+            self.game = game
         elif action == 'guided':
+            game = Game([value or 'Vos','Bot Q'])
             self.guided = True
-            self.game = Game([value or 'Vos','Bot Q'])
+            self.game = game
             self.game.mano = 1; self.game.actor = self.game.turn = 0
+            self.game.events[0]['mano'] = 1
         elif action == 'tutorial':
             if type(value) is not int or not 0 <= value < len(LESSONS): raise ValueError('Lección inválida')
             self.tutorial_index = value; self.tutorial_result = None
         elif action == 'tutorial_sample':
+            if self.game is not None and self.game.phase == 'measure':
+                raise ValueError('Primero completá la medición pendiente de la partida.')
             if self.tutorial_pending is not None: raise ValueError('Ya hay una medición pendiente')
             circuits = LESSONS[self.tutorial_index]['circuits']
             if not LESSONS[self.tutorial_index]['sample']: raise ValueError('Esta lección no mide')

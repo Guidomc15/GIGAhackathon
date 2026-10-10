@@ -1,6 +1,7 @@
 """Pure rules for the specified two-player, no-Flor variant."""
 from dataclasses import dataclass
 from itertools import combinations
+from .gates import DECK as GATES
 
 NUMBERS = (1, 2, 3, 4, 5, 6, 7, 10, 11, 12)
 SUITS = ('espada', 'basto', 'oro', 'copa')
@@ -72,7 +73,7 @@ def envido_value(chain, scores=None, loser=None):
 def refusal_value(chain):
     return envido_value(chain[:-1]) if len(chain) > 1 else 1
 
-GATES = ('H',) * 6 + ('X',) * 4 + ('Z',) * 4 + ('RY+',) * 3 + ('RY-',) * 3
+
 
 class GateDeck:
     def __init__(self, rng):

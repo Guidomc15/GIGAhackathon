@@ -17,6 +17,7 @@ class RemoteMeasurement:
         self.cached = None
         self.started = None
         self.last_error = None
+        self.submission_uncertain = False
     def info(self):
         name = getattr(self.backend,'name','unknown')
         if callable(name): name = name()
@@ -27,6 +28,8 @@ class RemoteMeasurement:
                 'noise_model':str(getattr(getattr(self.backend,'options',None),'noise_model',None))}
     def start(self, sequences):
         if self.job is not None: return  # resumes the SAME job after timeout
+        if self.submission_uncertain:
+            raise RuntimeError('El envío anterior tiene estado incierto. No se enviará otro job que pueda duplicar la medición')
         info = self.info()
         if 'ionq' not in (info['name']+' '+info['module']).lower():
             raise ValueError('Seleccioná un simulador IonQ; este backend no está identificado como IonQ')
@@ -42,6 +45,7 @@ class RemoteMeasurement:
         try:
             self.job = self.backend.run(circuits if len(circuits)>1 else circuits[0], shots=1)
         except Exception as exc:
+            self.submission_uncertain = True
             message = str(exc).lower()
             recognized = next((p for p in ('only one','one job','xhr','xmlhttprequest','keyword','connection','not supported','unexpected') if p in message), 'unclassified')
             self.last_error = {'type':type(exc).__name__,'recognized':recognized}

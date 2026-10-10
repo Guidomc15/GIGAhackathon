@@ -1,2 +1,2 @@
-// Set only to a real, verified public repository URL at release time.
-export const REPOSITORY_URL = '';
+export const REPOSITORY_URL='https://github.com/Guidomc15/GIGAhackaton';
+export const VERSION='0.2.0';

@@ -6,17 +6,19 @@ from qiskit import QuantumCircuit
 from qiskit.quantum_info import Statevector, Operator
 import numpy as np
 
-VALID = ('H', 'X', 'Z', 'RY+', 'RY-')
+from .gates import VALID, ROTATIONS
 
 def circuit(gates, measured=False):
-    if len(gates) > 3 or any(g not in VALID for g in gates):
+    if not isinstance(gates, (list, tuple)) or len(gates) > 3 or any(g not in VALID for g in gates):
         raise ValueError('Circuito inválido: hasta tres compuertas')
     qc = QuantumCircuit(1, 1) if measured else QuantumCircuit(1)
     for gate in gates:
         if gate == 'H': qc.h(0)
         elif gate == 'X': qc.x(0)
         elif gate == 'Z': qc.z(0)
-        else: qc.ry(math.pi / 6 * (1 if gate == 'RY+' else -1), 0)
+        else:
+            axis, angle = ROTATIONS[gate]
+            getattr(qc, axis)(angle, 0)
     if measured: qc.measure(0, 0)
     return qc
 
@@ -39,13 +41,13 @@ def preview(gates):
     for i, gate in enumerate(gates):
         start = len(trajectory) - 1
         state = Statevector.from_instruction(circuit(gates[:i]))
-        angle = math.pi / 6 * (1 if gate == 'RY+' else -1) if gate.startswith('RY') else math.pi
+        axis, angle = ROTATIONS.get(gate, (None, math.pi))
         for t in range(1, 25):
             theta = angle * t / 24
             partial = QuantumCircuit(1)
-            if gate == 'X': partial.rx(theta, 0)
+            if axis: getattr(partial, axis)(theta, 0)
+            elif gate == 'X': partial.rx(theta, 0)
             elif gate == 'Z': partial.rz(theta, 0)
-            elif gate.startswith('RY'): partial.ry(theta, 0)
             else:
                 h = np.array([[1,1],[1,-1]]) / math.sqrt(2)
                 partial.unitary(Operator(math.cos(theta/2)*np.eye(2)-1j*math.sin(theta/2)*h), [0])
@@ -65,7 +67,7 @@ class QuantumCard:
     record: dict | None = None
     def edit(self, indices):
         if self.locked: raise ValueError('Circuito confirmado: no puede cambiar')
-        if len(indices) > 3 or len(set(indices)) != len(indices) or any(type(i) is not int or not 0 <= i < 4 for i in indices):
+        if not isinstance(indices, (list, tuple)) or len(indices) > 3 or any(type(i) is not int or not 0 <= i < len(self.tokens) for i in indices) or len(set(indices)) != len(indices):
             raise ValueError('Cada ficha se usa una vez; máximo tres')
         self.sequence = list(indices)
         return self.view()
@@ -100,5 +102,5 @@ def effective_sample(distribution, rng=None):
         if not math.isfinite(value) or value < 0: raise ValueError('Distribución inválida')
         weights[bit] += value
     total = sum(weights)
-    if not total: raise ValueError('Resultado sin probabilidades')
+    if not total or not math.isfinite(total): raise ValueError('Resultado sin probabilidades válidas')
     return int((rng or random.SystemRandom()).random() >= weights[0] / total)

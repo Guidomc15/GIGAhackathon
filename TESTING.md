@@ -1,4 +1,35 @@
+# Validación actual · 0.2.0
+
+La base integrada es el commit GitHub `6576cce` (0.1.9), junto con el servidor local y los arreglos que habían quedado sin publicar.
+
+```sh
+.venv/bin/python -m unittest discover -s tests -v
+PLAYWRIGHT_MODULE=/opt/codex/cua_node/lib/node_modules/playwright CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/browser_interface.cjs
+PLAYWRIGHT_MODULE=/opt/codex/cua_node/lib/node_modules/playwright CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/browser_full_match.cjs
+TRUCO_PRIVACY=1 PLAYWRIGHT_MODULE=/opt/codex/cua_node/lib/node_modules/playwright CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/browser_full_match.cjs
+PLAYWRIGHT_MODULE=/opt/codex/cua_node/lib/node_modules/playwright CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/browser_animations.cjs
+```
+
+El servidor `serve.py` debe estar ejecutándose para las pruebas de navegador. Fuera de este entorno instalá Playwright y usá su Chromium, o configurá `CHROMIUM_EXECUTABLE_PATH`; `PLAYWRIGHT_MODULE` admite una instalación externa. `TRUCO_URL` y `ARTIFACT_DIR` permiten cambiar destino y carpeta de capturas.
+
+Se verifican reglas y pardas, partidas variadas hasta 15, rotaciones fijas con Qiskit, distribución/conservación del mazo, medición única y atómica, recuperación del mismo job remoto con dobles de prueba, API HTTP, privacidad opcional, cartas al responder, Envido automático con empates, resultado antes del resumen y Bot Q. El navegador comprueba pantallas de 320/390 píxeles, teclado, errores de transporte y animaciones activadas/reducidas. Las pruebas actuales usan Qiskit local; no verifican una nueva partida IonQ ni una publicación Qollab.
+
+## Registros históricos de Qollab hasta 0.1.9
+
+Los siguientes registros describen las versiones anteriores y sus artefactos. El conjunto histórico de 95 pruebas citado aquí no está incluido en este checkout; las pruebas reproducibles actuales están en `tests/`.
+
 # Testing evidence and reproduction
+
+## Suite del checkout actual
+
+La versión local incluye 28 pruebas ejecutables con
+`.venv/bin/python -m unittest discover -s tests -v`, además de comprobaciones
+reproducibles de navegador en `tests/browser_interface.cjs` y
+`tests/browser_full_match.cjs`. Cobertura, resultados y propuestas en
+[POLISH_REVIEW.md](POLISH_REVIEW.md).
+
+Las referencias a 95 pruebas y `pytest` que siguen son evidencia histórica;
+esa suite anterior no está incluida en este checkout.
 
 Run `.venv/bin/python -m pytest -q`. Current verified result: **95 passed** on Python 3.12.14 and Qiskit 2.5.2. Tests use seeds only inside tests; live dealing and sampling are unseeded.
 

@@ -1,3 +1,9 @@
+# Estado actual · propuesta 0.2.0
+
+Base GitHub: `6576cce` (0.1.9). Implementación y pruebas actuales descritas en `RELEASE_0.2.0.md` y `TESTING.md`. El entorno local permite partidas completas con Qiskit. La publicación en GitHub/Qollab se informa por separado; publicar un entorno no agrega commits al repositorio.
+
+## Registro histórico anterior
+
 # Real delivery status — 10 October 2026 ART
 
 This is a partial implementation, not the completed hackathon MVP.
