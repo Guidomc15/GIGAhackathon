@@ -72,3 +72,5 @@ La partida y preferencias viven en memoria o en el navegador. La partida se pier
 La versión 0.2.1 se valida con Qiskit y Chromium locales. Su arranque dentro del wrapper de Qollab sigue pendiente de comprobar allí. El adaptador remoto conserva el límite previamente observado de un job IonQ por ejecución, por lo que las partidas completas y el ruido educativo usan simulación local explícita. No se cambia de backend automáticamente.
 
 Código original MIT; arte, esfera adaptada, dependencias y asistencia de IA declarados en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+Colaboradores: Guido Miniero Cocco, Alejo Dellape y Gaspar Osterrieth
