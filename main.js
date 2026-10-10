@@ -2,13 +2,14 @@
 // for proper Qiskit integration into JS code). If any Qiskit features / packages are used, it
 // fill fail as soon as those are imported (or "backend" variable is used)
 
+import {mountFusionCards} from './card-effects.js';
 import {mountBloch} from './bloch.js';
 import * as engine from 'truco.service';
 import {TABLE_ART} from './table-art.js';
 import {CARDS_ART} from './cards-art.js';
 import {MENU_ART} from './menu-art.js';
 import {REPOSITORY_URL} from './config.js';
-import {esc,card,faceStyle,sphere,circuitStrip,gateStyle,technical,preview,circuitStory,quantumReport,measurementCard,scoreboard,table} from './ui.js';
+import {esc,card,faceStyle,sphere,circuitStrip,gateStyle,technical,preview,circuitStory,quantumReport,measurementCard,fusionCard,scoreboard,table} from './ui.js';
 const stage=document.getElementById('stage');
 if(REPOSITORY_URL){const a=document.createElement('a');a.href=REPOSITORY_URL;a.textContent='Repositorio';a.target='_blank';a.rel='noopener';document.getElementById('repo').replaceChildren(a);}
 let view=null, screen='home', revealed=false, busy=false, samplePending=false, quantumOpen=false;
@@ -112,7 +113,7 @@ function editor(g,priv){
   document.getElementById('activate-quantum').onclick=()=>{quantumOpen=true;render();focus();};
   stage.querySelectorAll('[data-card]').forEach(b=>b.onclick=()=>action('choose',Number(b.dataset.card)));
   if(!q||!quantumOpen)return;
-  stage.innerHTML+=`<dialog id="composer-dialog" class="overlay quantum-composer" aria-label="Compositor de la carta cuántica"><button id="close-composer" class="close-composer" aria-label="Volver a la mesa">Volver a la mesa ×</button><div class="composer-layout"><section class="enlarged-card" aria-label="Carta cuántica agrandada"><span class="card-watermark" style="${faceStyle(q.original)}" aria-hidden="true"></span>${circuitStrip(q.preview.gates,q)}<div class="identity identity-zero">${card(q.original)}<span>${esc(q.original.label)}<br><strong>|0⟩ · ${(q.preview.probabilities[0]*100).toFixed(1)} %</strong></span></div><div class="composer-sphere">${sphere(q.preview,null,'composer-'+q.original.label)}</div><div class="identity identity-one">${card(q.linked)}<span>${esc(q.linked.label)}<br><strong>|1⟩ · ${(q.preview.probabilities[1]*100).toFixed(1)} %</strong></span></div></section><aside class="gate-rack" aria-label="Cuatro fichas privadas"><h2>Mazo de<br>compuertas</h2><div class="rack-frame">${q.tokens.map((token,i)=>`<button class="gate-tile gate-${token[0]}" style="${gateStyle(token)}" data-token="${i}" aria-label="Agregar ${esc(token)}, ficha ${i+1}" ${q.sequence.includes(i)||q.sequence.length===3?'disabled':''}><span>${esc(token==='RY+'?'RY +π/6':token==='RY-'?'RY −π/6':token)}</span><small>Ficha ${i+1}</small></button>`).join('')}</div><p>Hasta 3 compuertas.<br>Cada ficha, una vez.</p></aside></div><div class="composer-controls"><div class="actions"><button id="undo" ${q.sequence.length?'':'disabled'}>Deshacer</button><button id="reset">Reiniciar</button></div><label><input type="checkbox" id="lock-ok"> Confirmo el circuito; quedará bloqueado durante esta mano</label><button id="lock-circuit" class="primary" disabled>Confirmar y ocultar</button><p class="sphere-caption">Vista calculada con Qiskit. Editar no mide la carta.</p>${technical(q.preview)}</div></dialog>`;
+  stage.innerHTML+=`<dialog id="composer-dialog" class="overlay quantum-composer" aria-label="Compositor de la carta cuántica"><button id="close-composer" class="close-composer" aria-label="Volver a la mesa">Volver a la mesa ×</button><div class="composer-layout"><section class="enlarged-card fusion-editor" aria-label="Carta cuántica agrandada">${circuitStrip(q.preview.gates,q)}<div class="fusion-editor-state">${fusionCard(q,{key:`composer-${g.hand}-${priv.player}`})}<div class="composer-sphere">${sphere(q.preview,null,'composer-'+q.original.label)}</div></div><p class="fusion-probabilities"><span>${esc(q.original.label)} · |0⟩ <strong data-probability-zero>${(q.preview.probabilities[0]*100).toFixed(1)} %</strong></span><br><span>${esc(q.linked.label)} · |1⟩ <strong data-probability-one>${(q.preview.probabilities[1]*100).toFixed(1)} %</strong></span></p><p class="sphere-caption">La onda representa las probabilidades ideales; los signos y la fase se ven en la esfera.</p></section><aside class="gate-rack" aria-label="Cuatro fichas privadas"><h2>Mazo de<br>compuertas</h2><div class="rack-frame">${q.tokens.map((token,i)=>`<button class="gate-tile gate-${token[0]}" style="${gateStyle(token)}" data-token="${i}" aria-label="Agregar ${esc(token)}, ficha ${i+1}" ${q.sequence.includes(i)||q.sequence.length===3?'disabled':''}><span>${esc(token==='RY+'?'RY +π/6':token==='RY-'?'RY −π/6':token)}</span><small>Ficha ${i+1}</small></button>`).join('')}</div><p>Hasta 3 compuertas.<br>Cada ficha, una vez.</p></aside></div><div class="composer-controls"><div class="actions"><button id="undo" ${q.sequence.length?'':'disabled'}>Deshacer</button><button id="reset">Reiniciar</button></div><label><input type="checkbox" id="lock-ok"> Confirmo el circuito; quedará bloqueado durante esta mano</label><button id="lock-circuit" class="primary" disabled>Confirmar y ocultar</button><p class="sphere-caption">Vista calculada con Qiskit. Editar no mide la carta.</p>${technical(q.preview)}</div></dialog>`;
   document.getElementById('close-composer').onclick=()=>{quantumOpen=false;render();focus();};
   document.getElementById('activate-quantum').onclick=()=>{quantumOpen=true;render();focus();};
   // Rebind after replacing markup with +=.
@@ -198,6 +199,7 @@ function render(){
   const composer=document.getElementById('composer-dialog');
   if(composer){composer.showModal();composer.oncancel=e=>{e.preventDefault();quantumOpen=false;render();focus();};}
   mountBloch(stage);
+  mountFusionCards(stage);
   stage.setAttribute('aria-busy',String(busy));
   if(busy)stage.querySelectorAll('button,input').forEach(control=>control.disabled=true);
 }

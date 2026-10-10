@@ -72,3 +72,5 @@ Further sphere adaptation: arrow shaft and head changed to red at the owner's re
 Further adaptation: Qiskit trajectory segments are colored by their responsible gate, sharing gate-colors.js with the original Qriollo composer. Ordered legends and step-specific dash patterns were added; the red arrow and upstream attribution are preserved.
 
 Further sphere adaptation: per-prefix teaching views dim earlier gate paths and replay the current Qiskit segment. Teaching text/formulas and report integration are original game code; the underlying canvas source credit and license disclosure remain.
+
+card-effects.js is original game code: probability clipping of the owner-supplied atlas, animated SVG wave/orbit and presentation-only collapse. No new raster asset or external library was introduced. Compact measured-state spheres continue to use the declared Qollab adaptation.
