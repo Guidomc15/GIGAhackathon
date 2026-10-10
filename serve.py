@@ -45,7 +45,7 @@ class Handler(BaseHTTPRequestHandler):
             html = ('<!doctype html><html lang="es"><head>'
                     '<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
                     '<title>Truco Cuántico · Qriollo</title>'
-                    '<script type="importmap">{"imports":{"truco.service":"/local-engine.js"}}</script>'
+                    '<script type="importmap">{"imports":{"qollab_engine":"/local-engine.js"}}</script>'
                     '<link rel="stylesheet" href="main.css">'
                     '<script type="module" src="main.js"></script>'
                     '</head><body>' + body + '</body></html>')

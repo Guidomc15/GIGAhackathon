@@ -1,6 +1,12 @@
 # Estado actual · propuesta 0.2.0
 
-Base GitHub: `6576cce` (0.1.9). Código publicado en `codex/0.2.0-polish` (`1158066`), pendiente de integrar en main. La creación automática del PR fue bloqueada por Forbidden en la API de GitHub. Implementación y pruebas actuales descritas en `RELEASE_0.2.0.md` y `TESTING.md`. El entorno local permite partidas completas con Qiskit. La publicación en GitHub/Qollab se informa por separado; publicar un entorno no agrega commits al repositorio.
+Base GitHub: `6576cce` (0.1.9). Código publicado en `codex/0.2.0-polish`, pendiente de integrar en main. La creación automática del PR fue bloqueada por Forbidden en la API de GitHub. Implementación y pruebas actuales descritas en `RELEASE_0.2.0.md` y `TESTING.md`. El entorno local permite partidas completas con Qiskit. La publicación en GitHub/Qollab se informa por separado; publicar un entorno no agrega commits al repositorio.
+
+La actualización de Qollab reportó `Failed to resolve module specifier 'truco.service'`.
+La lista Code contenía `serve.py`, pero no `service.py`: son archivos distintos,
+y faltaba el motor dentro de `truco/`. La nueva entrega usa `qollab_engine.py`
+en la raíz y un ZIP sin carpetas. El motor aislado y Chromium se prueban localmente;
+el arranque actualizado en Qollab sigue pendiente de comprobarse allí.
 
 ## Registro histórico anterior
 

@@ -28,23 +28,39 @@ Para verificar reglas, partidas, Qiskit, sesiones HTTP y recuperación de errore
 
 ## Ejecutar en Qollab
 
-Elegí el tipo de proyecto **JS / Qiskit**. Subí `main.js`, `main.css`,
-`index.html`, todos los módulos JavaScript y la carpeta `truco/` completa,
-incluidos `__init__.py`, `service.py` y `gates.py`. Conservá también
-`requirements.txt` y los recursos del proyecto. El archivo `main.py` es una
-prueba de backend; no reemplaza el punto de entrada del juego en JavaScript.
+Elegí el tipo de proyecto **JS / Qiskit**. Usá la entrega plana
+`QOLLAB_0.2.0.zip`: descomprimila y cargá sus archivos en la lista Code.
+Incluye la interfaz, los módulos JavaScript, `qollab_engine.py`, requisitos,
+avisos de licencia y el video histórico. Todos están en la raíz.
+Para actualizar la interfaz ya cargada, basta reemplazar `main.js` y agregar
+`qollab_engine.py`; conservá los demás archivos. Pasos en
+[QOLLAB_UPDATE.md](QOLLAB_UPDATE.md).
+
+`serve.py` es el servidor local, distinto del módulo Python `truco/service.py`.
+Subir solamente los archivos sueltos del ZIP de GitHub puede omitir la carpeta
+`truco/` y dejar `truco.service` sin resolver. Ahora `main.js` importa funciones
+explícitas desde `qollab_engine`, un archivo generado que contiene los mismos
+módulos Python. No necesita subir carpetas. `main.py` es una prueba de backend;
+no reemplaza el punto de entrada del juego en JavaScript.
 
 `index.html` contiene únicamente el contenido del cuerpo, sin `<html>`,
 `<head>`, `<body>` ni etiquetas para cargar `main.js` o `main.css`.
-Qollab carga esos archivos automáticamente mediante su wrapper, que resuelve
-`import * as engine from 'truco.service'` como un módulo Python.
+Qollab carga esos archivos automáticamente mediante su wrapper. El import
+Python del juego es `import {dispatch_json,start_json,poll_json,demo_json} from 'qollab_engine';`.
 
-El error `Failed to resolve module specifier 'truco.service'` indica que el
-import fue tratado como JavaScript nativo. Revisá el tipo JS / Qiskit, la
-presencia de la carpeta Python y que no se cargue `main.js` con un `<script>`
-manual en `index.html`. No cambies ese import por `./local-engine.js`:
+Si todavía aparece un error que menciona `truco.service`, se está ejecutando
+un `main.js` anterior. Detené la ejecución, reemplazá ese archivo y comprobá
+que el import diga `qollab_engine`. No cambies ese import por `./local-engine.js`:
 ese puente necesita el servidor HTTP local y no proporciona Python en Qollab.
 
 Solo `serve.py` agrega el documento HTML, los recursos y el import map local.
-Las pruebas de navegador locales verifican ese camino; la ejecución de esta
-corrección dentro del runtime de Qollab queda por confirmar en la plataforma.
+Las pruebas comprueban el archivo Python aislado, sin la carpeta `truco/`, y
+la interfaz en Chromium local. La ejecución dentro del wrapper de Qollab
+queda por confirmar en la plataforma.
+
+Después de editar el motor en `truco/*.py`, regenerá la entrega:
+
+```sh
+python build_qollab.py --zip QOLLAB_0.2.0.zip
+python build_qollab.py --check
+```

@@ -1,9 +1,10 @@
 # Validación actual · 0.2.0
 
-La base integrada es el commit GitHub `6576cce` (0.1.9), junto con el servidor local y los arreglos que habían quedado sin publicar.
+La base integrada es el commit GitHub `6576cce` (0.1.9), junto con el servidor local y los arreglos que habían quedado sin publicar. La suite actual tiene 37 pruebas Python.
 
 ```sh
 .venv/bin/python -m unittest discover -s tests -v
+python build_qollab.py --check
 PLAYWRIGHT_MODULE=/opt/codex/cua_node/lib/node_modules/playwright CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/browser_interface.cjs
 PLAYWRIGHT_MODULE=/opt/codex/cua_node/lib/node_modules/playwright CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/browser_full_match.cjs
 TRUCO_PRIVACY=1 PLAYWRIGHT_MODULE=/opt/codex/cua_node/lib/node_modules/playwright CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/browser_full_match.cjs
@@ -12,7 +13,7 @@ PLAYWRIGHT_MODULE=/opt/codex/cua_node/lib/node_modules/playwright CHROMIUM_EXECU
 
 El servidor `serve.py` debe estar ejecutándose para las pruebas de navegador. Fuera de este entorno instalá Playwright y usá su Chromium, o configurá `CHROMIUM_EXECUTABLE_PATH`; `PLAYWRIGHT_MODULE` admite una instalación externa. `TRUCO_URL` y `ARTIFACT_DIR` permiten cambiar destino y carpeta de capturas.
 
-Se verifican reglas y pardas, partidas variadas hasta 15, rotaciones fijas con Qiskit, distribución/conservación del mazo, medición única y atómica, recuperación del mismo job remoto con dobles de prueba, API HTTP, privacidad opcional, cartas al responder, Envido automático con empates, resultado antes del resumen y Bot Q. El navegador comprueba pantallas de 320/390 píxeles, teclado, errores de transporte y animaciones activadas/reducidas. Las pruebas actuales usan Qiskit local; no verifican una nueva partida IonQ ni una publicación Qollab.
+Se verifican reglas y pardas, partidas variadas hasta 15, rotaciones fijas con Qiskit, distribución/conservación del mazo, medición única y atómica, recuperación del mismo job remoto con dobles de prueba, API HTTP, privacidad opcional, cartas al responder, Envido automático con empates, resultado antes del resumen y Bot Q. El navegador comprueba pantallas de 320/390 píxeles, teclado, errores de transporte y animaciones activadas/reducidas. El paquete de Qollab se verifica en un proceso Python aislado sin acceso a `truco/`: importación, sesión persistente, X real, Envido, partida hasta 15 y video desde archivos planos. También se comprueba que el ZIP incluya todas las dependencias de los imports JavaScript y el módulo Python. Las pruebas actuales usan Qiskit local; no ejecutan el wrapper de Qollab ni verifican una nueva partida IonQ o una publicación Qollab.
 
 ## Registros históricos de Qollab hasta 0.1.9
 

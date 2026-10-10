@@ -45,7 +45,7 @@ class LocalServerTests(unittest.TestCase):
     def test_local_ui_import_and_static_boundaries(self):
         with self.client.open(self.url) as response:
             html = response.read()
-            self.assertIn(b'"truco.service":"/local-engine.js"', html)
+            self.assertIn(b'"qollab_engine":"/local-engine.js"', html)
             self.assertTrue(html.startswith(b'<!doctype html><html lang="es">'))
         # Qollab's wrapper must be the only loader of the Python-backed entrypoint.
         fragment_tags = Tags((ROOT / 'index.html').read_text()).tags

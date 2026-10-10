@@ -1,8 +1,9 @@
-// Qollab supplies truco.service; serve.py maps that import to the local HTTP bridge.
+// Qollab loads the root Python file; serve.py maps it to the local HTTP bridge.
 
 import {mountFusionCards} from './card-effects.js';
 import {mountBloch} from './bloch.js';
-import * as engine from 'truco.service';
+import {dispatch_json,start_json,poll_json,demo_json} from 'qollab_engine';
+const engine={dispatch_json,start_json,poll_json,demo_json};
 import {TABLE_ART} from './table-art.js';
 import {CARDS_ART} from './cards-art.js';
 import {MENU_ART} from './menu-art.js';

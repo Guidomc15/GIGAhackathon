@@ -144,11 +144,14 @@ def poll_json():
 
 def demo_json():
     import base64
-    try:
-        with open("artifacts/truco-cuantico-demo.mp4", "rb") as f:
-            data = base64.b64encode(f.read()).decode("ascii")
-        with open("artifacts/DEMO_TRANSCRIPT.txt", encoding="utf8") as f:
-            transcript = f.read()
-        return json.dumps({'data':data,'transcript':transcript})
-    except OSError:
-        return json.dumps({'error':'Video no disponible en este paquete. Consultá DEMO_SCRIPT.md.'})
+    # Source checkouts keep artifacts/; Qollab's flat upload keeps root files.
+    for prefix in ('artifacts/', ''):
+        try:
+            with open(prefix + 'truco-cuantico-demo.mp4', 'rb') as f:
+                data = base64.b64encode(f.read()).decode('ascii')
+            with open(prefix + 'DEMO_TRANSCRIPT.txt', encoding='utf8') as f:
+                transcript = f.read()
+            return json.dumps({'data':data,'transcript':transcript})
+        except OSError:
+            continue
+    return json.dumps({'error':'Video no disponible en este paquete. Consultá DEMO_SCRIPT.md.'})

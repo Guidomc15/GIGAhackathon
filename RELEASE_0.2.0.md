@@ -10,9 +10,10 @@ Parte de GitHub 0.1.9 (`6576cce`). Integra los arreglos locales que todavía no 
 - Puntos animados para ambos jugadores, mayor incremento arriba. El marcador se limita a 15; si el premio lo supera, la animación muestra el incremento efectivo e informa el valor del canto.
 - Medición pública con identidad definitiva antes del resultado. Victoria/derrota antes de «Ver resumen». Resumen público de ambos, tres cartas, circuito y detalles ampliables.
 - Servidor local Qiskit, pruebas del motor/API/errores y pruebas reales en Chromium.
+- Entrega plana `QOLLAB_0.2.0.zip` y motor `qollab_engine.py` para evitar que la lista Code omita la carpeta Python. Actualización de dos archivos documentada en `QOLLAB_UPDATE.md`.
 
 Se usó 0.2.0 por el título «cambios para la 0.2.0». π/67 se conserva literalmente. Ambas aclaraciones fueron consultadas y todavía no recibieron respuesta. Las reglas de Falta Envido de esta variante (15 menos el puntaje del perdedor) se mantienen documentadas en Cómo jugar.
 
-Validación: 34 pruebas Python, partidas completas en Chromium con y sin privacidad, interfaz móvil a 320/390 píxeles, Bot Q, recuperación de errores y orden de animaciones con movimiento normal. No se enviaron jobs IonQ.
+Validación: 37 pruebas Python, incluyendo el motor de la entrega sin carpeta `truco/`, partidas completas en Chromium con y sin privacidad, interfaz móvil a 320/390 píxeles, Bot Q, recuperación de errores y orden de animaciones con movimiento normal. No se enviaron jobs IonQ. El wrapper de Qollab no se ejecuta en las pruebas locales.
 
-Estado: implementación publicada en la rama GitHub [`codex/0.2.0-polish`](https://github.com/Guidomc15/GIGAhackaton/tree/codex/0.2.0-polish), commit de código `1158066`. `main` sigue en 0.1.9 hasta integrar los cambios. La API de GitHub devuelve Forbidden al crear el PR; no se publicó en Qollab. [Abrir la propuesta de integración](https://github.com/Guidomc15/GIGAhackaton/pull/new/codex/0.2.0-polish). Publicar un entorno, subir una rama e integrar en main son pasos distintos.
+Estado: implementación y entrega para Qollab publicadas en la rama GitHub [`codex/0.2.0-polish`](https://github.com/Guidomc15/GIGAhackaton/tree/codex/0.2.0-polish). `main` sigue en 0.1.9 hasta integrar los cambios. La API de GitHub devuelve Forbidden al crear el PR; no se publicó en Qollab. [Abrir la propuesta de integración](https://github.com/Guidomc15/GIGAhackaton/pull/new/codex/0.2.0-polish). Publicar un entorno, subir una rama e integrar en main son pasos distintos.
