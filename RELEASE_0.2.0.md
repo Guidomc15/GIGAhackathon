@@ -15,4 +15,4 @@ Se usó 0.2.0 por el título «cambios para la 0.2.0». π/67 se conserva litera
 
 Validación: 34 pruebas Python, partidas completas en Chromium con y sin privacidad, interfaz móvil a 320/390 píxeles, Bot Q, recuperación de errores y orden de animaciones con movimiento normal. No se enviaron jobs IonQ.
 
-Estado: cambios preparados en el checkout local. La API de GitHub devuelve Forbidden en este entorno; no se creó PR ni se publicó en Qollab. El usuario debe recibir este estado explícitamente; un entorno publicado no equivale a cambios en GitHub.
+Estado: implementación publicada en la rama GitHub [`codex/0.2.0-polish`](https://github.com/Guidomc15/GIGAhackaton/tree/codex/0.2.0-polish), commit de código `1158066`. `main` sigue en 0.1.9 hasta integrar los cambios. La API de GitHub devuelve Forbidden al crear el PR; no se publicó en Qollab. [Abrir la propuesta de integración](https://github.com/Guidomc15/GIGAhackaton/pull/new/codex/0.2.0-polish). Publicar un entorno, subir una rama e integrar en main son pasos distintos.
