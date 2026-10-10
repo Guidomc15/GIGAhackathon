@@ -1,3 +1,4 @@
+const {installAutoSkip}=require('./browser_support.cjs');
 const fs=require('node:fs');
 const path=require('node:path');
 const assert=require('node:assert/strict');
@@ -10,6 +11,7 @@ const {chromium} = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
   const browser = await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE_PATH,headless:true});
   try {
     const page = await browser.newPage({reducedMotion:'reduce'});
+    await installAutoSkip(page);
     page.setDefaultTimeout(12000);
     const errors = [];
     page.on('pageerror', e => errors.push(e.message));

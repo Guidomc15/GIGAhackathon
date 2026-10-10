@@ -10,12 +10,18 @@ import {MENU_ART} from './menu-art.js';
 import {REPOSITORY_URL,VERSION} from './config.js';
 import {gateLabel} from './gates.js';
 import {speechText} from './phrases.js';
-import {esc,card,sphere,circuitStrip,gateStyle,technical,preview,circuitStory,quantumReport,measurementCard,table,turnGuide,handSummary,gateHelp,quantumOptions} from './ui.js';
+import {preferences,savePreference} from './preferences.js';
+import {PresentationPlayer} from './presentation.js';
+import {SoundMixer} from './sound.js';
+import {rulesContent,lessonContent,noiseLesson,sourcesContent} from './learning.js';
+import {esc,card,sphere,circuitStrip,gateStyle,technical,preview,circuitStory,quantumReport,measurementCard,table,turnGuide,handSummary,gateHelp,quantumOptions,quantumStatus} from './ui.js';
 const stage=document.getElementById('stage');
 if(REPOSITORY_URL){const a=document.createElement('a');a.href=REPOSITORY_URL;a.textContent='Repositorio';a.target='_blank';a.rel='noopener';document.getElementById('repo').replaceChildren(a);}
 let view=null, screen='home', revealed=false, busy=false, samplePending=false, quantumOpen=false;
 let presentation=null, summaryOpen=false;
 let uiError=null;
+const player=new PresentationPlayer(),sound=new SoundMixer();
+let noiseRequest=null,noiseTime=performance.now(),noiseActive=false;
 const reducedMotion=()=>document.querySelector('.app-shell').classList.contains('reduced')||matchMedia('(prefers-reduced-motion: reduce)').matches;
 const delay=ms=>new Promise(resolve=>document.defaultView.setTimeout(resolve,reducedMotion()?0:ms));
 const api=async (name,arg)=>{
@@ -27,7 +33,7 @@ function focus(selector=null){
   const dialog=document.getElementById('composer-dialog');
   const target=selector?stage.querySelector(selector):null;
   if(target&&!target.disabled&&(!dialog||dialog.contains(target))){target.focus({preventScroll:true});return;}
-  if(dialog){if(!dialog.contains(document.activeElement))dialog.querySelector('button:not(:disabled)')?.focus();return;}
+  if(dialog){if(!dialog.contains(document.activeElement))dialog.querySelector('button:not(:disabled)')?.focus({preventScroll:true});return;}
   stage.focus({preventScroll:true});
 }
 function focusSelector(){
@@ -38,19 +44,56 @@ function focusSelector(){
   }
   return null;
 }
-async function showPresentation(effect, duration){
-  presentation=effect;render();focus();
-  try{await delay(duration);}finally{presentation=null;}
+function announcement(effect){
+  const g=view.game;
+  let body='',style='';
+  if(effect.type==='speech'){
+    const e=effect.event;style='speech-bubble';
+    body=`<p>${esc(g.names[e.player])}</p><h2>${esc(speechText(e))}</h2>${e.value!==undefined?`<p>${e.value} tantos</p>`:''}`;
+  }else if(effect.type==='measurement'){
+    const q=effect.q;style='measurement-announcement';
+    body=`<h2>La carta de ${esc(g.names[q.player])} se midió</h2>${measurementCard(q,true)}<p>Este resultado queda fijo durante la mano.</p>`;
+  }else if(effect.type==='points'){
+    const {event,gains}=effect;style='points-presentation';
+    const order=[0,1].sort((a,b)=>gains[b]-gains[a]);
+    body=`<p>${esc(event.text)}${event.gained!==event.points?` · Valor del canto: ${event.points}. Llegó a 15.`:''}</p>${order.map(p=>`<div class="point-row"><strong>+${gains[p]} ${gains[p]===1?'punto':'puntos'}</strong><span>${esc(g.names[p])}</span></div>`).join('')}`;
+  }else if(effect.type==='baza'){
+    const e=effect.event;style='baza-presentation';
+    body=`<h2>${e.winner===-1?'Baza empatada':`Ganó la baza ${esc(g.names[e.winner])}`}</h2><div class="baza-comparison">${e.cards.map((item,i)=>`<article>${card(item.card)}<p>${esc(g.names[item.player])}<br><strong>${esc(item.card.label)}</strong><br>Fuerza ${e.strengths[i]} de 14</p></article>`).join('')}</div><p>Gana la carta de mayor fuerza en la jerarquía del Truco; el número impreso no basta para compararlas.</p>`;
+  }
+  return `<section class="turn-presentation ${style}" role="dialog" aria-modal="true" aria-label="Aviso de la partida">${body}${player.controls()}</section>`;
+}
+async function showPresentation(effect, duration=null){
+  presentation=effect;
+  let layer=null;
+  if(duration===null){
+    layer=document.createElement('div');layer.id='presentation-layer';layer.innerHTML=announcement(effect);
+    stage.after(layer);layer.querySelector('[data-skip-presentation]').focus({preventScroll:true});
+    mountBloch(layer);mountFusionCards(layer);
+    layer.onkeydown=event=>{
+      if(event.key==='Escape'){event.preventDefault();player.finish();}
+      if(event.key==='Tab'){
+        const controls=[...layer.querySelectorAll('button')],index=controls.indexOf(document.activeElement);
+        event.preventDefault();controls[(index+(event.shiftKey?controls.length-1:1))%controls.length].focus({preventScroll:true});
+      }
+    };
+  }else{render();focus();}
+  if(effect.type==='speech')sound.speak(`${view.game.names[effect.event.player]}. ${speechText(effect.event)}`);
+  if(effect.type==='measurement')sound.speak(`La carta de ${view.game.names[effect.q.player]} es ${effect.q.result?effect.q.linked.label:effect.q.original.label}`);
+  if(effect.type==='points')sound.speak(`${view.game.names[effect.event.winner]} suma ${effect.event.gained??effect.event.points} puntos`);
+  try{if(duration===null)await player.wait(layer);else await delay(duration);}
+  finally{sound.stopVoice();layer?.remove();presentation=null;}
 }
 async function presentEvents(before){
   const g=view.game;
   const events=g.events.slice(before?.hand===g.hand?before.events.length:0);
   for(const event of events){
-    if(event.kind==='speech')await showPresentation({type:'speech',event},850);
-    if(event.kind==='measurement')await showPresentation({type:'measurement',q:event.measurement},1000);
+    if(event.kind==='speech')await showPresentation({type:'speech',event});
+    if(event.kind==='measurement')await showPresentation({type:'measurement',q:event.measurement});
+    if(event.cards&&event.strengths)await showPresentation({type:'baza',event});
     if(event.points){
       const gains=[0,0];gains[event.winner]=event.gained??event.points;
-      await showPresentation({type:'points',event,gains},950);
+      await showPresentation({type:'points',event,gains});
     }
   }
 }
@@ -69,11 +112,17 @@ async function showTurn(before, action, wasRevealed){
 }
 async function action(action,value=null){
   if(busy)return;
+  const finalNoise=updateNoise();
   busy=true;uiError=null;stage.setAttribute('aria-busy','true');
   const before=view.game?structuredClone(view.game):null, wasRevealed=revealed;
   const keep=['choose','edit','reveal'].includes(action),restoreFocus=keep?focusSelector():null;
   try{
-    if(!keep){revealed=false;stage.innerHTML='<section class="panel neutral"><p role="status">Preparando la mesa…</p></section>';}
+    await finalNoise;
+    if(!keep){
+      revealed=false;stage.classList.add('waiting');
+      document.getElementById('composer-dialog')?.close();
+      stage.querySelectorAll('button,input').forEach(control=>control.disabled=true);
+    }
     setView(await api('dispatch_json',JSON.stringify({action,value})));
     if(view.error){if(!view.private){revealed=false;quantumOpen=false;}return;}
     if(['confirm','new','guided'].includes(action))quantumOpen=false;
@@ -86,14 +135,45 @@ async function action(action,value=null){
       await showTurn(before,action,wasRevealed);
     }
   }catch(error){showError('No se pudo completar la acción. '+error.message);}
-  finally{busy=false;presentation=null;render();focus(restoreFocus);}
+  finally{busy=false;presentation=null;stage.classList.remove('waiting');render();focus(restoreFocus);resetNoiseClock();}
+}
+function resetNoiseClock(){
+  noiseTime=performance.now();
+  noiseActive=screen==='game'&&!busy&&!document.hidden&&!stage.querySelector('details[open]')&&revealed&&view?.development_mode&&view.game?.noise&&['play','respond','reassert'].includes(view.game.phase)&&view.private?.quantum?.result===null;
+}
+function updateNoise(){
+  if(noiseRequest)return noiseRequest;
+  const now=performance.now(),seconds=Math.min(5,Math.max(0,(now-noiseTime)/1000));
+  noiseTime=now;
+  if(!noiseActive||busy||document.hidden||seconds<.02)return Promise.resolve();
+  const {hand,actor}=view.game;
+  noiseRequest=(async()=>{
+    try{
+      const next=await api('dispatch_json',JSON.stringify({action:'noise_tick',value:{hand,player:actor,seconds}}));
+      if(!next.error&&screen==='game'&&view.game?.hand===hand&&view.game.actor===actor){
+        setView(next);
+        const q=next.private.quantum;
+        for(const bit of [0,1])stage.querySelectorAll(`[data-live-probability="${bit}"]`).forEach(el=>el.textContent=(100*q.preview.probabilities[bit]).toFixed(1).replace('.',',')+' %');
+        stage.querySelectorAll('[data-noise-seconds]').forEach(el=>el.textContent=q.preview.noise.seconds.toFixed(1).replace('.',',')+' s');
+        stage.querySelectorAll('.live-hand [data-fusion]').forEach(el=>{
+          const data=JSON.parse(el.dataset.fusion);data.probability=q.preview.probabilities[0];data.noise=true;el.dataset.fusion=JSON.stringify(data);
+        });
+        stage.querySelector('.quantum-status [data-live-bloch]')?.replaceChildren(document.createTextNode(q.preview.bloch.map((v,i)=>['X','Y','Z'][i]+'='+v.toFixed(3)).join(' · ')));
+        const cv=stage.querySelector('.quantum-status canvas');
+        if(cv){const data=JSON.parse(cv.dataset.bloch);data.vector=q.preview.bloch;data.noiseTrajectory=q.preview.noise_trajectory;cv.dataset.bloch=JSON.stringify(data);mountBloch(stage);}
+        mountFusionCards(stage);
+      }
+    }catch{/* A failed clock update is retried on the next visible decision; no invented sample. */}
+    finally{noiseRequest=null;noiseTime=performance.now();}
+  })();
+  return noiseRequest;
 }
 function showError(message){uiError=message;document.getElementById('notice').innerHTML=`<p class="error">${esc(message)}</p>`;}
 async function measure(){
   uiError=null;
   // Each result is consumed once; retry only queries the same in-flight job.
   do{
-    render();
+    if(!view.development_mode)render();
     setView(await api('start_json',typeof backend==='undefined'?null:backend));
     if(view.error)return;
     if(!view.mode.startsWith('LOCAL')){
@@ -119,6 +199,10 @@ function actionButtons(g){return `<div class="actions">${g.actions.filter(a=>a.i
 function bindActions(){stage.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>action(b.dataset.action));}
 function home(){
   stage.innerHTML=`<section class="start-menu" aria-label="Menú principal de Truco Cuántico"><img class="menu-art" src="${MENU_ART}" alt="" draggable="false"><h1 class="visually-hidden">Truco Cuántico</h1><div class="menu-controls"><button class="menu-hit menu-start" id="start"><span class="visually-hidden">Empezar Partida</span></button><button class="menu-hit menu-tutorial" id="learn"><span class="visually-hidden">Tutorial</span></button><button class="menu-hit menu-values" id="values"><span class="visually-hidden">Valores</span></button><button class="menu-hit menu-credits" id="menu-credits"><span class="visually-hidden">Créditos</span></button></div></section>${view.game?'<button class="resume-menu" id="resume">Retomar partida</button>':''}`;
+  stage.innerHTML+=`<section class="panel menu-settings"><h2>Sonido y lectura</h2><div class="mixer-controls"><label><input id="disable-voices" type="checkbox" ${preferences.voices?'':'checked'}> Desactivar voces</label><label>Volumen de voces<input id="voice-volume" type="range" min="0" max="100" value="${Math.round(preferences.voiceVolume*100)}"></label><label><input id="disable-music" type="checkbox" ${preferences.music?'':'checked'}> Desactivar música</label><label>Volumen de música<input id="music-volume" type="range" min="0" max="100" value="${Math.round(preferences.musicVolume*100)}"></label></div><p id="audio-status">${esc(sound.status())}</p><p>El sonido empieza al tocar un control. Música original generada en el navegador; las voces leen los cantos.</p><label>Idioma de las explicaciones / Learning language<select id="learning-language"><option value="es" ${preferences.language==='es'?'selected':''}>Español</option><option value="en" ${preferences.language==='en'?'selected':''}>English</option></select></label><p>Los avisos esperan tu <strong>Skip · Continuar</strong>. El botón ⏱ elige 1 s, 3 s, 7 s o avance manual.</p></section>`;
+  for(const [id,key] of [['disable-voices','voices'],['disable-music','music']])document.getElementById(id).onchange=e=>{savePreference(key,!e.target.checked);sound.apply();if(key==='music'&&preferences.music)sound.unlock();};
+  for(const [id,key] of [['voice-volume','voiceVolume'],['music-volume','musicVolume']])document.getElementById(id).oninput=e=>{savePreference(key,Number(e.target.value)/100);sound.apply();};
+  document.getElementById('learning-language').onchange=e=>{savePreference('language',e.target.value);};
   document.getElementById('start').onclick=()=>{screen='setup';render();focus();};
   document.getElementById('learn').onclick=()=>openTutorial();
   document.getElementById('values').onclick=()=>{screen='values';render();focus();};
@@ -133,7 +217,10 @@ function values(){
 }
 function setup(){
   stage.innerHTML=`<section class="panel"><h2>Compartir la mesa</h2><p>Sin Flor. Tres cartas por mano. Elegí cómo compartir el dispositivo.</p><form id="names"><div class="forms"><label>Jugador 1<input id="player-one" name="one" type="text" value="Alejo" maxlength="30" required autocomplete="off"></label><label>Jugador 2<input id="player-two" name="two" type="text" value="Belén" maxlength="30" required autocomplete="off"></label></div><p class="callout">${view.host_local?'Simulación local con Qiskit: podés jugar partidas completas, sin IonQ.':esc(view.mode)}</p><label><input id="dev-mode" type="checkbox" ${view.development_mode?'checked':''} ${view.host_local?'disabled':''}> Desarrollo local con Qiskit (no IonQ; permite una partida completa)</label>${view.host_local?'':'<p class="sphere-caption">IonQ es el modo por defecto en Qollab. Su límite comprobado de un job impide mediciones sucesivas; no se cambia de modo automáticamente.</p>'}<label class="privacy-option"><input id="privacy-mode" type="checkbox"> Jugar con privacidad</label><p class="sphere-caption">Activado: ocultamos la mano al pasar el dispositivo. Desactivado: el siguiente turno aparece directamente con las cartas que se dan vuelta.</p><button id="deal" class="primary" type="button">Repartir primera mano</button></form></section>`;
-  const deal=async()=>{if(busy)return;const names=['player-one','player-two'].map(id=>document.getElementById(id).value.trim());if(names.some(name=>!name)){showError('Escribí el nombre de ambos jugadores.');return;}const privacy=document.getElementById('privacy-mode').checked;const dev=document.getElementById('dev-mode').checked;await action('dev_mode',dev);screen='game';await action('new',{names,privacy});focus();};
+  const noiseLabel=document.createElement('label');noiseLabel.className='privacy-option';noiseLabel.innerHTML=`<input id="noise-mode" type="checkbox" ${view.development_mode?'checked':'disabled'}> Ruido cuántico educativo (simulación local)<span class="setting-help">Después de confirmar, mientras pensás tu turno, la carta pierde energía y coherencia. Se pausa en avisos, privacidad, menú y pestañas ocultas. Escala didáctica, no tiempos reales de IonQ.</span>`;
+  document.getElementById('deal').before(noiseLabel);
+  document.getElementById('dev-mode').onchange=e=>{const checkbox=document.getElementById('noise-mode');checkbox.disabled=!e.target.checked;checkbox.checked=e.target.checked;};
+  const deal=async()=>{if(busy)return;const names=['player-one','player-two'].map(id=>document.getElementById(id).value.trim());if(names.some(name=>!name)){showError('Escribí el nombre de ambos jugadores.');return;}const privacy=document.getElementById('privacy-mode').checked;const dev=document.getElementById('dev-mode').checked;const noise=document.getElementById('noise-mode').checked;await action('dev_mode',dev);if(view.error)return;screen='game';await action('new',{names,privacy,noise});focus();};
   document.getElementById('deal').onclick=deal;
   document.getElementById('names').onsubmit=event=>{event.preventDefault();deal();};
 }
@@ -177,7 +264,7 @@ function resultScreen(g){
   document.getElementById('view-summary').onclick=()=>{summaryOpen=true;render();stage.querySelector('.public-summary')?.scrollIntoView({block:'start',behavior:reducedMotion()?'instant':'smooth'});};
   document.getElementById('close-summary')?.addEventListener('click',()=>{summaryOpen=false;render();focus();});
   document.getElementById('again')?.addEventListener('click',()=>{screen='setup';render();});
-  document.getElementById('finish-tutorial')?.addEventListener('click',()=>{screen='home';render();});
+  document.getElementById('finish-tutorial')?.addEventListener('click',()=>{screen='tutorial';action('tutorial',view.tutorial.total-1);});
   document.getElementById('download')?.addEventListener('click',()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(g.history,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='truco-cuantico-informe.json';a.click();URL.revokeObjectURL(url);});
   bindActions();
 }
@@ -189,18 +276,6 @@ function game(){
     if(presentation.type==='flip'){
       stage.innerHTML+=`<p class="turn-banner" role="status">Turno de ${esc(g.names[g.actor])}</p>`+table(g,{art:TABLE_ART,cards:view.private?.cards,quantum:view.private?.quantum,prepare:g.phase==='prepare',faceDown:presentation.faceDown,flip:!presentation.faceDown});return;
     }
-    stage.innerHTML+=table(g,{art:TABLE_ART});
-    if(presentation.type==='speech'){
-      const e=presentation.event;
-      stage.innerHTML+=`<section class="turn-presentation speech-bubble" role="status"><p>${esc(g.names[e.player])}</p><h2>${esc(speechText(e))}</h2>${e.value!==undefined?`<p>${e.value} tantos</p>`:''}</section>`;
-    }else if(presentation.type==='measurement'){
-      const q=presentation.q;
-      stage.innerHTML+=`<section class="turn-presentation measurement-announcement"><h2>La carta de ${esc(g.names[q.player])} se midió</h2>${measurementCard(q,true)}<p>Este resultado queda fijo durante la mano.</p></section>`;
-    }else if(presentation.type==='points'){
-      const {event,gains}=presentation;
-      const order=[0,1].sort((a,b)=>gains[b]-gains[a]);
-      stage.innerHTML+=`<section class="turn-presentation points-presentation" role="status"><p>${esc(event.text)}${event.gained!==event.points?` · Valor del canto: ${event.points}. Llegó a 15.`:''}</p>${order.map(p=>`<div class="point-row"><strong>+${gains[p]} ${gains[p]===1?'punto':'puntos'}</strong><span>${esc(g.names[p])}</span></div>`).join('')}</section>`;
-    }
     return;
   }
   if(['match_end','hand_end'].includes(g.phase)){resultScreen(g);return;}
@@ -211,6 +286,7 @@ function game(){
   const priv=view.private||{};
   if(g.phase==='prepare'){editor(g,priv);return;}
   stage.innerHTML+=turnGuide(g,priv)+table(g,{art:TABLE_ART,cards:priv.cards,quantum:priv.quantum});
+  if(priv.quantum)stage.innerHTML+=quantumStatus(priv.quantum,g.names[g.actor]);
   if(g.envido)stage.innerHTML+=`<p class="callout">Envido: ${esc(g.names[0])} ${g.envido.values[0]} · ${esc(g.names[1])} ${g.envido.values[1]}. Ganó ${esc(g.names[g.envido.winner])}: +${g.envido.points}.</p>`;
   if(g.pending)stage.innerHTML+=`<section class="panel"><h2>Respuesta de ${esc(g.names[g.actor])}</h2><p>${esc(g.names[g.pending.proposer])} propone ${g.pending.kind==='envido'?g.pending.chain.map(c=>({envido:'Envido',real:'Real Envido',falta:'Falta Envido'}[c])).join(' → '):({2:'Truco',3:'Retruco',4:'Vale Cuatro'}[g.pending.level])}.</p></section>`;
   stage.innerHTML+=actionButtons(g)+`<details><summary>Línea temporal pública</summary><div class="timeline">${g.events.map(e=>`<p>${esc(e.kind==='speech'?speechText(e):e.text)} ${e.player!==undefined?'· '+esc(g.names[e.player]):''} ${e.points?'+ '+e.points+' puntos':''}</p>`).join('')}</div></details>`;
@@ -227,9 +303,10 @@ function game(){
 }
 async function openTutorial(){screen='tutorial';revealed=false;await action('tutorial',0);focus();}
 function tutorial(){
-  const t=view.tutorial;
-  stage.innerHTML=`<section class="panel"><p class="step-count">Lección ${t.index+1} de ${t.total}</p><h2>${esc(t.title)}</h2><p>${esc(t.text)}</p><div class="tutorial-grid">${t.previews.map((p,i)=>`<article class="panel">${preview(p)}${p.gates.length?`<details class="tutorial-story"><summary>Entender este circuito paso a paso</summary>${circuitStory(p)}</details>`:''}${t.sample?`<button data-sample="${i}" class="primary">${t.index===2?'Quiero el Envido de Bot Q':'Medir este experimento'}</button>`:''}</article>`).join('')}</div>${samplePending?'<p role="status" class="callout">Esperando medición. No se inventará un resultado.</p><button id="tutorial-retry">Consultar el mismo job</button>':''}${t.result?`<p class="callout" role="status">${esc(t.result.text)}</p><details><summary>Origen del resultado</summary><pre>${esc(JSON.stringify(t.result.record,null,2))}</pre></details>`:''}<div class="actions"><button id="back" ${t.index===0?'disabled':''}>Retroceder</button><button id="repeat">Repetir lección</button>${t.index<t.total-1?'<button id="forward" class="primary">Avanzar</button>':'<button id="guided" class="primary">Jugar mano guiada</button>'}<button id="skip">Saltar tutorial</button></div><p><label><input id="tutorial-dev" type="checkbox" ${view.development_mode?'checked':''} ${view.host_local?'disabled':''}> Modo de desarrollo local con Qiskit, sin IonQ</label></p><p class="sphere-caption">Repetir una lección prepara un experimento nuevo; no vuelve a medir una carta de partida.</p>${view.host_local?'':'<p class="sphere-caption">En Qollab IonQ admite un solo job: para completar todas las lecciones podés elegir el modo de desarrollo explícitamente.</p>'}</section>`;
+  const t=view.tutorial,content=lessonContent(t,preferences.language);
+  stage.innerHTML=`<section class="panel"><p class="step-count">Lección ${t.index+1} de ${t.total}</p>${explanationLanguage()}<h2>${esc(content.title)}</h2><p>${esc(content.text)}</p>${content.example?`<p class="callout">${esc(content.example)}</p>`:''}${content.technical?`<details class="lesson-technical"><summary>${preferences.language==='en'?'Technical detail':'Detalle técnico'}</summary><p>${esc(content.technical)}</p></details>`:''}${t.noise?noiseLesson(t.noise_seconds,preferences.language):''}<div class="tutorial-grid">${t.previews.map((p,i)=>`<article class="panel">${preview(p)}${p.gates.length?`<details class="tutorial-story"><summary>Entender este circuito paso a paso</summary>${circuitStory(p)}</details>`:''}${t.sample?`<button data-sample="${i}" class="primary">${t.index===2?'Quiero el Envido de Bot Q':'Medir este experimento'}</button>`:''}</article>`).join('')}</div>${samplePending?'<p role="status" class="callout">Esperando medición. No se inventará un resultado.</p><button id="tutorial-retry">Consultar el mismo job</button>':''}${t.result?`<p class="callout" role="status">${esc(t.result.text)}</p><details><summary>Origen del resultado</summary><pre>${esc(JSON.stringify(t.result.record,null,2))}</pre></details>`:''}<div class="actions"><button id="back" ${t.index===0?'disabled':''}>Retroceder</button><button id="repeat">Repetir lección</button>${t.index<t.total-1?'<button id="forward" class="primary">Avanzar</button>':''}${t.guided?'<button id="guided" class="primary">Jugar mano guiada</button>':''}<button id="skip">Saltar tutorial</button></div><p><label><input id="tutorial-dev" type="checkbox" ${view.development_mode?'checked':''} ${view.host_local?'disabled':''}> Modo de desarrollo local con Qiskit, sin IonQ</label></p><p class="sphere-caption">Repetir una lección prepara un experimento nuevo; no vuelve a medir una carta de partida.</p>${view.host_local?'':'<p class="sphere-caption">En Qollab IonQ admite un solo job: para completar todas las lecciones podés elegir el modo de desarrollo explícitamente.</p>'}</section>`;
   stage.querySelectorAll('[data-sample]').forEach(b=>b.onclick=()=>action('tutorial_sample',Number(b.dataset.sample)));
+  stage.querySelectorAll('[data-noise-experiment]').forEach(button=>button.onclick=()=>action('tutorial_noise',Number(button.dataset.noiseExperiment)));
   document.getElementById('tutorial-retry')?.addEventListener('click',retryMeasure);
   document.getElementById('tutorial-dev').onchange=e=>action('dev_mode',e.target.checked);
   document.getElementById('back').onclick=()=>action('tutorial',t.index-1);
@@ -238,11 +315,20 @@ function tutorial(){
   document.getElementById('skip').onclick=()=>{screen='setup';render();focus();};
   document.getElementById('guided')?.addEventListener('click',async()=>{screen='game';await action('guided','Vos');});
 }
-function rules(){
-  stage.innerHTML=`<article class="panel help"><h2>Cómo jugar</h2><p>Partida hasta 15 puntos, sin Flor. El jugador mano alterna. Cada jugador recibe tres cartas de seis parejas distintas: nunca aparece una carta y su ligada a la vez.</p><p>Elegí una carta: original |0⟩, ligada |1⟩. Espada ↔ copa; basto ↔ oro. Usá hasta tres de tus cuatro fichas. Confirmar bloquea el circuito; una medición fija la identidad hasta terminar la mano.</p><h3>Cantos</h3><p>Envido querido: 2; Real: 3; Envido+Envido: 4; Envido+Real: 5; Envido+Envido+Real: 7. Falta: 15 menos los puntos del perdedor. Rechazar la primera propuesta paga 1; rechazar un aumento paga el valor anterior. Solo aceptar mide cartas.</p><p>Envido se permite antes de terminar la primera baza, antes de aceptar Truco y una sola vez. Ante Truco pendiente, Envido va primero: se resuelve y el proponente reafirma Truco.</p><p>Truco, Retruco y Vale Cuatro queridos valen 2, 3 y 4; rechazados, 1, 2 y 3. Irse al mazo concede el valor aceptado, o 1 sin canto aceptado. Solo quien aceptó el nivel puede aumentar después.</p><h3>Envido automático</h3><p>Figuras valen 0. Dos cartas del mismo palo: las dos mayores más 20. Sin coincidencias: el mayor valor. Un empate lo gana el jugador mano. Se publican tantos, no cartas.</p><h3>Jerarquía, de mayor a menor</h3><p>1 espada; 1 basto; 7 espada; 7 oro; treses; doses; 1 copa/oro; doces; onces; dieces; 7 copa/basto; seises; cincos; cuatros.</p><h3>Pardas</h3><p>Primera parda: segunda define. Primera ganada y segunda parda: gana quien ganó primera. Una baza cada uno: tercera define; tercera parda favorece al ganador de primera. Dos primeras pardas: tercera define. Tres pardas: gana el jugador mano.</p><h3>Privacidad y lectura de la esfera</h3><p>Al iniciar podés elegir «Jugar con privacidad» para ocultar las cartas al pasar el dispositivo. Sin esa opción, los turnos cambian directamente con una animación. Los tantos de Envido se anuncian automáticamente; los empates favorecen a mano. Norte es |0⟩; sur, |1⟩. Las probabilidades son cuadrados de amplitudes; los porcentajes no describen una carta clásica escondida. Los puntos numerados y el texto acompañan la trayectoria. Podés reducir animaciones y usar teclado.</p><p>Estos modelos enseñan un qubit, fase, interferencia y medición. No enseñan entrelazamiento, ruido ni ventaja cuántica.</p></article>`;
+function explanationLanguage(){
+  return `<label class="explanation-language">Idioma / Language <select data-learning-language><option value="es" ${preferences.language==='es'?'selected':''}>Español</option><option value="en" ${preferences.language==='en'?'selected':''}>English</option></select></label>`;
 }
-function credits(){stage.innerHTML=`<article class="panel help"><h2>Créditos y estado · ${VERSION}</h2><button id="demo-button">Ver video de evidencia (56 s)</button><div id="demo-view"></div><p>This effort is supported by Qollab &amp; IonQ.</p><p>Fuente original producida durante la ventana autorizada del 9–11 de octubre de 2026 (ART). Licencia MIT. Compositor propio y estados calculados con Qiskit. La esfera interactiva adapta la visualización de <a href="https://qollab.xyz/u/qollab/interactive-bloch-sphere" target="_blank" rel="noopener">Interactive Bloch Sphere de Qollab</a>; reutilización y modificaciones declaradas en THIRD_PARTY_NOTICES.md. Diseños de las 40 cartas, menú y mesa aportados por el usuario; fondo de mesa preparado con la herramienta de imágenes; atribución y licencia detalladas en THIRD_PARTY_NOTICES.md.</p><p>Qiskit: Apache 2.0. NumPy: BSD 3-Clause. Dependencias y licencias completas en THIRD_PARTY_NOTICES.md. Herramienta de IA: OpenAI Codex, generación de código, documentación y pruebas; declarada, con revisión pendiente del autor.</p><p>El modo local utiliza Qiskit Statevector, no IonQ. La prueba mínima en el proyecto ejecutó un circuito H con un shot en IonQ Aria 1 simulator. El segundo envío fue rechazado por el límite de un job. Qollab documenta un solo job IonQ por ejecución; impide una partida completa con mediciones sucesivas bajo estas reglas.</p><p>Avance parcial: ver STATUS.md para publicación, repositorio y video verificados. No se afirma haber completado el MVP del hackathon.</p></article>`;document.getElementById('demo-button').onclick=async()=>{const d=await api('demo_json');if(d.error){showError(d.error);return;}document.getElementById('demo-view').innerHTML=`<video controls preload="metadata" style="width:100%;margin:20px 0" aria-label="Video de evidencia, con textos visibles" src="data:video/mp4;base64,${d.data}"></video><details><summary>Transcripción equivalente</summary><pre>${esc(d.transcript)}</pre></details>`;};}
+function rules(){
+  stage.innerHTML=explanationLanguage()+rulesContent(preferences.language);
+}
+function credits(){
+  stage.innerHTML=`<article class="panel help credits-page"><h2>Qriollo · ${VERSION}</h2><p class="credits-intro">Aprender cuántica jugando al Truco.</p><p>Un proyecto de <a href="${REPOSITORY_URL}" target="_blank" rel="noopener">Guidomc15</a>. El autor aportó los diseños del menú, la mesa y las cartas.</p><dl><dt>Motor cuántico</dt><dd>Qiskit: estados, compuertas, canales de ruido y mediciones.</dd><dt>Esfera interactiva</dt><dd>Adaptada de <a href="https://qollab.xyz/u/qollab/interactive-bloch-sphere" target="_blank" rel="noopener">Interactive Bloch Sphere, de Qollab</a>.</dd><dt>Música y voces</dt><dd>Música original generada en el navegador. Lectura de cantos con las voces disponibles en el dispositivo.</dd><dt>Desarrollo</dt><dd>Código, pruebas y documentación con asistencia de OpenAI Codex. Preparación del fondo con la herramienta de imágenes de OpenAI.</dd></dl><p>This effort is supported by Qollab &amp; IonQ.</p><p>Código original: MIT. Los recursos aportados y la esfera tienen avisos separados en <a href="${REPOSITORY_URL}/blob/main/THIRD_PARTY_NOTICES.md" target="_blank" rel="noopener">Third-party notices</a>.</p><details><summary>Video y funcionamiento técnico</summary><p>El video de 56 segundos documenta una versión anterior. La partida completa actual usa simulación local con Qiskit; la ejecución IonQ disponible en Qollab admite un solo job por sesión. El ruido educativo usa una matriz de densidad local, sin enviarse a IonQ.</p><button id="demo-button">Ver video histórico</button><div id="demo-view"></div></details></article>`;
+  document.getElementById('demo-button').onclick=async()=>{const d=await api('demo_json');if(d.error){showError(d.error);return;}document.getElementById('demo-view').innerHTML=`<video controls preload="metadata" aria-label="Video histórico con textos visibles" src="data:video/mp4;base64,${d.data}"></video><details><summary>Transcripción</summary><pre>${esc(d.transcript)}</pre></details>`;};
+}
 function render(){
+  const scroll={x:window.scrollX,y:window.scrollY};
+  stage.style.minHeight=screen==='game'?Math.max(0,scroll.y+innerHeight-stage.offsetTop-(document.querySelector('footer')?.offsetHeight||0))+'px':'';
+  stage.classList.remove('waiting');
   document.getElementById('notice').innerHTML=(uiError||view.error)?`<p class="error">${esc(uiError||view.error)}</p>`:'';
   document.querySelector('.app-shell').classList.toggle('landing',screen==='home');
   document.querySelector('.app-shell').classList.toggle('playing',screen==='game');
@@ -252,10 +338,18 @@ function render(){
   mountBloch(stage);
   mountFusionCards(stage);
   stage.setAttribute('aria-busy',String(busy));
-  if(busy)stage.querySelectorAll('button,input').forEach(control=>control.disabled=true);
+  if(busy)stage.querySelectorAll('button,input,select').forEach(control=>{if(!control.hasAttribute('data-skip-presentation')&&!control.hasAttribute('data-presentation-timer'))control.disabled=true;});
+  stage.querySelector('[data-learning-language]')?.addEventListener('change',event=>{savePreference('language',event.target.value);render();});
+  if(screen==='game')window.scrollTo({left:scroll.x,top:scroll.y,behavior:'instant'});
+  resetNoiseClock();
 }
 for(const id of ['home','tutorial','rules','credits'])document.getElementById(id).onclick=()=>{if(busy)return;revealed=false;if(id==='tutorial')openTutorial();else{screen=id;render();focus();}};
 document.getElementById('motion').onchange=e=>{document.querySelector('.app-shell').classList.toggle('reduced',e.target.checked);};
+document.addEventListener('pointerdown',()=>sound.unlock());
+document.addEventListener('keydown',event=>{if(['Enter',' '].includes(event.key))sound.unlock();});
+document.addEventListener('visibilitychange',()=>{resetNoiseClock();if(document.hidden)sound.pause();else if(sound.context)sound.unlock();});
+stage.addEventListener('toggle',()=>resetNoiseClock(),true);
+setInterval(()=>updateNoise(),1000);
 document.documentElement.style.setProperty('--table-art',`url("${TABLE_ART}")`);
 document.documentElement.style.setProperty('--cards-art',`url("${CARDS_ART}")`);
 try{setView(await api('dispatch_json',JSON.stringify({action:'public'})));render();}

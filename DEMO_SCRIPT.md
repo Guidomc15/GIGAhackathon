@@ -1,13 +1,12 @@
-# Short demonstration script (English, 60–90 seconds)
+# Live demonstration of 0.2.1 (English, 60–90 seconds)
 
-The delivered captioned evidence montage shows observed screens, not a fabricated live IonQ match. Its separate IonQ probe screen is clearly labeled. For the final live video, record the sequence below only after the multi-job blocker is resolved.
+The included 56-second video records an earlier version. The script below is for recording the current game. It is not evidence that a new video or a live IonQ match has been produced.
 
-1. **0–8s — Name/problem.** “Qriollo: Truco Cuántico teaches how a single-qubit state evolves, using the Argentine game Truco. Gates are state transformations, not fixed random powers.”
-2. **8–18s — Deal/privacy.** Show six collision-free pairs, two-step reveal, select one of three cards. “Original |0⟩, linked |1⟩; other cards remain classical.”
-3. **18–32s — Composer.** Show H→Z→H in the tutorial, probabilities and trajectory. “Z changes phase; the next H turns it into interference. Gate order matters.” Expand technical details.
-4. **32–45s — Envido.** Show Truco, Envido va primero, Quiero. Explain private measurements and public totals.
-5. **45–60s — Backend/result.** Show genuine IonQ backend name, job identifier, shots=1 and returned bit. Show collapse and reuse of fixed identity. **Until repeated IonQ jobs are allowed, say: “This separate one-qubit IonQ probe succeeded; the full game is demonstrated in explicitly labeled local development mode.”**
-6. **60–72s — Analysis.** Show original/linked identity, prefixes, unused tokens and a card that ended unmeasured. Do not reveal private opponent information mid-match.
-7. **72–90s — Credits.** Show verified repository and Qollab links, MIT, AI/third-party disclosure and “This effort is supported by Qollab & IonQ.” State the one-job blocker honestly.
+1. **0–12 s — Introduction.** “Qriollo teaches quantum computing through Argentine Truco. Learn the rules in English, then play a two-player game or practice with Bot Q.” Show the explanation language selector and the basic rules.
+2. **12–28 s — State and gates.** In the tutorial, show H→Z→H. “A qubit has two measurement outcomes. Gates change amplitudes and phase; their order matters. A 50% chance does not guarantee five successes in ten tries.” Open the technical details if time permits.
+3. **28–45 s — Noise.** Show the final lesson at 0 and 30 seconds. “Interaction with the environment can remove energy and coherence. This Qiskit model uses a density matrix and an educational time scale. The displayed probabilities are the ones sampled; this is local simulation.” Point out the path inside the Bloch sphere.
+4. **45–62 s — Play.** Show the two white identity/probability rows, then a call and its reply. “Skip advances each notice. The timer cycles through one, three and seven seconds, then manual. Notices pause the noise clock.” Show the music and voice controls when returning to the menu.
+5. **62–78 s — Result.** Play a quantum card, read its fixed identity, then show a hand result and the optional public summary. Explain why the winning card has higher Truco strength.
+6. **78–90 s — Credits.** Show the repository and credits. “Built with Qiskit and assistance from Codex, with an interactive Bloch sphere adapted from Qollab. This effort is supported by Qollab & IonQ.”
 
-Accessibility: captions remain onscreen long enough to read; no audio is required; a text transcript accompanies the video. Keep animations brief or reduced. The final hackathon demonstration must show the compliant normal IonQ execution path, not just a separate probe.
+Use readable captions and the accompanying rules as context. Music and browser voices are optional. If demonstrating IonQ, disable local noise, label the backend and show only the actual returned result. The previously observed Qollab limit is one job per execution; a complete live hardware match has not been verified.

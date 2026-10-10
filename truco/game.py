@@ -11,12 +11,14 @@ LABELS = {'envido':'Envido', 'real':'Real Envido', 'falta':'Falta Envido',
           'next':'Nueva mano'}
 
 class Game:
-    def __init__(self, names, rng=None, privacy=False):
+    def __init__(self, names, rng=None, privacy=False, noise=False):
         if not isinstance(names, (list, tuple)) or len(names) != 2 or any(not isinstance(n,str) or not n.strip() or len(n)>30 for n in names):
             raise ValueError('Ingresá dos nombres de hasta 30 caracteres')
         self.names = [n.strip() for n in names]
         if type(privacy) is not bool: raise ValueError("Privacidad inválida")
         self.privacy = privacy
+        if type(noise) is not bool: raise ValueError('Ruido inválido')
+        self.noise = noise
         self.rng = rng or random.SystemRandom()
         self.scores = [0,0]
         self.mano = self.rng.randrange(2)
@@ -54,7 +56,7 @@ class Game:
         q = self.q[player]
         return card.linked() if q is not None and q.index == index and q.result == 1 else card
     def can_envido(self):
-        return not self.envido_done and not self.bazas and self.stake == 1
+        return not self.envido_done and not self.bazas and self.stake == 1 and not self.played[self.actor]
     def legal(self):
         if self.phase == 'prepare': return ['choose','edit','confirm']
         if self.phase == 'play':
@@ -80,7 +82,7 @@ class Game:
         p = self.actor
         if action == 'choose':
             if type(value) is not int or not 0 <= value < 3: raise ValueError('Carta inválida')
-            self.q[p] = QuantumCard(value, self.tokens[p])
+            self.q[p] = QuantumCard(value, self.tokens[p], noise_enabled=self.noise)
         elif action == 'edit':
             if self.q[p] is None: raise ValueError('Elegí una carta')
             self.q[p].edit(value)
@@ -244,7 +246,7 @@ class Game:
                 'bazas':self.bazas,'table':self.table,'pending':self.pending,
                 'envido':self.envido_result,'events':self.events,
                 'actions':[{'id':a,'label':LABELS.get(a,a),'hint':self.action_hint(a)} for a in self.legal() if a not in ('choose','edit','play')],
-                'winner':self.winner, 'privacy':self.privacy}
+                'winner':self.winner, 'privacy':self.privacy, 'noise':self.noise}
         if self.last_public_measurement and self.phase != 'measure':
             # The explicit public-play exception discloses circuit and preview, never tokens.
             data['public_measurement'] = {k:v for k,v in self.last_public_measurement.items() if k in ('player','original','linked','preview','result','record')}
@@ -260,7 +262,7 @@ class Game:
             if self.pending['kind'] == 'truco':
                 return f"La mano pasa a valer {self.pending['level']} puntos. Después se sigue jugando."
             chain = self.pending['chain']
-            stake = '15 menos el puntaje del perdedor' if chain[-1] == 'falta' else str(envido_value(chain))
+            stake = str(15-max(self.scores)) if chain[-1] == 'falta' else str(envido_value(chain))
             return f'El ganador suma {stake} puntos. Se miden las cartas cuánticas que aún no se midieron.'
         if action == 'reject':
             pending = self.pending
@@ -275,7 +277,7 @@ class Game:
             return f'Si el rival acepta, la mano vale {points} puntos; si rechaza, ganás {points-1}.'
         if action in ('envido','real','falta'):
             chain = self.pending['chain'] + [action] if self.pending and self.pending['kind'] == 'envido' else [action]
-            if action == 'falta': return 'Si acepta: 15 menos el puntaje del perdedor. Se define con los tantos.'
+            if action == 'falta': return f'Si acepta: {15-max(self.scores)} puntos, lo que le falta a quien va adelante para llegar a 15. Se define con los tantos.'
             return f'Si acepta: {envido_value(chain)} puntos por los tantos, aparte de la mano.'
         return {'reassert':'El rival debe responder al Truco que quedó pendiente.',
                 'next':'Se reparten tres cartas nuevas y cambia el jugador mano.'}.get(action, '')

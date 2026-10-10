@@ -64,7 +64,16 @@ def demo_json():
 '''
 
 
-def build(output=None, check=False):
+def upload_files():
+    files = [*sorted(ROOT.glob('*.js')), ROOT / 'main.css', ROOT / 'index.html',
+             ROOT / 'qollab_engine.py', ROOT / 'requirements.txt', ROOT / 'LICENSE',
+             ROOT / 'QOLLAB_UPDATE.md', ROOT / 'THIRD_PARTY_NOTICES.md', ROOT / 'DEMO_SCRIPT.md',
+             ROOT / 'artifacts' / 'truco-cuantico-demo.mp4',
+             ROOT / 'artifacts' / 'DEMO_TRANSCRIPT.txt']
+    return [file for file in files if file.name != 'local-engine.js']
+
+
+def build(output=None, check=False, verify_zip=None):
     source = engine_source()
     engine = ROOT / 'qollab_engine.py'
     if check:
@@ -75,22 +84,28 @@ def build(output=None, check=False):
     if output:
         output = Path(output)
         output.parent.mkdir(parents=True, exist_ok=True)
-        files = [*sorted(ROOT.glob('*.js')), ROOT / 'main.css', ROOT / 'index.html',
-                 engine, ROOT / 'requirements.txt', ROOT / 'LICENSE', ROOT / 'QOLLAB_UPDATE.md',
-                 ROOT / 'THIRD_PARTY_NOTICES.md', ROOT / 'DEMO_SCRIPT.md',
-                 ROOT / 'artifacts' / 'truco-cuantico-demo.mp4',
-                 ROOT / 'artifacts' / 'DEMO_TRANSCRIPT.txt']
+        files = upload_files()
         # The HTTP bridge is only for local development, never part of Qollab.
         files = [file for file in files if file.name != 'local-engine.js']
         with zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED) as archive:
             for file in files:
                 archive.write(file, file.name)
         print(f'Flat Qollab upload: {output} ({len(files)} root files)')
+    if verify_zip:
+        with zipfile.ZipFile(verify_zip) as archive:
+            files=upload_files()
+            if sorted(archive.namelist()) != sorted(file.name for file in files):
+                raise SystemExit('Qollab ZIP has missing, extra or duplicate files; rebuild it')
+            for file in files:
+                if archive.read(file.name) != file.read_bytes():
+                    raise SystemExit(f'Qollab ZIP is stale: {file.name}; rebuild it')
+        print(f'Verified Qollab ZIP: {verify_zip}')
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--check', action='store_true')
     parser.add_argument('--zip', help='Optional flat upload ZIP destination')
+    parser.add_argument('--verify-zip', help='Verify an existing upload matches current files')
     options = parser.parse_args()
-    build(options.zip, options.check)
+    build(options.zip, options.check, options.verify_zip)

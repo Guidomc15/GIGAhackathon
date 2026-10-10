@@ -29,6 +29,7 @@ export function mountFusionCards(root){
         probability=(1+data.trajectory[Math.floor(state.frame)][2])/2;
         const segment=data.segments?.find(s=>state.frame>=s.start&&state.frame<=s.end);
         color=GATE_COLORS[segment?.gate]||color;
+        if(data.noise&&state.frame>=data.trajectory.length-1)probability=data.probability;
       }
       probability=Math.max(0,Math.min(1,probability));
       const amplitude=reduced()?0:Math.min(probability,1-probability)*7;

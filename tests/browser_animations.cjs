@@ -1,3 +1,4 @@
+const {installAutoSkip}=require('./browser_support.cjs');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
@@ -9,6 +10,7 @@ fs.mkdirSync(output,{recursive:true});
  const browser=await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE_PATH,headless:true});
  try{
   const page=await browser.newPage({viewport:{width:1280,height:920},reducedMotion:'no-preference'});
+  await installAutoSkip(page);
   const errors=[];page.on('pageerror',e=>errors.push(e.message));page.setDefaultTimeout(15000);
   const idle=()=>page.waitForFunction(()=>document.querySelector('#stage')?.getAttribute('aria-busy')==='false');
   const click=async s=>{await idle();await page.locator(s).click();await idle();};
@@ -21,8 +23,8 @@ fs.mkdirSync(output,{recursive:true});
     let type=el?.classList.contains('speech-bubble')?'speech':el?.classList.contains('points-presentation')?'points':el?'measurement':document.querySelector('.flipping-hand')?'flip-faces':document.querySelector('.live-hand .card-back')?'flip-backs':document.querySelector('.outcome')?'outcome':null;
     if(!type)return;
     const key=type+':'+(el?.innerText||'');
-    if(window.presentations.at(-1)?.key!==key)window.presentations.push({key,type,text:el?.innerText||'',visiblePrivate:!!document.querySelector('.live-hand .card-face'),rows:[...document.querySelectorAll('.point-row')].map(e=>e.innerText)});
-   }).observe(document.querySelector('#stage'),{childList:true,subtree:true});
+    if(window.presentations.at(-1)?.key!==key)window.presentations.push({key,type,text:el?.innerText||'',visiblePrivate:[...document.querySelectorAll('.live-hand .card-face')].some(face=>getComputedStyle(face).visibility!=='hidden'),rows:[...document.querySelectorAll('.point-row')].map(e=>e.innerText)});
+   }).observe(document.querySelector('.app-shell'),{childList:true,subtree:true});
   });
   const prepare=async privacy=>{
    await click('#start');if(privacy)await page.locator('#privacy-mode').check();await click('#deal');
@@ -38,7 +40,7 @@ fs.mkdirSync(output,{recursive:true});
   await prepare(false);await click('[data-action="envido"]');
   assert.equal(await page.locator('.live-hand .card').count(),3);
   const envidoClick=page.locator('[data-action="accept"]').click();await envidoClick;
-  await page.locator('.speech-bubble h2').waitFor();await page.screenshot({path:path.join(output,'envido-dialogue.png')});await idle();
+  await page.waitForFunction(()=>window.presentations.some(e=>e.type==='speech'));await page.screenshot({path:path.join(output,'envido-dialogue.png')});await idle();
   const envido=(await state()).game.envido;
   const speeches=(await page.evaluate(()=>window.presentations)).filter(e=>e.type==='speech');
   assert(speeches.some(e=>/Quiero,/.test(e.text)));

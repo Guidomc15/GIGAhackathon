@@ -1,19 +1,13 @@
-# Judging summary — Qriollo / Truco Cuántico
+# Qriollo · resumen técnico 0.2.1
 
-## Novelty and Creativity
+El juego conecta un circuito de un qubit con decisiones concretas de Truco: cambiar el palo altera fuerza y combinaciones de Envido, sin agregar puntos artificiales por usar compuertas. El tutorial presenta ejemplos, orden de operaciones, fase e interferencia, y una experiencia final con ruido educativo.
 
-An original pairing of Argentine Truco and a constrained quantum composer. Card identities influence strength and Envido suit combinations; therefore phase, ordering and interference can change decisions. H→Z→H illustrates converting a phase difference into a deterministic ideal outcome. H→X versus X→H shows that identical Z percentages do not mean identical states.
+Qiskit calcula prefijos ideales, trayectorias, canales de Kraus, matrices de densidad y muestreos reales. La interfaz enseña de forma gradual: explicaciones accesibles, detalle técnico opcional, avisos controlados, tipografía legible y reglas/lecciones en español e inglés.
 
-## Technical Execution
+Las 46 pruebas Python verifican reglas, estado, privacidad, medición única, ruido físico válido, coherencia entre probabilidades vistas y muestreadas, partidas completas y adaptador remoto con dobles. Chromium local verifica interfaz, controles, sonido, scroll y partidas. [Alcance de la evidencia](TESTING.md).
 
-Real Qiskit circuits and Statevector prefixes drive amplitudes, probabilities and Bloch trajectories. Rules and privacy use separate state projections. Automated tests cover the hierarchy, collisions, pardas, Envido chains, Falta, accepted/refused Truco levels, measurement persistence, illegal actions and complete local matches. A real application tutorial X measurement and a separate one-qubit H probe completed in Qollab's IonQ Aria 1 simulator with shots=1. The second submission was rejected: repeated, on-demand IonQ measurements across a full match remain blocked. The provider adapter is not claimed as fully validated merely because its mocks pass.
+El arranque de 0.2.1 en Qollab y una partida completa nueva IonQ no están verificados. La aplicación no afirma ventaja cuántica ni enseña entrelazamiento; son dos qubits independientes, uno por jugador.
 
-## Impact Potential
-
-A familiar cultural game makes otherwise abstract quantum-state behavior discussable in classrooms and workshops. Two-player local use enables discussion; simple and technical views serve different levels. The project deliberately avoids entanglement, advantage and physical-card superposition claims.
-
-## Documentation Quality
-
-Reproduction instructions, official runtime references, tests, compatibility evidence, licensing and AI disclosure accompany the source. Guided lessons use real samples with adaptive text. Private hand analysis and a final timeline explain both measured and unmeasured cards. A captioned evidence video distinguishes local development from the verified IonQ probe. Remaining platform and publication checks are explicit in STATUS.md.
+Fuente pública de desarrollo, entrega plana, documentación vigente y tags para recuperación. Esfera de Qollab, arte y asistencia de IA declarados en [avisos](THIRD_PARTY_NOTICES.md).
 
 This effort is supported by Qollab & IonQ.

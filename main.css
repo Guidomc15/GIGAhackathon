@@ -130,3 +130,131 @@ nav{margin:13px 0}nav button{border:2px ridge #84704c;background:#2b241a;color:#
 @keyframes point-rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
 @keyframes flip-face{from{transform:perspective(500px) rotateY(-90deg);opacity:0}to{transform:perspective(500px) rotateY(0);opacity:1}}
 @media(max-width:700px){.playing dialog.quantum-composer{padding:50px 12px 18px}.quantum-options{gap:9px;margin:14px auto}.quantum-option{padding:12px 7px}.quantum-option .card{width:96px}.quantum-option h3{font-size:15px}.option-probability{font-size:27px}.composer-intro{font-size:13px}.circuit-workbench{padding:12px 8px}.circuit-workbench .composer-sphere{max-width:220px}.quantum-composer .circuit-slots{grid-template-columns:27px repeat(3,minmax(0,1fr)) 29px;gap:4px}.measurement-symbol{font-size:23px}.circuit-position strong{font-size:11px}.gate-rack .gate-R span{font-size:12px}.player-summaries{grid-template-columns:1fr}.turn-presentation{padding:20px}.turn-presentation .measurement-result>.fusion-card{width:110px;height:176px}.point-row strong{font-size:29px}}
+
+/* 0.2.1: readable tables, stable transitions and player-controlled announcements. */
+html{scrollbar-gutter:stable;overflow-anchor:none}
+body{font-size:18px}
+button,input,select,summary{font-size:17px}
+button,input,select{min-height:44px}
+input[type=checkbox]{min-height:0;width:20px;height:20px;accent-color:#a8f3c4;vertical-align:middle}
+select{color:#fff;background:#172b20;border:1px solid #8bb49c;padding:8px;max-width:100%;border-radius:6px}
+label{line-height:1.5}
+nav .motion,.mode,.playing nav button,.playing .mode{font-size:15px}
+.playing .brand .eyebrow{font-size:13px}
+.turn-guide,.hand-summary,.turn-guide details{font-size:17px;line-height:1.6}
+.turn-guide h2,.hand-summary h3{font-size:22px}
+.round-meta{font-size:17px}
+.app-shell.landing{max-width:1100px}
+.menu-settings{margin:16px;color:#fff;font:17px/1.6 system-ui}
+.menu-settings h2{font-size:25px}
+.mixer-controls{display:grid;grid-template-columns:1fr 1fr;gap:14px 24px}
+.mixer-controls label{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.mixer-controls input[type=range]{width:100%;accent-color:#b0edc6}
+.setting-help{display:block;font-size:16px;font-weight:normal;margin-top:8px}
+.explanation-language{display:flex;gap:12px;align-items:center;justify-content:flex-end;margin:12px 0;font-family:system-ui}
+.help.rules-guide,.credits-page{font:18px/1.7 system-ui;max-width:900px}
+.rules-guide h3{font-size:24px;margin-top:30px}
+.rules-guide li{margin:10px 0}
+.reading-table{overflow:auto}
+.reading-table table{width:100%;border-collapse:collapse;font-size:17px}
+.reading-table th,.reading-table td{padding:12px;text-align:left;border-bottom:1px solid #839986}
+.credits-intro{font-size:26px;color:#c6f6d8}
+.credits-page dl{display:grid;grid-template-columns:180px 1fr;gap:16px}
+.credits-page dt{font-weight:bold;color:#c6f6d8}
+.credits-page dd{margin:0}
+.credits-page video{max-width:100%;margin-top:16px}
+.sphere-caption,.composer-sphere .sphere-caption,.composer-controls .sphere-caption,.bloch-credit,.composer-sphere .bloch-credit,.circuit-preview>.sphere-caption{font:16px/1.6 system-ui}
+.composer-intro,.composer-controls,.composer-controls summary,.gate-rack p{font-size:17px}
+.composer-sphere .interactive-bloch,.circuit-workbench .composer-sphere,.circuit-workbench .interactive-bloch,.circuit-preview .interactive-bloch{max-width:360px}
+.circuit-position strong,.gate-rack .gate-R span{font-size:16px}
+.quantum-option .pill,.quantum-option h3{font-size:17px}
+.option-probability{font-size:34px}
+.table-scene{max-width:1000px;aspect-ratio:4/3.5;margin:16px auto}
+.table-status{top:1%;bottom:auto;left:4%;right:4%;font:700 18px/1.4 system-ui;color:#fff;background:#10271adb;padding:5px;border-radius:5px}
+.table-scene .scoreboard{top:8%;left:4%;width:25%;padding:9px}
+.scoreboard h2{font-size:20px}
+.score-name{font-size:16px}
+.scoreboard strong{font-size:28px}
+.scoreboard strong small,.score-sign{font-size:14px}
+.seat-name{font-size:20px;margin-bottom:10px;color:#fff}
+.opponent-hand{top:8%;left:37%;width:52%}
+.opponent-hand .card-back{width:80px;height:128px}
+.played-bazas{left:32%;top:30%;width:62%;height:39%;gap:12px}
+.baza-column{grid-template-rows:44px 1fr 1fr;gap:8px}
+.baza-label{font:16px/1.3 system-ui;color:#fff}
+.played-slot{min-height:130px}
+.played-slot .card{width:80px;height:128px;min-height:128px;pointer-events:none}
+.empty-slot{width:76px;height:124px}
+.live-hand{left:29%;width:64%;bottom:5%}
+.live-hand .card{width:30%;height:auto;min-height:0;aspect-ratio:78/125}
+/* Keep the hit area still: moving a hovered card can repeatedly remove hover. */
+.live-hand .card,.live-hand .card:first-child,.live-hand .card:last-child,.live-hand .card:hover{transform:none}
+.live-hand .card-note{font-size:13px;padding:5px}
+.activate-quantum{font-size:19px;left:3%;width:24%;bottom:8%}
+.quantum-status{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,340px);gap:24px;margin:16px 0;padding:22px;background:#11261fec;border:1px solid #90b79e;border-radius:12px;color:#fff;font:17px/1.6 system-ui}
+.quantum-status h3{font-size:24px;margin:0 0 12px}
+.identity-probabilities{display:grid;gap:8px}
+.identity-probabilities p{margin:0;display:flex;justify-content:space-between;gap:14px;padding:10px 14px;border:1px solid #788f80;border-radius:6px;background:#071c12;color:#fff;font-size:21px}
+.identity-probabilities span{white-space:nowrap;font-weight:bold;color:#fff}
+.live-state-sphere{min-width:0}
+.live-state-sphere .interactive-bloch{max-width:320px}
+.turn-presentation{pointer-events:auto;max-height:90svh;overflow:auto;width:min(580px,94vw);padding:24px}
+.turn-presentation p{font-size:19px;line-height:1.6}
+.presentation-controls{display:flex;justify-content:center;gap:12px;margin-top:22px;position:sticky;bottom:-24px;background:#15291f;padding:12px 0;z-index:3}
+.presentation-controls button{font-size:18px;min-height:48px;min-width:90px}
+.presentation-controls [data-presentation-timer]{font-variant-numeric:tabular-nums}
+.baza-comparison{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.baza-comparison article{min-width:0}
+.baza-comparison .card{margin:12px auto;width:95px;height:152px}
+.baza-comparison p{font-size:17px}
+.waiting .live-hand,.waiting .quantum-status,.waiting #composer-dialog{visibility:hidden}
+.noise-lesson{padding:18px;background:#243023;border:1px solid #c9b57c;border-radius:8px;margin:18px 0}
+.noise-lesson [aria-pressed=true]{outline:3px solid #b2f4cb}
+.played-slot .measurement-result>.fusion-card{width:80px;height:128px}
+.played-slot .measurement-result{width:80px;height:128px}
+.scoreboard .match-tallies{display:none}
+.scoreboard strong{white-space:nowrap}
+.quantum-status:has(.live-state-sphere:not([open])){grid-template-columns:1fr;gap:12px}
+.live-state-sphere summary{font-size:17px}
+.live-state-sphere[open] .interactive-bloch{margin-top:15px}
+@media(max-width:700px){
+  body{font-size:17px}
+  .menu-settings{margin:10px;padding:16px}
+  .mixer-controls{grid-template-columns:1fr}
+  .credits-page dl{grid-template-columns:1fr;gap:8px}
+  .credits-page dd{margin-bottom:12px}
+  .table-scene{aspect-ratio:auto;min-height:620px}
+  .table-status{font-size:16px;top:8px;left:2%;right:2%}
+  .table-scene .scoreboard{top:60px;left:3%;width:33%;padding:6px}
+  .scoreboard h2{font-size:17px}
+  .score-name{font-size:14px}
+  .scoreboard strong{font-size:21px}
+  .scoreboard strong small{font-size:11px}
+  .opponent-hand{top:68px;left:38%;width:58%}
+  .opponent-hand .card-back{width:54px;height:86px}
+  .seat-name{font-size:18px;line-height:1.4}
+  .played-bazas{top:210px;left:6%;width:88%;height:242px;gap:8px}
+  .baza-column{grid-template-rows:40px 96px 96px;gap:6px}
+  .baza-label{font-size:15px}
+  .played-slot{min-height:96px}
+  .played-slot .card,.played-slot .measurement-result,.played-slot .measurement-result>.fusion-card{width:60px;height:96px;min-height:96px}
+  .empty-slot{width:56px;height:90px}
+  .table-deck{display:none}
+  .live-hand{left:5%;width:90%;bottom:46px}
+  .live-hand .card{width:30%;height:112px;min-height:112px;max-width:80px}
+  .activate-quantum{bottom:8px;left:12%;width:76%;font-size:17px;display:flex;align-items:center;justify-content:center;gap:10px}
+  .activate-quantum>span{width:32px;height:32px;margin:0;border-width:2px;font-size:24px}
+  .activate-quantum br{display:none}
+  .quantum-ornament{display:none}
+  .quantum-status{grid-template-columns:1fr;padding:16px;gap:18px}
+  .identity-probabilities p{font-size:18px;padding:10px}
+  .turn-guide,.hand-summary,.turn-guide details{font-size:16px}
+  .turn-guide h2,.hand-summary h3{font-size:20px}
+  .composer-intro,.composer-controls,.composer-controls summary,.gate-rack p{font-size:16px}
+  .composer-sphere .sphere-caption,.composer-sphere .bloch-credit{font-size:16px}
+  .circuit-position strong,.gate-rack .gate-R span{font-size:14px}
+  .turn-presentation{padding:18px}
+  .turn-presentation p{font-size:17px}
+  .presentation-controls{bottom:-18px;gap:8px}
+  .presentation-controls button{font-size:16px}
+}

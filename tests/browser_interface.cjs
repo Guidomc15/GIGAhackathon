@@ -1,3 +1,4 @@
+const {installAutoSkip}=require('./browser_support.cjs');
 const fs=require('node:fs');
 const path=require('node:path');
 const output=process.env.ARTIFACT_DIR || '/tmp/truco-browser-checks';
@@ -9,8 +10,10 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
   const browser=await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE_PATH,headless:true});
   try{
     const page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});
+    await installAutoSkip(page);
     page.setDefaultTimeout(12000);
-    const errors=[];page.on('pageerror',e=>errors.push(e.message));
+    await installAutoSkip(page);
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
     const idle=()=>page.waitForFunction(()=>document.querySelector('#stage')?.getAttribute('aria-busy')==='false');
     const click=async selector=>{await idle();await page.locator(selector).click();await idle();};
     const noOverflow=async()=>assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Horizontal page overflow');

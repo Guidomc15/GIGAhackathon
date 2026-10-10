@@ -70,8 +70,17 @@ assert 'Qiskit Statevector' in result['record']['backend']
 assert measure()['tutorial']['result'] == result
 assert json.loads(engine.poll_json())['done']
 
-view = action('new', {'names': ['Ana', 'Luis'], 'privacy': True})
+action('tutorial', 6)
+noisy = action('tutorial_noise', 60)['tutorial']['previews'][0]
+action('tutorial_sample', 0)
+sample = measure()['tutorial']['result']
+assert 'DensityMatrix' in sample['record']['method']
+assert sample['record']['noise']['probabilities'] == noisy['probabilities']
+assert sample['record']['noise']['seconds'] == 60
+
+view = action('new', {'names': ['Ana', 'Luis'], 'privacy': True, 'noise': True})
 assert view['game']['privacy']
+assert view['game']['noise']
 assert 'private' not in view
 assert len(action('reveal')['private']['cards']) == 3
 measurements = 0
@@ -90,6 +99,11 @@ for step in range(500):
         view = measure()
         measurements += 1
     elif phase == 'play':
+        before = action('reveal')['private']['quantum']
+        private = action('noise_tick', {'hand': view['game']['hand'],
+                                      'player': view['game']['actor'], 'seconds': 3})
+        seconds = private['private']['quantum']['preview']['noise']['seconds']
+        assert seconds == before['preview']['noise']['seconds'] + (3 if before['result'] is None else 0)
         legal = [item['id'] for item in view['game']['actions']]
         view = action('envido' if 'envido' in legal else 'fold')
     elif phase == 'hand_end':

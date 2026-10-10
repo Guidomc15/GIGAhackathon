@@ -3,7 +3,7 @@ import json
 import platform
 import qiskit
 from .game import Game
-from .quantum import LocalSampler, preview
+from .quantum import LocalSampler, preview, noise_view
 from .remote import RemoteMeasurement
 from .tutorial import LESSONS
 
@@ -16,6 +16,7 @@ class Session:
         self.tutorial_index = 0
         self.tutorial_result = None
         self.tutorial_pending = None
+        self.tutorial_noise_seconds = 30
         self.guided = False
         self.error = None
         self.errors = []
@@ -30,7 +31,8 @@ class Session:
             if private: result['private'] = self.game.private_view()
         lesson = LESSONS[self.tutorial_index]
         result['tutorial'] = {**lesson,'index':self.tutorial_index,'total':len(LESSONS),
-                              'previews':[preview(c) for c in lesson['circuits']],
+                              'previews':[noise_view(c,self.tutorial_noise_seconds) if lesson.get('noise') else preview(c) for c in lesson['circuits']],
+                              'noise_seconds':self.tutorial_noise_seconds,
                               'result':self.tutorial_result, 'pending':self.tutorial_pending is not None}
         return result
     def bot(self):
@@ -59,11 +61,13 @@ class Session:
                 raise ValueError('Consultá el resultado IonQ pendiente antes de cambiar el modo de medición.')
             self.local = value
         elif action == 'new':
-            game = Game(value.get('names'), privacy=value.get('privacy', False)) if isinstance(value, dict) else Game(value)
+            if isinstance(value,dict) and value.get('noise',False) and not self.local:
+                raise ValueError('El ruido educativo requiere simulación local con Qiskit; no se agrega a IonQ.')
+            game = Game(value.get('names'), privacy=value.get('privacy', False), noise=value.get('noise',False)) if isinstance(value, dict) else Game(value)
             self.guided = False
             self.game = game
         elif action == 'guided':
-            game = Game([value or 'Vos','Bot Q'])
+            game = Game([value or 'Vos','Bot Q'], noise=self.local)
             self.guided = True
             self.game = game
             self.game.mano = 1; self.game.actor = self.game.turn = 0
@@ -71,6 +75,19 @@ class Session:
         elif action == 'tutorial':
             if type(value) is not int or not 0 <= value < len(LESSONS): raise ValueError('Lección inválida')
             self.tutorial_index = value; self.tutorial_result = None
+            self.tutorial_noise_seconds = 30
+        elif action == 'tutorial_noise':
+            if not LESSONS[self.tutorial_index].get('noise') or type(value) is not int or value not in (0,15,30,60):
+                raise ValueError('Experimento de ruido inválido')
+            self.tutorial_noise_seconds = value; self.tutorial_result = None
+        elif action == 'noise_tick':
+            if not self.local or not self.game or not self.game.noise:
+                raise ValueError('El ruido educativo no está activo')
+            g=self.game
+            if not isinstance(value,dict) or type(value.get('hand')) is not int or type(value.get('player')) is not int or value.get('hand') != g.hand_number or value.get('player') != g.actor or g.phase not in ('play','respond','reassert'):
+                raise ValueError('El turno del ruido cambió')
+            g.q[g.actor].age(value.get('seconds'))
+            return self.output(private=True)
         elif action == 'tutorial_sample':
             if self.game is not None and self.game.phase == 'measure':
                 raise ValueError('Primero completá la medición pendiente de la partida.')
@@ -104,8 +121,13 @@ class Session:
         if not self.needs_measurement(): return self.output()
         if self.local:
             sampler = LocalSampler()
-            self.accept_measurements([sampler.sample(gates) for gates in self.sequences()])
+            times = [self.tutorial_noise_seconds if LESSONS[self.tutorial_index].get('noise') else None] if self.tutorial_pending is not None else [self.game.q[p].noise_seconds if self.game.noise else None for p in self.game.measure_requests]
+            self.accept_measurements([sampler.sample(gates, seconds) for gates,seconds in zip(self.sequences(),times)])
             return self.output()
+        if self.tutorial_pending is not None and LESSONS[self.tutorial_index].get('noise'):
+            raise ValueError('Elegí simulación local para medir este modelo de ruido educativo; no se envía a IonQ.')
+        if self.tutorial_pending is None and self.game.noise:
+            raise ValueError('Esta partida usa ruido educativo local. Elegí simulación local para medirla; no se envía a IonQ.')
         if self.remote is None: self.remote = RemoteMeasurement(backend)
         self.remote.start(self.sequences())
         return self.output()

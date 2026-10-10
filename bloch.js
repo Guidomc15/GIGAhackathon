@@ -1,7 +1,7 @@
 import {GATE_COLORS} from './gate-colors.js';
 /* Adapted from Qollab, Interactive Bloch Sphere, owner qollab.
  * https://qollab.xyz/u/qollab/interactive-bloch-sphere
- * Supplied main.js preserved in third_party/interactive-bloch-sphere/.
+ * The supplied upstream export is not present in this checkout; see notices.
  * Reused: projection, front/back rings and axes, arrow, equatorial guide,
  * idle camera spin and pointer drag. No upstream gate UI or sampling imported.
  * Qriollo changes: lifecycle, keyboard view control, reduced motion, colors,
@@ -20,7 +20,7 @@ export function mountBloch(root){
     let state=remembered.get(key);
     if(!state)state={az:-.55,el:.32,shown:[0,0,1],autoSpin:true,signature:null};
     if(state.signature!==signature){
-      state.frames=data.trajectory;state.frame=data.activeStep===null?0:data.segments[data.activeStep].start;state.lastTime=null;
+      state.frames=data.activeStep===null?[...data.trajectory,...(data.noiseTrajectory||[])]:data.trajectory;state.frame=data.activeStep===null?0:data.segments[data.activeStep].start;state.lastTime=null;
       state.shown=[...state.frames[Math.floor(state.frame)]];state.signature=signature;
     }
     remembered.set(key,state);
@@ -130,7 +130,11 @@ function draw() {
     data.trajectory.slice(start,end+1).forEach((v,i)=>{const p=project(v);if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);});ctx.stroke();
   });
   ctx.globalAlpha=1;ctx.setLineDash([]);
-  ctx.font='20px ui-monospace,monospace';ctx.fillStyle='#ffecac';
+  if(data.noiseTrajectory?.length){
+    ctx.strokeStyle='#ffd28c';ctx.lineWidth=5;ctx.setLineDash([8,6]);ctx.beginPath();
+    data.noiseTrajectory.forEach((v,i)=>{const p=project(v);if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);});ctx.stroke();ctx.setLineDash([]);
+  }
+  ctx.font='30px ui-monospace,monospace';ctx.fillStyle='#ffecac';
   data.steps.forEach((v,i)=>{ctx.fillStyle=i?GATE_COLORS[data.gates[i-1]]:'#ffecac';const p=project(v);ctx.beginPath();ctx.arc(p.x,p.y,4,0,2*PI);ctx.fill();ctx.fillText(String(i),p.x+9,p.y-9);});
   ctx.restore();
   arrow(shown);
@@ -168,7 +172,7 @@ function draw() {
   ctx.arc(CX, CY, R, 0, 2 * PI);
   ctx.stroke();
 
-  ctx.font = '600 26px ui-monospace, Menlo, monospace';
+  ctx.font = '700 40px ui-monospace, Menlo, monospace';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   for (let i = 0; i < AXES.length; i++) {

@@ -150,6 +150,7 @@ class GameTests(unittest.TestCase):
         for seed in range(12):
             rng = random.Random(seed)
             game = Game(['Ana', 'Luis'], rng)
+            forced_suspend = False
             for _ in range(1500):
                 seen.add(game.phase)
                 if game.phase == 'match_end':
@@ -163,6 +164,11 @@ class GameTests(unittest.TestCase):
                 elif game.phase == 'measure':
                     game.complete_measure([sampler.sample(game.q[p].gates) for p in game.measure_requests])
                 else:
+                    if seed == 0 and game.phase == 'play' and not forced_suspend:
+                        # Guarantee this branch rather than depending on random samples.
+                        game.dispatch('truco'); game.dispatch('envido'); game.dispatch('accept')
+                        forced_suspend = True
+                        continue
                     action = rng.choice(game.legal())
                     value = rng.choice([i for i in range(3) if i not in game.played[game.actor]]) if action == 'play' else None
                     game.dispatch(action, value)

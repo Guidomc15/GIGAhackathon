@@ -65,9 +65,9 @@ ENVIDO_CHAINS = {
 
 def envido_value(chain, scores=None, loser=None):
     if chain[-1] == 'falta':
-        if scores is None or loser is None:
-            raise ValueError('Falta necesita puntos del perdedor')
-        return 15 - scores[loser]
+        if scores is None:
+            raise ValueError('Falta necesita el marcador')
+        return 15 - max(scores)
     return sum({'envido': 2, 'real': 3}[c] for c in chain)
 
 def refusal_value(chain):
