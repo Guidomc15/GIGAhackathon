@@ -6,6 +6,7 @@ from .game import Game
 from .quantum import LocalSampler
 from .remote import RemoteMeasurement
 from . import tutorial
+from .i18n import error_text
 
 class Session:
     def __init__(self, local=False):
@@ -17,6 +18,7 @@ class Session:
         self.coach = 0  # Index of the current tutorial step.
         self.error = None
         self.errors = []
+        self.lang = 'es'  # Language of engine messages; the interface sends it with each action.
     def output(self, private=False):
         result = {'mode':LocalSampler.name if self.local else 'Qollab · IonQ injected backend · one-job limit',
                   'development_mode':self.local, 'host_local':self.host_local,
@@ -31,7 +33,8 @@ class Session:
     def coach_view(self):
         explained = [i for i, s in enumerate(tutorial.STEPS) if 'bot' not in s]
         step = tutorial.STEPS[self.coach]
-        return {'title':step['title'], 'text':step['text'], 'target':step.get('target'),
+        return {'title':step['title'], 'text':step['text'], 'title_en':step.get('title_en', step['title']),
+                'text_en':step.get('text_en', step['text']), 'target':step.get('target'),
                 'expect':step.get('expect'), 'final':step.get('final', False),
                 'step':explained.index(self.coach)+1, 'total':len(explained)}
     def advance(self):
@@ -49,12 +52,14 @@ class Session:
             self.advance()
             return
         if step.get('expect') != [action, value]:
-            raise ValueError('En el tutorial, seguí la indicación de Bot Q: ' + step['title'] + '.')
+            title = step.get('title_en', step['title']) if self.lang == 'en' else step['title']
+            raise ValueError('En el tutorial, seguí la indicación de Bot Q: ' + title + '.')
         self.game.dispatch(action, value)
         self.advance()
     def action(self, payload):
         self.error = None
         action = payload['action']; value = payload.get('value')
+        if payload.get('lang') in ('es', 'en'): self.lang = payload['lang']
         if action in ('new','tutorial') and self.needs_measurement():
             raise ValueError('Hay una medición pendiente. Completala o consultá su resultado antes de cambiar de partida o lección.')
         if action == 'dev_mode':
@@ -64,9 +69,9 @@ class Session:
                 raise ValueError('Consultá el resultado IonQ pendiente antes de cambiar el modo de medición.')
             self.local = value
         elif action == 'new':
-            if isinstance(value,dict) and value.get('noise',False) and not self.local:
-                raise ValueError('El ruido educativo requiere simulación local con Qiskit; no se agrega a IonQ.')
-            game = Game(value.get('names'), privacy=value.get('privacy', False), noise=value.get('noise',False)) if isinstance(value, dict) else Game(value)
+            if isinstance(value, dict):
+                game = Game(value.get('names'), privacy=value.get('privacy', False), difficulty=value.get('difficulty', 'normal'))
+            else: game = Game(value)
             self.guided = False
             self.game = game
         elif action == 'tutorial':
@@ -75,14 +80,6 @@ class Session:
             self.guided = True
             self.coach = -1
             self.advance()
-        elif action == 'noise_tick':
-            if not self.local or not self.game or not self.game.noise:
-                raise ValueError('El ruido educativo no está activo')
-            g=self.game
-            if not isinstance(value,dict) or type(value.get('hand')) is not int or type(value.get('player')) is not int or value.get('hand') != g.hand_number or value.get('player') != g.actor or g.phase not in ('play','respond','reassert'):
-                raise ValueError('El turno del ruido cambió')
-            g.q[g.actor].age(value.get('seconds'))
-            return self.output(private=True)
         elif action == 'reveal': return self.output(private=True)
         elif action == 'public': return self.output()
         else:
@@ -100,11 +97,8 @@ class Session:
         if not self.needs_measurement(): return self.output()
         if self.local:
             sampler = LocalSampler()
-            times = [self.game.q[p].noise_seconds if self.game.noise else None for p in self.game.measure_requests]
-            self.accept_measurements([sampler.sample(gates, seconds) for gates,seconds in zip(self.sequences(),times)])
+            self.accept_measurements([sampler.sample(gates) for gates in self.sequences()])
             return self.output()
-        if self.game.noise:
-            raise ValueError('Esta partida usa ruido educativo local. Elegí simulación local para medirla; no se envía a IonQ.')
         if self.remote is None: self.remote = RemoteMeasurement(backend)
         self.remote.start(self.sequences())
         return self.output()
@@ -119,12 +113,12 @@ class Session:
         self.error = None
         try: return fn()
         except (ValueError,RuntimeError,TimeoutError) as exc:
-            self.error = str(exc)
+            self.error = error_text(str(exc), self.lang)
             self.errors.append({'type':type(exc).__name__,'message':self.error})
             return self.output()
         except Exception as exc:
             # Do not return arbitrary provider errors which can contain credentials.
-            self.error = f'Falló la operación ({type(exc).__name__}). No se generó un resultado.'
+            self.error = error_text(f'Falló la operación ({type(exc).__name__}). No se generó un resultado.', self.lang)
             self.errors.append({'type':type(exc).__name__})
             return self.output()
 

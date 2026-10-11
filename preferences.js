@@ -1,6 +1,8 @@
 // Settings are optional: the game also works when browser storage is blocked.
 const KEY='qriollo.preferences.v1';
-export const preferences={timer:0,music:true,voices:true,musicVolume:.2,voiceVolume:.85,language:'es'};
+// Default language follows the browser: Spanish for Spanish speakers, English otherwise.
+const browserLanguage=(navigator.languages?.[0]||navigator.language||'en').toLowerCase().startsWith('es')?'es':'en';
+export const preferences={timer:0,music:true,voices:true,musicVolume:.35,voiceVolume:.85,language:browserLanguage};
 try{
   const saved=JSON.parse(localStorage.getItem(KEY)||'{}');
   if([0,1,3,7].includes(saved.timer))preferences.timer=saved.timer;

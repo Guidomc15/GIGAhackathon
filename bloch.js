@@ -1,4 +1,5 @@
 import {GATE_COLORS} from './gate-colors.js';
+import {AXIS_COLORS} from './i18n.js';
 /* Adapted from Qollab, Interactive Bloch Sphere, owner qollab.
  * https://qollab.xyz/u/qollab/interactive-bloch-sphere
  * The supplied upstream export is not present in this checkout; see notices.
@@ -20,7 +21,7 @@ export function mountBloch(root){
     let state=remembered.get(key);
     if(!state)state={az:-.55,el:.32,shown:[0,0,1],autoSpin:true,signature:null};
     if(state.signature!==signature){
-      state.frames=data.activeStep===null?[...data.trajectory,...(data.noiseTrajectory||[])]:data.trajectory;state.frame=data.activeStep===null?0:data.segments[data.activeStep].start;state.lastTime=null;
+      state.frames=data.trajectory;state.frame=data.activeStep===null?0:data.segments[data.activeStep].start;state.lastTime=null;
       state.shown=[...state.frames[Math.floor(state.frame)]];state.signature=signature;
     }
     remembered.set(key,state);
@@ -59,11 +60,13 @@ const RINGS = [
   function (t) { return [0, Math.cos(t), Math.sin(t)]; }
 ];
 
+// Each axis keeps one colour; explanations paint the letters X, Y and Z with the same colour.
 const AXES = [
-  { a: [1, 0, 0], lab: '|+>' }, { a: [-1, 0, 0], lab: '|->' },
-  { a: [0, 1, 0], lab: '|i>' }, { a: [0, -1, 0], lab: '|-i>' },
-  { a: [0, 0, 1], lab: '|0>' }, { a: [0, 0, -1], lab: '|1>' }
+  { a: [1, 0, 0], lab: 'X', c: AXIS_COLORS.X }, { a: [-1, 0, 0], lab: '', c: AXIS_COLORS.X },
+  { a: [0, 1, 0], lab: 'Y', c: AXIS_COLORS.Y }, { a: [0, -1, 0], lab: '', c: AXIS_COLORS.Y },
+  { a: [0, 0, 1], lab: 'Z', c: AXIS_COLORS.Z }, { a: [0, 0, -1], lab: '', c: AXIS_COLORS.Z }
 ];
+const POLES = [{ a: [0, 0, 1], lab: '|0⟩' }, { a: [0, 0, -1], lab: '|1⟩' }];
 
 function axis(v, front) {
   const o = project([0, 0, 0]);
@@ -121,7 +124,9 @@ function draw() {
   ctx.lineWidth = 1.5;
   ctx.strokeStyle = 'rgba(183,232,225,0.22)';
   for (let i = 0; i < RINGS.length; i++) { ring(RINGS[i], false); }
-  for (let i = 0; i < AXES.length; i++) { axis(AXES[i].a, false); }
+  ctx.globalAlpha = .45;
+  for (let i = 0; i < AXES.length; i++) { ctx.strokeStyle = AXES[i].c; axis(AXES[i].a, false); }
+  ctx.globalAlpha = 1;
 
   ctx.save();ctx.lineWidth=4;
   // Segment boundaries come from the Qiskit path, so shared endpoints are exact.
@@ -130,10 +135,6 @@ function draw() {
     data.trajectory.slice(start,end+1).forEach((v,i)=>{const p=project(v);if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);});ctx.stroke();
   });
   ctx.globalAlpha=1;ctx.setLineDash([]);
-  if(data.noiseTrajectory?.length){
-    ctx.strokeStyle='#ffd28c';ctx.lineWidth=5;ctx.setLineDash([8,6]);ctx.beginPath();
-    data.noiseTrajectory.forEach((v,i)=>{const p=project(v);if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);});ctx.stroke();ctx.setLineDash([]);
-  }
   ctx.font='30px ui-monospace,monospace';ctx.fillStyle='#ffecac';
   data.steps.forEach((v,i)=>{ctx.fillStyle=i?GATE_COLORS[data.gates[i-1]]:'#ffecac';const p=project(v);ctx.beginPath();ctx.arc(p.x,p.y,4,0,2*PI);ctx.fill();ctx.fillText(String(i),p.x+9,p.y-9);});
   ctx.restore();
@@ -163,8 +164,8 @@ function draw() {
   ctx.lineWidth = 1.8;
   ctx.strokeStyle = 'rgba(183,232,225,0.6)';
   for (let i = 0; i < RINGS.length; i++) { ring(RINGS[i], true); }
-  ctx.strokeStyle = 'rgba(183,232,225,0.45)';
-  for (let i = 0; i < AXES.length; i++) { axis(AXES[i].a, true); }
+  ctx.lineWidth = 3.5;
+  for (let i = 0; i < AXES.length; i++) { ctx.strokeStyle = AXES[i].c; axis(AXES[i].a, true); }
 
   ctx.lineWidth = 1.5;
   ctx.strokeStyle = 'rgba(183,232,225,0.35)';
@@ -176,10 +177,19 @@ function draw() {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   for (let i = 0; i < AXES.length; i++) {
-    const a = AXES[i].a;
-    const p = project([a[0] * 1.16, a[1] * 1.16, a[2] * 1.16]);
-    ctx.fillStyle = (p.d <= 0) ? '#e8ecf4' : 'rgba(232,236,244,0.35)';
+    if (!AXES[i].lab) { continue; }
+    const a = AXES[i].a, k = a[2] ? 1.42 : 1.2;
+    const p = project([a[0] * k, a[1] * k, a[2] * k]);
+    ctx.globalAlpha = (p.d <= 0) ? 1 : .45;
+    ctx.fillStyle = AXES[i].c;
     ctx.fillText(AXES[i].lab, p.x, p.y);
+  }
+  ctx.globalAlpha = 1;
+  ctx.font = '700 34px ui-monospace, Menlo, monospace';
+  for (let i = 0; i < POLES.length; i++) {
+    const a = POLES[i].a, p = project([a[0] * 1.16, a[1] * 1.16, a[2] * 1.16]);
+    ctx.fillStyle = (p.d <= 0) ? '#f4f1e6' : 'rgba(244,241,230,0.5)';
+    ctx.fillText(POLES[i].lab, p.x + 34, p.y);
   }
 
   state.az=az; state.el=el; state.shown=shown; state.autoSpin=autoSpin;

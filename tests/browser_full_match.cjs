@@ -45,7 +45,7 @@ const {chromium} = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
       else if(!privacy)assert.equal(await page.locator('#alone').count(),0,'Default game must have no privacy pauses');
       if (g.phase === 'prepare') {
         await click('[data-card="0"]'); await click('#activate-quantum');
-        await click('[data-token="0"]'); await page.locator('#lock-ok').check();
+        await click('[data-token="0"]'); 
         await click('#lock-circuit');
       } else if (g.phase === 'play') {
         if (await page.locator('[data-action="envido"]').count()) await click('[data-action="envido"]');

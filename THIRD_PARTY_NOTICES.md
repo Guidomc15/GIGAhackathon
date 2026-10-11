@@ -33,3 +33,7 @@ OpenAI Codex asistió en código, documentación, pruebas y revisión. La herram
 [Modelo matemático y fuentes oficiales](docs/QUANTUM_NOISE.md). Los avisos anteriores se conservan como [registro histórico](docs/history/THIRD_PARTY_NOTICES_0.2.0.md); no implican que los archivos o herramientas que citan estén presentes aquí.
 
 This effort is supported by Qollab & IonQ.
+
+## Música (0.2.2)
+
+`music-data.js` contiene un tema de 66 segundos aportado por el equipo de Qriollo (archivo MP3 recodificado a 112 kbps y embebido en base64 para la entrega plana de Qollab). El origen y la licencia del tema los declara el equipo; reemplazá esta línea con el autor y la licencia antes de publicar.

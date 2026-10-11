@@ -3,8 +3,8 @@
 Esta versión cambia la interfaz, CSS, el motor y agrega módulos de audio y lectura. **No alcanza con reemplazar solamente `main.js`.** La actualización de dos archivos era para el arreglo de importación de 0.2.0.
 
 1. Detené la ejecución de Qollab.
-2. En GitHub, abrí `QOLLAB_0.2.1.zip` de la versión actual y usá **Download raw file**, con tu sesión iniciada. Si el enlace directo devuelve 404, accedé desde la página del archivo en GitHub. El ZIP general de «Code → Download ZIP» contiene también carpetas de desarrollo.
-3. Descomprimí `QOLLAB_0.2.1.zip` en tu computadora. Todos los archivos están en una sola lista, sin carpetas.
+2. En GitHub, abrí `QOLLAB_0.2.2.zip` de la versión actual y usá **Download raw file**, con tu sesión iniciada. Si el enlace directo devuelve 404, accedé desde la página del archivo en GitHub. El ZIP general de «Code → Download ZIP» contiene también carpetas de desarrollo.
+3. Descomprimí `QOLLAB_0.2.2.zip` en tu computadora. Todos los archivos están en una sola lista, sin carpetas.
 4. En **Code**, reemplazá los archivos que tengan el mismo nombre y agregá los nuevos. Conservá un solo archivo de cada nombre. Si no podés reemplazar mediante carga, reemplazá todo su contenido desde el editor.
 5. Elegí **JS / Qiskit** y ejecutá.
 6. En Inicio revisá música, voces y el idioma. Para jugar con ruido, elegí simulación local con Qiskit al iniciar y dejá marcada la opción de ruido educativo.

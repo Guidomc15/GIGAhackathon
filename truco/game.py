@@ -4,21 +4,28 @@ from datetime import datetime, timezone
 from .classic import Card, deal, strength, envido, hand_winner, ENVIDO_CHAINS, envido_value, refusal_value, GateDeck
 from .quantum import QuantumCard
 
+# None means unlimited gate removals.
+DIFFICULTIES = {'normal': None, 'hard': 2}
+HARD_LIMIT = 'Modo difícil: ya usaste tus 2 retiros de compuertas en esta mano'
+
 LABELS = {'envido':'Envido', 'real':'Real Envido', 'falta':'Falta Envido',
           'truco':'Truco', 'retruco':'Retruco', 'vale4':'Vale Cuatro',
           'accept':'Quiero', 'reject':'No quiero', 'fold':'Irse al mazo',
-          'reassert':'Reafirmar canto', 'confirm':'Confirmar circuito',
+          'reassert':'Reafirmar canto', 'confirm':'Confirmar',
           'next':'Nueva mano'}
+# Calls are proper names of the game and keep their Spanish name in English.
+LABELS_EN = {**LABELS, 'fold':'Irse al mazo (fold)', 'reassert':'Repeat the call', 'confirm':'Confirm', 'next':'Next hand'}
 
 class Game:
-    def __init__(self, names, rng=None, privacy=False, noise=False, quantum=True, deals=None, mano=None):
+    def __init__(self, names, rng=None, privacy=False, quantum=True, deals=None, mano=None, difficulty='normal'):
         if not isinstance(names, (list, tuple)) or len(names) != 2 or any(not isinstance(n,str) or not n.strip() or len(n)>30 for n in names):
             raise ValueError('Ingresá dos nombres de hasta 30 caracteres')
         self.names = [n.strip() for n in names]
         if type(privacy) is not bool: raise ValueError("Privacidad inválida")
         self.privacy = privacy
-        if type(noise) is not bool: raise ValueError('Ruido inválido')
-        self.noise = noise
+        # Hard mode limits how many times each player may remove gates in a hand.
+        if difficulty not in DIFFICULTIES: raise ValueError('Dificultad inválida')
+        self.difficulty = difficulty
         # quantum=False plays classic Truco: no preparation phase and no measurements.
         if type(quantum) is not bool: raise ValueError('Modo cuántico inválido')
         self.quantum = quantum
@@ -37,6 +44,7 @@ class Game:
         self.cards = self.deals.pop(0) if self.deals else deal(self.rng)
         self.tokens = self.gate_deck.draw_hand() if self.quantum else [[],[]]
         self.q = [None, None]
+        self.removals_left = [DIFFICULTIES[self.difficulty]]*2
         self.played = [set(), set()]
         self.table = []
         self.bazas = []
@@ -95,10 +103,18 @@ class Game:
         p = self.actor
         if action == 'choose':
             if type(value) is not int or not 0 <= value < 3: raise ValueError('Carta inválida')
-            self.q[p] = QuantumCard(value, self.tokens[p], noise_enabled=self.noise)
+            q = self.q[p]
+            if q is not None and q.index == value: return
+            # Changing card discards the gates already placed: that is a removal.
+            if q is not None and q.sequence: self.use_removal(p)
+            self.q[p] = QuantumCard(value, self.tokens[p])
         elif action == 'edit':
-            if self.q[p] is None: raise ValueError('Elegí una carta')
-            self.q[p].edit(value)
+            q = self.q[p]
+            if q is None: raise ValueError('Elegí una carta')
+            removes = isinstance(value, (list, tuple)) and any(i not in value for i in q.sequence)
+            if removes and self.removals_left[p] == 0: raise ValueError(HARD_LIMIT)
+            q.edit(value)
+            if removes: self.use_removal(p)
         elif action == 'confirm':
             if self.q[p] is None: raise ValueError('Elegí exactamente una carta')
             self.q[p].locked = True
@@ -160,6 +176,10 @@ class Game:
         elif action == 'next':
             self.mano = 1-self.mano
             self.new_hand()
+    def use_removal(self, p):
+        if self.removals_left[p] is None: return
+        if self.removals_left[p] == 0: raise ValueError(HARD_LIMIT)
+        self.removals_left[p] -= 1
     def begin_measure(self, context, players):
         self.measure_context = context
         self.measure_requests = [p for p in players if self.q[p] is not None and self.q[p].result is None]
@@ -259,8 +279,10 @@ class Game:
                 'phase':self.phase,'hand':self.hand_number,'stake':self.stake,
                 'bazas':self.bazas,'table':self.table,'pending':self.pending,
                 'envido':self.envido_result,'events':self.events,
-                'actions':[{'id':a,'label':LABELS.get(a,a),'hint':self.action_hint(a)} for a in self.legal() if a not in ('choose','edit','play')],
-                'winner':self.winner, 'privacy':self.privacy, 'noise':self.noise, 'quantum':self.quantum}
+                'actions':[{'id':a,'label':LABELS.get(a,a),'label_en':LABELS_EN.get(a,LABELS.get(a,a)),
+                            'hint':self.action_hint(a),'hint_en':self.action_hint(a, en=True)}
+                           for a in self.legal() if a not in ('choose','edit','play')],
+                'winner':self.winner, 'privacy':self.privacy, 'quantum':self.quantum, 'difficulty':self.difficulty}
         if self.last_public_measurement and self.phase != 'measure':
             # The explicit public-play exception discloses circuit and preview, never tokens.
             data['public_measurement'] = {k:v for k,v in self.last_public_measurement.items() if k in ('player','original','linked','preview','result','record')}
@@ -271,31 +293,39 @@ class Game:
         if self.phase == 'match_end': data['history'] = self.history
         if self.phase in ('hand_end','match_end'): data['report'] = self.history[-1]
         return data
-    def action_hint(self, action):
+    def action_hint(self, action, en=False):
+        """What each button does, in Spanish or English (game calls keep their names)."""
+        t = lambda es, english: english if en else es
+        pts = lambda n: t('punto' if n == 1 else 'puntos', 'point' if n == 1 else 'points')
         if action == 'accept':
             if self.pending['kind'] == 'truco':
-                return f"La mano pasa a valer {self.pending['level']} puntos. Después se sigue jugando."
+                level = self.pending['level']
+                return t(f"La mano pasa a valer {level} puntos. Después se sigue jugando.", f"The hand becomes worth {level} points. Play continues.")
             chain = self.pending['chain']
-            stake = str(15-max(self.scores)) if chain[-1] == 'falta' else str(envido_value(chain))
-            measure = ' Se miden las cartas cuánticas que aún no se midieron.' if self.quantum else ''
-            return f'El ganador suma {stake} puntos.{measure}'
+            stake = 15-max(self.scores) if chain[-1] == 'falta' else envido_value(chain)
+            measure = t(' Se miden las cartas cuánticas que aún no se midieron.', ' Unmeasured quantum cards are measured.') if self.quantum else ''
+            return t(f'El ganador suma {stake} puntos.', f'The winner scores {stake} points.') + measure
         if action == 'reject':
             pending = self.pending
             points = refusal_value(pending['chain']) if pending['kind'] == 'envido' else pending['level']-1
-            ending = 'La mano continúa.' if pending['kind'] == 'envido' else 'La mano termina.'
-            if self.scores[pending['proposer']] + points >= 15: ending = 'Llega a 15 y gana la partida.'
-            return f"{self.names[pending['proposer']]} suma {points} {'punto' if points == 1 else 'puntos'}. {ending}"
+            ending = t('La mano continúa.', 'The hand continues.') if pending['kind'] == 'envido' else t('La mano termina.', 'The hand ends.')
+            if self.scores[pending['proposer']] + points >= 15: ending = t('Llega a 15 y gana la partida.', 'That reaches 15 and wins the match.')
+            name = self.names[pending['proposer']]
+            return t(f"{name} suma {points} {pts(points)}. {ending}", f"{name} scores {points} {pts(points)}. {ending}")
         if action == 'fold':
-            return f"{self.names[1-self.actor]} suma {self.stake} {'punto' if self.stake == 1 else 'puntos'}. La mano termina."
+            name = self.names[1-self.actor]
+            return t(f"{name} suma {self.stake} {pts(self.stake)}. La mano termina.", f"{name} scores {self.stake} {pts(self.stake)}. The hand ends.")
         if action in ('truco','retruco','vale4'):
             points = {'truco':2,'retruco':3,'vale4':4}[action]
-            return f'Si el rival acepta, la mano vale {points} puntos; si rechaza, ganás {points-1}.'
+            return t(f'Si el rival acepta, la mano vale {points} puntos; si rechaza, ganás {points-1}.', f'If accepted, the hand is worth {points} points; if declined, you win {points-1}.')
         if action in ('envido','real','falta'):
             chain = self.pending['chain'] + [action] if self.pending and self.pending['kind'] == 'envido' else [action]
-            if action == 'falta': return f'Si acepta: {15-max(self.scores)} puntos, lo que le falta a quien va adelante para llegar a 15. Se define con los tantos.'
-            return f'Si acepta: {envido_value(chain)} puntos por los tantos, aparte de la mano.'
-        return {'reassert':'El rival debe responder al Truco que quedó pendiente.',
-                'next':'Se reparten tres cartas nuevas y cambia el jugador mano.'}.get(action, '')
+            if action == 'falta':
+                need = 15-max(self.scores)
+                return t(f'Si acepta: {need} puntos, lo que le falta a quien va adelante para llegar a 15. Se define con los tantos.', f'If accepted: {need} points, what the leader still needs to reach 15. Decided by the envido count.')
+            return t(f'Si acepta: {envido_value(chain)} puntos por los tantos, aparte de la mano.', f'If accepted: {envido_value(chain)} points for the envido count, separate from the hand.')
+        return {'reassert':t('El rival debe responder al Truco que quedó pendiente.', 'Your opponent must answer the pending Truco.'),
+                'next':t('Se reparten tres cartas nuevas y cambia el jugador mano.', 'Three new cards are dealt and the mano changes.')}.get(action, '')
     def private_view(self):
         if self.phase not in ('prepare','play','respond','reassert'): return {}
         p = self.actor
@@ -303,5 +333,7 @@ class Game:
         if self.phase in ('prepare','play','respond','reassert'):
             data['cards'] = [{**self.effective_card(p,i).data(),'index':i,'played':i in self.played[p],
                               'quantum':self.q[p] is not None and self.q[p].index == i} for i in range(3)]
-        if self.phase == 'prepare': data['tokens'] = self.tokens[p]
+        if self.phase == 'prepare':
+            data['tokens'] = self.tokens[p]
+            data['removals_left'] = self.removals_left[p]
         return data

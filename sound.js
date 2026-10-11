@@ -1,40 +1,25 @@
 import {preferences} from './preferences.js';
+import {MUSIC_TRACK} from './music-data.js';
+import {L} from './i18n.js';
 
-// Original procedural music: no recording, external download or audio dependency.
+// Looped background track plus browser speech for the calls. Audio starts after a user gesture.
 export class SoundMixer {
-  constructor(){this.context=null;this.gain=null;this.loop=null;this.beat=0;this.utterance=null;}
+  constructor(){this.audio=null;this.utterance=null;this.context=null;}
   async unlock(){
     if(!preferences.music)return;
-    const Context=window.AudioContext||window.webkitAudioContext;
-    if(!Context)return;
     try{
-      if(!this.context){this.context=new Context();this.gain=this.context.createGain();this.gain.connect(this.context.destination);}
-      await this.context.resume();this.apply();
+      if(!this.audio){this.audio=new Audio(MUSIC_TRACK);this.audio.loop=true;this.audio.preload='auto';}
+      this.apply();
+      if(this.audio.paused&&!document.hidden){await this.audio.play();this.context={state:'running'};}
     }catch{/* Autoplay restrictions never prevent playing. */}
   }
   apply(){
     if(!preferences.voices)this.stopVoice();
-    if(!this.context)return;
-    this.gain.gain.setTargetAtTime(preferences.music?preferences.musicVolume*.35:0,this.context.currentTime,.08);
-    if(preferences.music&&!this.loop){this.loop=setInterval(()=>this.note(),460);this.note();}
-    if(!preferences.music&&this.loop){clearInterval(this.loop);this.loop=null;}
+    if(!this.audio)return;
+    this.audio.volume=Math.min(1,Math.max(0,preferences.musicVolume));
+    if(!preferences.music&&!this.audio.paused)this.audio.pause();
   }
-  note(){
-    if(document.hidden||this.context.state!=='running')return;
-    const melody=[196,246.94,293.66,246.94,220,261.63,329.63,261.63,174.61,220,261.63,220,146.83,196,246.94,196];
-    const now=this.context.currentTime;
-    const play=(hz,volume)=>{
-      const oscillator=this.context.createOscillator(),envelope=this.context.createGain();
-      oscillator.type='triangle';oscillator.frequency.value=hz;
-      envelope.gain.setValueAtTime(0,now);envelope.gain.linearRampToValueAtTime(volume,now+.015);
-      envelope.gain.exponentialRampToValueAtTime(.0001,now+.42);
-      oscillator.connect(envelope);envelope.connect(this.gain);oscillator.start(now);oscillator.stop(now+.45);
-      oscillator.onended=()=>{oscillator.disconnect();envelope.disconnect();};
-    };
-    play(melody[this.beat%melody.length],.35);
-    if(this.beat%4===0)play(melody[this.beat%melody.length]/2,.3);
-    this.beat++;
-  }
+  // Calls are proper names of the game, so they are always spoken by a Spanish voice when available.
   speak(text){
     if(!preferences.voices||!window.speechSynthesis||!window.SpeechSynthesisUtterance)return;
     this.stopVoice();
@@ -45,6 +30,6 @@ export class SoundMixer {
     this.utterance=utterance;speechSynthesis.speak(utterance);
   }
   stopVoice(){if(window.speechSynthesis)speechSynthesis.cancel();this.utterance=null;}
-  pause(){this.stopVoice();if(this.context?.state==='running')this.context.suspend().catch(()=>{});}
-  status(){return `${window.AudioContext||window.webkitAudioContext?'Música disponible':'Música no disponible en este navegador'} · ${window.speechSynthesis&&window.SpeechSynthesisUtterance?'Voces según las instaladas en tu navegador':'Voces no disponibles en este navegador'}`;}
+  pause(){this.stopVoice();if(this.audio&&!this.audio.paused)this.audio.pause();}
+  status(){return `${typeof Audio==='function'?L('Música disponible','Music available'):L('Música no disponible en este navegador','Music not available in this browser')} · ${window.speechSynthesis&&window.SpeechSynthesisUtterance?L('Voces según las instaladas en tu navegador','Voices depend on those installed in your browser'):L('Voces no disponibles en este navegador','Voices not available in this browser')}`;}
 }

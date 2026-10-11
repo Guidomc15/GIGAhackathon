@@ -1,4 +1,4 @@
-# Qriollo · Truco Cuántico 0.2.1
+# Qriollo · Truco Cuántico 0.2.2
 
 Un juego para aprender computación cuántica jugando al Truco argentino. Dos personas comparten un dispositivo, preparan una carta cuántica y compiten hasta 15 puntos. El tutorial es una partida guiada de Truco contra Bot Q que explica cada parte de la pantalla; la carta cuántica se suma al tutorial en una próxima etapa.
 
@@ -18,22 +18,17 @@ python -m venv .venv
 
 Abrí el puerto 8000 en el navegador de tu máquina. En Windows usá `.venv\Scripts\python.exe` en lugar de `.venv/bin/python`. No se necesitan claves ni base de datos. El servidor local usa Qiskit y permite partidas completas. [Más detalles](RUNNING.md).
 
-Para Qollab, descomprimí **[QOLLAB_0.2.1.zip](QOLLAB_0.2.1.zip)** y cargá sus archivos como **JS / Qiskit**. Es una entrega sin carpetas, distinta del ZIP de todo el repositorio. **Esta actualización incluye varios módulos y CSS: cambiar solamente `main.js` no alcanza.** [Instrucciones exactas](QOLLAB_UPDATE.md).
+Para Qollab, descomprimí **[QOLLAB_0.2.2.zip](QOLLAB_0.2.2.zip)** y cargá sus archivos como **JS / Qiskit**. Es una entrega sin carpetas, distinta del ZIP de todo el repositorio. **Esta actualización incluye varios módulos nuevos (`i18n.js`, `music-data.js`) y CSS: cambiar solamente `main.js` no alcanza.** [Instrucciones exactas](QOLLAB_UPDATE.md).
 
-## Qué cambia en 0.2.1
+## Qué cambia en 0.2.2 (en curso)
 
-- Los cantos, resultados de bazas, mediciones y puntos esperan **Skip · Continuar**. ⏱ recorre **1 s → 3 s → 7 s → manual**. La elección se conserva cuando el navegador permite guardar preferencias.
-- Los cambios de turno conservan el scroll. Los textos, ejes y valores de la esfera, identificación de mano y cartas jugadas son más grandes.
-- Las dos identidades de la carta Q se leen con nombres completos y porcentajes blancos, aunque el recorte de una figura oculte su palo.
-- Música original generada en el navegador y lectura de cantos con síntesis de voz. En Inicio hay controles de silencio y volumen independientes. El audio empieza después de interactuar; las voces dependen del dispositivo.
-- Reglas en español e inglés, con ejemplos para quien nunca jugó ni programó. Tutorial interactivo de Truco en español: tres manos guionadas contra Bot Q.
-- Ruido cuántico educativo opcional, activado inicialmente en simulación local. Usa canales de relajación y desfasaje de Qiskit; afecta las probabilidades y la medición real, no solo el dibujo.
-
-## Ruido y medición
-
-Después de confirmar, una carta Q sin medir acumula el tiempo de decisión visible de su dueño. Se pausa durante avisos, privacidad, menú, ayudas desplegadas y pestañas ocultas. La vista y el muestreo usan la misma matriz de densidad. Una carta medida queda fija durante la mano.
-
-Las constantes son **T₁ = 60 s**, **Tφ = 90 s**, **T₂ ≈ 51,43 s**, en una escala didáctica. H empieza en 50/50; tras 30 segundos educativos, el modelo da aproximadamente 69,7 % original / 30,3 % ligada. Un qubit que ya está en |0⟩ permanece allí en este modelo. Estos tiempos no son una calibración de hardware ni ruido medido en IonQ. [Modelo, fórmulas y fuentes oficiales](docs/QUANTUM_NOISE.md).
+- Interfaz completa en español e inglés. El idioma inicial sigue al navegador y se cambia en cualquier pantalla con 🌐. Truco, Envido, Quiero y los demás cantos conservan su nombre.
+- Nivel **Aprendizaje** (compuertas ilimitadas) y nivel **Difícil** (solo 2 retiros de compuertas por jugador y por mano).
+- El compositor se cierra con un único botón **Confirmar**.
+- Los ejes de la esfera de Bloch tienen color propio (X coral, Y violeta, Z celeste) y las letras X, Y, Z de las explicaciones usan ese mismo color.
+- Música nueva: tema aportado por el equipo, en bucle.
+- Se quitaron el ruido cuántico educativo y la rotación π/67.
+- Tutorial de Truco contra Bot Q, en partida guiada.
 
 ## Variante de Truco
 
@@ -43,10 +38,10 @@ Dos jugadores, a 15 puntos y sin Flor. El Envido compara los tantos; el Truco au
 
 | Archivo o carpeta | Función |
 | --- | --- |
-| `truco/` | Reglas, estado de partida, Qiskit, ruido, guion del tutorial y API de sesión |
+| `truco/` | Reglas, estado de partida, Qiskit, niveles, textos en inglés del motor, guion del tutorial y API de sesión |
 | `main.js`, `ui.js`, `main.css` | Interfaz y controles |
-| `presentation.js`, `preferences.js`, `sound.js` | Avisos, ajustes, música y voces |
-| `learning.js` | Reglas, explicación del ruido y referencias bilingües |
+| `presentation.js`, `preferences.js`, `sound.js`, `music-data.js` | Avisos, ajustes, música y voces |
+| `learning.js`, `i18n.js` | Reglas bilingües, idioma de la interfaz y colores de los ejes |
 | `serve.py`, `local-engine.js` | Servidor y puente HTTP de desarrollo local |
 | `qollab_engine.py` | Motor generado en un archivo para Qollab; no editar a mano |
 | `build_qollab.py` | Regenera el motor y el ZIP plano; verifica que coincidan con las fuentes |
@@ -56,8 +51,8 @@ Dos jugadores, a 15 puntos y sin Flor. El Envido compara los tantos; el Truco au
 Tras modificar `truco/*.py` o archivos incluidos en la entrega:
 
 ```sh
-python build_qollab.py --zip QOLLAB_0.2.1.zip
-python build_qollab.py --check --verify-zip QOLLAB_0.2.1.zip
+python build_qollab.py --zip QOLLAB_0.2.2.zip
+python build_qollab.py --check --verify-zip QOLLAB_0.2.2.zip
 .venv/bin/python -m unittest discover -s tests -v
 ```
 
@@ -69,7 +64,7 @@ python build_qollab.py --check --verify-zip QOLLAB_0.2.1.zip
 
 La partida y preferencias viven en memoria o en el navegador. La partida se pierde al detener el servidor o la ejecución de Qollab. El proyecto no tiene multijugador por red.
 
-La versión 0.2.1 se valida con Qiskit y Chromium locales. Su arranque dentro del wrapper de Qollab sigue pendiente de comprobar allí. El adaptador remoto conserva el límite previamente observado de un job IonQ por ejecución, por lo que las partidas completas y el ruido educativo usan simulación local explícita. No se cambia de backend automáticamente.
+La versión se valida con Qiskit y Chromium locales. Su arranque dentro del wrapper de Qollab se comprueba allí. El adaptador remoto conserva el límite observado de un job IonQ por ejecución, por lo que las partidas completas usan simulación local explícita. No se cambia de backend automáticamente.
 
 Código original MIT; arte, esfera adaptada, dependencias y asistencia de IA declarados en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 

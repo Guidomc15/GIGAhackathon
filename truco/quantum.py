@@ -3,48 +3,10 @@ import math
 import random
 from dataclasses import dataclass, field
 from qiskit import QuantumCircuit
-from qiskit.quantum_info import Statevector, DensityMatrix, Operator, Kraus
+from qiskit.quantum_info import Statevector, Operator
 import numpy as np
 
 from .gates import VALID, ROTATIONS
-
-# Educational seconds, deliberately not an IonQ device calibration.
-NOISE_T1 = 60.0
-NOISE_TPHI = 90.0
-NOISE_T2 = 1 / (1 / (2 * NOISE_T1) + 1 / NOISE_TPHI)
-
-def noisy_state(gates, seconds):
-    if type(seconds) not in (int, float) or not math.isfinite(seconds) or seconds < 0:
-        raise ValueError('Tiempo de ruido inválido')
-    state = DensityMatrix.from_instruction(circuit(gates))
-    gamma = -math.expm1(-seconds / NOISE_T1)
-    amplitude = Kraus([np.diag([1, math.sqrt(1-gamma)]),
-                       np.array([[0, math.sqrt(gamma)], [0, 0]])])
-    # A random Z with probability p attenuates coherence by 1-2p.
-    p = -math.expm1(-seconds / NOISE_TPHI) / 2
-    dephasing = Kraus([math.sqrt(1-p)*np.eye(2), math.sqrt(p)*np.diag([1,-1])])
-    return state.evolve(amplitude).evolve(dephasing)
-
-def noise_view(gates, seconds, ideal=None):
-    data = dict(ideal or preview(gates))
-    state = noisy_state(gates, seconds)
-    matrix = state.data
-    vector = [float(2*matrix[0,1].real), float(-2*matrix[0,1].imag),
-              float((matrix[0,0]-matrix[1,1]).real)]
-    x,y,z = data['steps'][-1]['bloch']
-    path = []
-    for i in range(25):
-        t = seconds*i/24
-        path.append([x*math.exp(-t/NOISE_T2), y*math.exp(-t/NOISE_T2),
-                     1+(z-1)*math.exp(-t/NOISE_T1)])
-    data.update(probabilities=[float(p) for p in state.probabilities()], bloch=vector,
-                density_matrix=[[[float(v.real),float(v.imag)] for v in row] for row in matrix],
-                purity=float(state.purity().real), amplitudes=None, relative_phase=None,
-                noise_trajectory=path,
-                noise={'seconds':seconds,'t1':NOISE_T1,'tphi':NOISE_TPHI,'t2':NOISE_T2,
-                       'model':'amplitude damping + dephasing; educational time scale',
-                       'ideal_probabilities':data['steps'][-1]['probabilities']})
-    return data
 
 def circuit(gates, measured=False):
     if not isinstance(gates, (list, tuple)) or len(gates) > 3 or any(g not in VALID for g in gates):
@@ -103,8 +65,6 @@ class QuantumCard:
     locked: bool = False
     result: int | None = None
     record: dict | None = None
-    noise_enabled: bool = False
-    noise_seconds: float = 0.0
     _preview: dict | None = field(default=None, repr=False)
     def edit(self, indices):
         if self.locked: raise ValueError('Circuito confirmado: no puede cambiar')
@@ -118,12 +78,7 @@ class QuantumCard:
         return [self.tokens[i] for i in self.sequence]
     def view(self):
         if self._preview is None: self._preview = preview(self.gates)
-        return noise_view(self.gates, self.noise_seconds, self._preview) if self.noise_enabled else self._preview
-    def age(self, seconds):
-        if type(seconds) not in (int,float) or not math.isfinite(seconds) or not 0 <= seconds <= 5:
-            raise ValueError('Intervalo de ruido inválido')
-        if self.noise_enabled and self.locked and self.result is None:
-            self.noise_seconds += seconds
+        return self._preview
     def collapse(self, bit, record):
         if not self.locked: raise ValueError('Confirmá antes de medir')
         if self.result is not None: raise ValueError('La carta ya fue medida')
@@ -132,13 +87,11 @@ class QuantumCard:
 
 class LocalSampler:
     name = 'LOCAL DEVELOPMENT — Qiskit Statevector; NO IonQ'
-    def sample(self, gates, noise_seconds=None):
-        state = Statevector.from_instruction(circuit(gates)) if noise_seconds is None else noisy_state(gates, noise_seconds)
+    def sample(self, gates):
+        state = Statevector.from_instruction(circuit(gates))
         bit = int(state.sample_memory(1)[0])
-        return bit, {'backend': self.name if noise_seconds is None else 'LOCAL DEVELOPMENT — Qiskit DensityMatrix; NO IonQ', 'shots': 1, 'gates': list(gates), 'result': bit,
-                     'method': 'Qiskit Statevector.sample_memory(1)' if noise_seconds is None else 'Qiskit DensityMatrix.sample_memory(1)',
-                     **({'noise':{'seconds':noise_seconds,'t1':NOISE_T1,'tphi':NOISE_TPHI,'t2':NOISE_T2,
-                                  'probabilities':[float(p) for p in state.probabilities()]}} if noise_seconds is not None else {})}
+        return bit, {'backend': self.name, 'shots': 1, 'gates': list(gates), 'result': bit,
+                     'method': 'Qiskit Statevector.sample_memory(1)'}
 
 def effective_sample(distribution, rng=None):
     """One effective draw from validated one-qubit probabilities/counts."""

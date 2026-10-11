@@ -9,26 +9,29 @@ import {CARDS_ART} from './cards-art.js';
 import {MENU_ART} from './menu-art.js';
 import {REPOSITORY_URL,VERSION} from './config.js';
 import {gateLabel} from './gates.js';
-import {speechText} from './phrases.js';
+import {speechText,displayText} from './phrases.js';
 import {preferences,savePreference} from './preferences.js';
 import {PresentationPlayer} from './presentation.js';
 import {SoundMixer} from './sound.js';
 import {rulesContent} from './learning.js';
-import {esc,card,sphere,circuitStrip,gateStyle,technical,quantumReport,measurementCard,table,turnGuide,handSummary,gateHelp,quantumOptions,quantumStatus} from './ui.js';
+import {L,lang,cardName,axes} from './i18n.js';
+import {esc,card,sphere,circuitStrip,gateStyle,technical,quantumReport,measurementCard,table,turnGuide,handSummary,gateHelp,gateHelpPlain,quantumOptions,quantumStatus,eventText} from './ui.js';
 const stage=document.getElementById('stage');
-if(REPOSITORY_URL){const a=document.createElement('a');a.href=REPOSITORY_URL;a.textContent='Repositorio';a.target='_blank';a.rel='noopener';document.getElementById('repo').replaceChildren(a);}
 let view=null, screen='home', revealed=false, busy=false, quantumOpen=false;
 let presentation=null, summaryOpen=false;
 let uiError=null;
 const player=new PresentationPlayer(),sound=new SoundMixer();
-let noiseRequest=null,noiseTime=performance.now(),noiseActive=false;
 const reducedMotion=()=>document.querySelector('.app-shell').classList.contains('reduced')||matchMedia('(prefers-reduced-motion: reduce)').matches;
 const delay=ms=>new Promise(resolve=>document.defaultView.setTimeout(resolve,reducedMotion()?0:ms));
 const api=async (name,arg)=>{
   const value=arg===undefined?await engine[name].callPromising():await engine[name].callPromising(arg);
   return JSON.parse(String(value));
 };
-function setView(v){view=v;if(v.remote_error)console.log(JSON.stringify({backend:v.remote_info,diagnostic:v.remote_error})); document.getElementById('mode').textContent=v.development_mode?'Simulación local con Qiskit · sin IonQ':'Simulador remoto IonQ · Qollab';}
+// Every request carries the interface language so engine messages come back translated.
+const send=(action,value=null)=>api('dispatch_json',JSON.stringify({action,value,lang:lang()}));
+function setView(v){view=v;if(v.remote_error)console.log(JSON.stringify({backend:v.remote_info,diagnostic:v.remote_error}));document.getElementById('mode').textContent=v.development_mode?L('Simulación local con Qiskit · sin IonQ','Local Qiskit simulation · no IonQ'):L('Simulador remoto IonQ · Qollab','Remote IonQ simulator · Qollab');}
+const actionLabel=a=>L(a.label,a.label_en||a.label);
+const actionHint=a=>L(a.hint,a.hint_en||a.hint);
 function focus(selector=null){
   const dialog=document.getElementById('composer-dialog');
   const target=selector?stage.querySelector(selector):null;
@@ -49,19 +52,19 @@ function announcement(effect){
   let body='',style='';
   if(effect.type==='speech'){
     const e=effect.event;style='speech-bubble';
-    body=`<p>${esc(g.names[e.player])}</p><h2>${esc(speechText(e))}</h2>${e.value!==undefined?`<p>${e.value} tantos</p>`:''}`;
+    body=`<p>${esc(g.names[e.player])}</p><h2>${esc(displayText(e))}</h2>${e.value!==undefined?`<p>${e.value} ${L('tantos','envido points')}</p>`:''}`;
   }else if(effect.type==='measurement'){
     const q=effect.q;style='measurement-announcement';
-    body=`<h2>La carta de ${esc(g.names[q.player])} se midió</h2>${measurementCard(q,true)}<p>Este resultado queda fijo durante la mano.</p>`;
+    body=`<h2>${L(`La carta de ${esc(g.names[q.player])} se midió`,`${esc(g.names[q.player])}'s card was measured`)}</h2>${measurementCard(q,true)}<p>${L('Este resultado queda fijo durante la mano.','This result stays fixed for the rest of the hand.')}</p>`;
   }else if(effect.type==='points'){
     const {event,gains}=effect;style='points-presentation';
     const order=[0,1].sort((a,b)=>gains[b]-gains[a]);
-    body=`<p>${esc(event.text)}${event.gained!==event.points?` · Valor del canto: ${event.points}. Llegó a 15.`:''}</p>${order.map(p=>`<div class="point-row"><strong>+${gains[p]} ${gains[p]===1?'punto':'puntos'}</strong><span>${esc(g.names[p])}</span></div>`).join('')}`;
+    body=`<p>${esc(eventText(event.text))}${event.gained!==event.points?L(` · Valor del canto: ${event.points}. Llegó a 15.`,` · Call value: ${event.points}. Reached 15.`):''}</p>${order.map(p=>`<div class="point-row"><strong>+${gains[p]} ${gains[p]===1?L('punto','point'):L('puntos','points')}</strong><span>${esc(g.names[p])}</span></div>`).join('')}`;
   }else if(effect.type==='baza'){
     const e=effect.event;style='baza-presentation';
-    body=`<h2>${e.winner===-1?'Baza empatada':`Ganó la baza ${esc(g.names[e.winner])}`}</h2><div class="baza-comparison">${e.cards.map((item,i)=>`<article>${card(item.card)}<p>${esc(g.names[item.player])}<br><strong>${esc(item.card.label)}</strong><br>Fuerza ${e.strengths[i]} de 14</p></article>`).join('')}</div><p>Gana la carta de mayor fuerza en la jerarquía del Truco; el número impreso no basta para compararlas.</p>`;
+    body=`<h2>${e.winner===-1?L('Baza parda (empate)','Parda: the baza is tied'):L(`Ganó la baza ${esc(g.names[e.winner])}`,`${esc(g.names[e.winner])} wins the baza`)}</h2><div class="baza-comparison">${e.cards.map((item,i)=>`<article>${card(item.card)}<p>${esc(g.names[item.player])}<br><strong>${esc(cardName(item.card))}</strong><br>${L('Fuerza','Strength')} ${e.strengths[i]} ${L('de','of')} 14</p></article>`).join('')}</div><p>${L('Gana la carta de mayor fuerza en la jerarquía del Truco; el número impreso no alcanza para compararlas.','The card higher in the Truco ranking wins; the printed number alone does not decide.')}</p>`;
   }
-  return `<section class="turn-presentation ${style}" role="dialog" aria-modal="true" aria-label="Aviso de la partida">${body}${player.controls()}</section>`;
+  return `<section class="turn-presentation ${style}" role="dialog" aria-modal="true" aria-label="${L('Aviso de la partida','Game notice')}">${body}${player.controls()}</section>`;
 }
 async function showPresentation(effect, duration=null){
   presentation=effect;
@@ -78,9 +81,10 @@ async function showPresentation(effect, duration=null){
       }
     };
   }else{render();focus();}
+  // Calls are proper names: the Spanish voice reads them in both languages.
   if(effect.type==='speech')sound.speak(`${view.game.names[effect.event.player]}. ${speechText(effect.event)}`);
-  if(effect.type==='measurement')sound.speak(`La carta de ${view.game.names[effect.q.player]} es ${effect.q.result?effect.q.linked.label:effect.q.original.label}`);
-  if(effect.type==='points')sound.speak(`${view.game.names[effect.event.winner]} suma ${effect.event.gained??effect.event.points} puntos`);
+  if(lang()==='es'&&effect.type==='measurement')sound.speak(`La carta de ${view.game.names[effect.q.player]} es ${cardName(effect.q.result?effect.q.linked:effect.q.original)}`);
+  if(lang()==='es'&&effect.type==='points')sound.speak(`${view.game.names[effect.event.winner]} suma ${effect.event.gained??effect.event.points} puntos`);
   try{if(duration===null)await player.wait(layer);else await delay(duration);}
   finally{sound.stopVoice();layer?.remove();presentation=null;}
 }
@@ -102,7 +106,7 @@ async function showTurn(before, action, wasRevealed){
   if(!g||!['prepare','play','respond','reassert'].includes(g.phase))return;
   const sameTurn=before?.hand===g.hand&&before.actor===g.actor&&wasRevealed&&!['new','tutorial','next'].includes(action);
   if(action==='reveal'||!g.privacy||view.guided||sameTurn){
-    if(!view.private){setView(await api('dispatch_json',JSON.stringify({action:'reveal'})));}
+    if(!view.private){setView(await send('reveal'));}
     revealed=!!view.private&&!view.error;
     if(revealed&&(!sameTurn||action==='reveal')){
       await showPresentation({type:'flip',faceDown:true},240);
@@ -112,18 +116,16 @@ async function showTurn(before, action, wasRevealed){
 }
 async function action(action,value=null){
   if(busy)return;
-  const finalNoise=updateNoise();
   busy=true;uiError=null;stage.setAttribute('aria-busy','true');
   const before=view.game?structuredClone(view.game):null, wasRevealed=revealed;
   const keep=['choose','edit','reveal'].includes(action),restoreFocus=keep?focusSelector():null;
   try{
-    await finalNoise;
     if(!keep){
       revealed=false;stage.classList.add('waiting');
       document.getElementById('composer-dialog')?.close();
       stage.querySelectorAll('button,input').forEach(control=>control.disabled=true);
     }
-    setView(await api('dispatch_json',JSON.stringify({action,value})));
+    setView(await send(action,value));
     if(view.error){if(!view.private){revealed=false;quantumOpen=false;}return;}
     if(['confirm','new','tutorial'].includes(action))quantumOpen=false;
     if(['new','tutorial','next'].includes(action))summaryOpen=false;
@@ -134,39 +136,8 @@ async function action(action,value=null){
       if(!keep)await presentEvents(before);
       await showTurn(before,action,wasRevealed);
     }
-  }catch(error){showError('No se pudo completar la acción. '+error.message);}
-  finally{busy=false;presentation=null;stage.classList.remove('waiting');render();focus(restoreFocus);resetNoiseClock();}
-}
-function resetNoiseClock(){
-  noiseTime=performance.now();
-  noiseActive=screen==='game'&&!busy&&!document.hidden&&!stage.querySelector('details[open]')&&revealed&&view?.development_mode&&view.game?.noise&&['play','respond','reassert'].includes(view.game.phase)&&view.private?.quantum?.result===null;
-}
-function updateNoise(){
-  if(noiseRequest)return noiseRequest;
-  const now=performance.now(),seconds=Math.min(5,Math.max(0,(now-noiseTime)/1000));
-  noiseTime=now;
-  if(!noiseActive||busy||document.hidden||seconds<.02)return Promise.resolve();
-  const {hand,actor}=view.game;
-  noiseRequest=(async()=>{
-    try{
-      const next=await api('dispatch_json',JSON.stringify({action:'noise_tick',value:{hand,player:actor,seconds}}));
-      if(!next.error&&screen==='game'&&view.game?.hand===hand&&view.game.actor===actor){
-        setView(next);
-        const q=next.private.quantum;
-        for(const bit of [0,1])stage.querySelectorAll(`[data-live-probability="${bit}"]`).forEach(el=>el.textContent=(100*q.preview.probabilities[bit]).toFixed(1).replace('.',',')+' %');
-        stage.querySelectorAll('[data-noise-seconds]').forEach(el=>el.textContent=q.preview.noise.seconds.toFixed(1).replace('.',',')+' s');
-        stage.querySelectorAll('.live-hand [data-fusion]').forEach(el=>{
-          const data=JSON.parse(el.dataset.fusion);data.probability=q.preview.probabilities[0];data.noise=true;el.dataset.fusion=JSON.stringify(data);
-        });
-        stage.querySelector('.quantum-status [data-live-bloch]')?.replaceChildren(document.createTextNode(q.preview.bloch.map((v,i)=>['X','Y','Z'][i]+'='+v.toFixed(3)).join(' · ')));
-        const cv=stage.querySelector('.quantum-status canvas');
-        if(cv){const data=JSON.parse(cv.dataset.bloch);data.vector=q.preview.bloch;data.noiseTrajectory=q.preview.noise_trajectory;cv.dataset.bloch=JSON.stringify(data);mountBloch(stage);}
-        mountFusionCards(stage);
-      }
-    }catch{/* A failed clock update is retried on the next visible decision; no invented sample. */}
-    finally{noiseRequest=null;noiseTime=performance.now();}
-  })();
-  return noiseRequest;
+  }catch(error){showError(L('No se pudo completar la acción. ','The action could not be completed. ')+error.message);}
+  finally{busy=false;presentation=null;stage.classList.remove('waiting');render();focus(restoreFocus);}
 }
 function showError(message){uiError=message;document.getElementById('notice').innerHTML=`<p class="error">${esc(message)}</p>`;}
 async function measure(){
@@ -192,17 +163,19 @@ async function retryMeasure(){
   if(busy)return;
   busy=true;stage.setAttribute('aria-busy','true');const before=view.game?structuredClone(view.game):null;
   try{await measure();if(!view.error&&screen==='game'){await presentEvents(before);await showTurn(before,'retry',false);}}
-  catch(error){showError(error.message+' Reintentar conserva el circuito y el job.');}
+  catch(error){showError(error.message+L(' Reintentar conserva el circuito y el job.',' Retrying keeps the circuit and the job.'));}
   finally{busy=false;render();focus();}
 }
-function actionButtons(g){return `<div class="actions">${g.actions.filter(a=>a.id!=='confirm').map(a=>`<button data-action="${a.id}" ${a.id==='accept'?'class="primary"':''}><span>${esc(a.label)}${a.id==='envido'&&g.pending?.kind==='truco'?' va primero':''}</span>${a.hint?`<small>${esc(a.hint)}</small>`:''}</button>`).join('')}</div>`;}
+function actionButtons(g){return `<div class="actions">${g.actions.filter(a=>a.id!=='confirm').map(a=>`<button data-action="${a.id}" ${a.id==='accept'?'class="primary"':''}><span>${esc(actionLabel(a))}${a.id==='envido'&&g.pending?.kind==='truco'?L(' va primero',' goes first'):''}</span>${a.hint?`<small>${esc(actionHint(a))}</small>`:''}</button>`).join('')}</div>`;}
 function bindActions(){stage.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>action(b.dataset.action));}
+function languageSelect(id){
+  return `<label class="language-switch"><span aria-hidden="true">🌐</span><span class="visually-hidden">${L('Idioma','Language')}</span><select id="${id}" data-language aria-label="${L('Idioma','Language')}"><option value="es" ${lang()==='es'?'selected':''}>Español</option><option value="en" ${lang()==='en'?'selected':''}>English</option></select></label>`;
+}
 function home(){
-  stage.innerHTML=`<section class="start-menu" aria-label="Menú principal de Truco Cuántico"><img class="menu-art" src="${MENU_ART}" alt="" draggable="false"><h1 class="visually-hidden">Truco Cuántico</h1><div class="menu-controls"><button class="menu-hit menu-start" id="start"><span class="visually-hidden">Empezar Partida</span></button><button class="menu-hit menu-tutorial" id="learn"><span class="visually-hidden">Tutorial</span></button><button class="menu-hit menu-values" id="values"><span class="visually-hidden">Valores</span></button><button class="menu-hit menu-credits" id="menu-credits"><span class="visually-hidden">Créditos</span></button></div></section>${view.game?'<button class="resume-menu" id="resume">Retomar partida</button>':''}`;
-  stage.innerHTML+=`<section class="panel menu-settings"><h2>Sonido y lectura</h2><div class="mixer-controls"><label><input id="disable-voices" type="checkbox" ${preferences.voices?'':'checked'}> Desactivar voces</label><label>Volumen de voces<input id="voice-volume" type="range" min="0" max="100" value="${Math.round(preferences.voiceVolume*100)}"></label><label><input id="disable-music" type="checkbox" ${preferences.music?'':'checked'}> Desactivar música</label><label>Volumen de música<input id="music-volume" type="range" min="0" max="100" value="${Math.round(preferences.musicVolume*100)}"></label></div><p id="audio-status">${esc(sound.status())}</p><p>El sonido empieza al tocar un control. Música original generada en el navegador; las voces leen los cantos.</p><label>Idioma de las explicaciones / Learning language<select id="learning-language"><option value="es" ${preferences.language==='es'?'selected':''}>Español</option><option value="en" ${preferences.language==='en'?'selected':''}>English</option></select></label><p>Los avisos esperan tu <strong>Skip · Continuar</strong>. El botón ⏱ elige 1 s, 3 s, 7 s o avance manual.</p></section>`;
+  stage.innerHTML=`<section class="start-menu ${lang()==='en'?'english-menu':''}" aria-label="${L('Menú principal de Truco Cuántico','Quantum Truco main menu')}"><img class="menu-art" src="${MENU_ART}" alt="" draggable="false">${languageSelect('menu-language')}<h1 class="visually-hidden">${L('Truco Cuántico','Quantum Truco')}</h1><div class="menu-controls"><button class="menu-hit menu-start" id="start"><span class="menu-label">${L('Empezar partida','Start game')}</span></button><button class="menu-hit menu-tutorial" id="learn"><span class="menu-label">Tutorial</span></button><button class="menu-hit menu-values" id="values"><span class="menu-label">${L('Valores','Card values')}</span></button><button class="menu-hit menu-credits" id="menu-credits"><span class="menu-label">${L('Créditos','Credits')}</span></button></div></section>${view.game?`<button class="resume-menu" id="resume">${L('Retomar partida','Resume game')}</button>`:''}`;
+  stage.innerHTML+=`<section class="panel menu-settings"><h2>${L('Idioma, sonido y lectura','Language, sound and reading')}</h2>${languageSelect('home-language')}<div class="mixer-controls"><label><input id="disable-voices" type="checkbox" ${preferences.voices?'':'checked'}> ${L('Desactivar voces','Turn voices off')}</label><label>${L('Volumen de voces','Voice volume')}<input id="voice-volume" type="range" min="0" max="100" value="${Math.round(preferences.voiceVolume*100)}"></label><label><input id="disable-music" type="checkbox" ${preferences.music?'':'checked'}> ${L('Desactivar música','Turn music off')}</label><label>${L('Volumen de música','Music volume')}<input id="music-volume" type="range" min="0" max="100" value="${Math.round(preferences.musicVolume*100)}"></label></div><p id="audio-status">${esc(sound.status())}</p><p>${L('El sonido empieza al tocar un control. Las voces leen los cantos en español, como se dicen en la mesa.','Sound starts when you touch a control. Voices read the calls in Spanish, as they are said at the table.')}</p><p>${L('Los avisos esperan tu «Continuar». El botón ⏱ elige 1 s, 3 s, 7 s o avance manual.','Notices wait for your “Continue”. The ⏱ button picks 1 s, 3 s, 7 s or manual.')}</p></section>`;
   for(const [id,key] of [['disable-voices','voices'],['disable-music','music']])document.getElementById(id).onchange=e=>{savePreference(key,!e.target.checked);sound.apply();if(key==='music'&&preferences.music)sound.unlock();};
   for(const [id,key] of [['voice-volume','voiceVolume'],['music-volume','musicVolume']])document.getElementById(id).oninput=e=>{savePreference(key,Number(e.target.value)/100);sound.apply();};
-  document.getElementById('learning-language').onchange=e=>{savePreference('language',e.target.value);};
   document.getElementById('start').onclick=()=>{screen='setup';render();focus();};
   document.getElementById('learn').onclick=()=>openTutorial();
   document.getElementById('values').onclick=()=>{screen='values';render();focus();};
@@ -210,33 +183,33 @@ function home(){
   document.getElementById('resume')?.addEventListener('click',()=>{screen='game';action('public');});
 }
 function values(){
-  const ranks=['1 de espada','1 de basto','7 de espada','7 de oro','Todos los 3','Todos los 2','1 de copa y 1 de oro','Todos los 12','Todos los 11','Todos los 10','7 de copa y 7 de basto','Todos los 6','Todos los 5','Todos los 4'];
-  stage.innerHTML=`<article class="panel help"><p class="pill">Consultá antes de jugar</p><h2>Valores de las cartas</h2><p>En el Truco, el orden de fuerza es distinto al número de la carta. De mayor a menor:</p><ol class="rank-list">${ranks.map((label,i)=>`<li><span class="rank-number">${i+1}</span><span>${esc(label)}</span></li>`).join('')}</ol><details class="deck-gallery"><summary>Ver las 40 cartas del mazo</summary>${["espada","basto","copa","oro"].map(suit=>`<h3>${suit}</h3><div class="deck-row">${[1,2,3,4,5,6,7,10,11,12].map(number=>card({number,suit,label:`${number} de ${suit}`})).join('')}</div>`).join('')}</details><h3>Tantos de Envido</h3><p>Del 1 al 7, cada carta vale su número. El 10, 11 y 12 valen 0. Con dos cartas del mismo palo, sumá sus valores y 20; si hay tres, elegí las dos mayores. Sin coincidencias de palo, cuenta el valor mayor.</p><p>Ejemplo: 7 y 6 del mismo palo suman 33. Un empate lo gana quien es mano.</p><h3>La carta cuántica</h3><p>Una vez medida, su identidad definitiva determina su fuerza y sus tantos. Antes de medir se muestran probabilidades; no tiene una fuerza adicional por ser cuántica.</p><div class="actions"><button id="full-rules">Ver reglas y cantos completos</button><button id="values-home" class="primary">Volver al inicio</button></div></article>`;
+  const c=(number,suit)=>cardName({number,suit});
+  const ranks=[c(1,'espada'),c(1,'basto'),c(7,'espada'),c(7,'oro'),L('Todos los 3','All 3s'),L('Todos los 2','All 2s'),`${c(1,'copa')} ${L('y','and')} ${c(1,'oro')}`,L('Todos los 12','All 12s'),L('Todos los 11','All 11s'),L('Todos los 10','All 10s'),`${c(7,'copa')} ${L('y','and')} ${c(7,'basto')}`,L('Todos los 6','All 6s'),L('Todos los 5','All 5s'),L('Todos los 4','All 4s')];
+  stage.innerHTML=`<article class="panel help"><p class="pill">${L('Consultá antes de jugar','Check before playing')}</p><h2>${L('Valores de las cartas','Card values')}</h2><p>${L('En el Truco la fuerza no sigue el número de la carta. De mayor a menor:','In Truco, strength does not follow the printed number. From strongest to weakest:')}</p><ol class="rank-list">${ranks.map((label,i)=>`<li><span class="rank-number">${14-i}</span><span>${esc(label)}</span></li>`).join('')}</ol><details class="deck-gallery"><summary>${L('Ver las 40 cartas del mazo','See the 40 cards of the deck')}</summary>${["espada","basto","copa","oro"].map(suit=>`<h3>${esc(cardName({number:1,suit}).replace(/^1 (de|of) /,''))}</h3><div class="deck-row">${[1,2,3,4,5,6,7,10,11,12].map(number=>card({number,suit})).join('')}</div>`).join('')}</details><h3>${L('Tantos de Envido','Envido points (tantos)')}</h3><p>${L('Del 1 al 7, cada carta vale su número; el 10, 11 y 12 valen 0. Con dos cartas del mismo palo se suman sus valores más 20; con tres, se toman las dos mayores. Sin cartas del mismo palo, cuenta la de mayor valor.','From 1 to 7 a card is worth its number; 10, 11 and 12 are worth 0. Two cards of the same suit add their values plus 20; with three, take the best two. With no matching suits, the single highest value counts.')}</p><p>${L('Ejemplo: 7 y 6 del mismo palo suman 33. En un empate gana quien es mano.','Example: a 7 and a 6 of the same suit make 33. Ties go to the player who is mano.')}</p><h3>${L('La carta cuántica','The quantum card')}</h3><p>${L('Una vez medida, su identidad definitiva determina su fuerza y sus tantos. Antes de medir solo hay probabilidades; ser cuántica no le suma fuerza.','Once measured, its final identity sets its strength and its envido points. Before measuring there are only probabilities; being quantum adds no strength.')}</p><div class="actions"><button id="full-rules">${L('Ver reglas y cantos completos','See full rules and calls')}</button><button id="values-home" class="primary">${L('Volver al inicio','Back to the menu')}</button></div></article>`;
   document.getElementById('full-rules').onclick=()=>{screen='rules';render();focus();};
   document.getElementById('values-home').onclick=()=>{screen='home';render();focus();};
 }
 function setup(){
-  stage.innerHTML=`<section class="panel"><h2>Compartir la mesa</h2><p>Sin Flor. Tres cartas por mano. Elegí cómo compartir el dispositivo.</p><form id="names"><div class="forms"><label>Jugador 1<input id="player-one" name="one" type="text" value="Alejo" maxlength="30" required autocomplete="off"></label><label>Jugador 2<input id="player-two" name="two" type="text" value="Belén" maxlength="30" required autocomplete="off"></label></div><p class="callout">${view.host_local?'Simulación local con Qiskit: podés jugar partidas completas, sin IonQ.':esc(view.mode)}</p><label><input id="dev-mode" type="checkbox" ${view.development_mode?'checked':''} ${view.host_local?'disabled':''}> Desarrollo local con Qiskit (no IonQ; permite una partida completa)</label>${view.host_local?'':'<p class="sphere-caption">IonQ es el modo por defecto en Qollab. Su límite comprobado de un job impide mediciones sucesivas; no se cambia de modo automáticamente.</p>'}<label class="privacy-option"><input id="privacy-mode" type="checkbox"> Jugar con privacidad</label><p class="sphere-caption">Activado: ocultamos la mano al pasar el dispositivo. Desactivado: el siguiente turno aparece directamente con las cartas que se dan vuelta.</p><button id="deal" class="primary" type="button">Repartir primera mano</button></form></section>`;
-  const noiseLabel=document.createElement('label');noiseLabel.className='privacy-option';noiseLabel.innerHTML=`<input id="noise-mode" type="checkbox" ${view.development_mode?'checked':'disabled'}> Ruido cuántico educativo (simulación local)<span class="setting-help">Después de confirmar, mientras pensás tu turno, la carta pierde energía y coherencia. Se pausa en avisos, privacidad, menú y pestañas ocultas. Escala didáctica, no tiempos reales de IonQ.</span>`;
-  document.getElementById('deal').before(noiseLabel);
-  document.getElementById('dev-mode').onchange=e=>{const checkbox=document.getElementById('noise-mode');checkbox.disabled=!e.target.checked;checkbox.checked=e.target.checked;};
-  const deal=async()=>{if(busy)return;const names=['player-one','player-two'].map(id=>document.getElementById(id).value.trim());if(names.some(name=>!name)){showError('Escribí el nombre de ambos jugadores.');return;}const privacy=document.getElementById('privacy-mode').checked;const dev=document.getElementById('dev-mode').checked;const noise=document.getElementById('noise-mode').checked;await action('dev_mode',dev);if(view.error)return;screen='game';await action('new',{names,privacy,noise});focus();};
+  stage.innerHTML=`<section class="panel setup-panel"><h2>${L('Compartir la mesa','Share the table')}</h2><p>${L('Dos jugadores, un dispositivo, a 15 puntos y sin Flor.','Two players, one device, to 15 points, no Flor.')}</p><form id="names"><div class="forms"><label>${L('Jugador 1','Player 1')}<input id="player-one" name="one" type="text" value="Alejo" maxlength="30" required autocomplete="off"></label><label>${L('Jugador 2','Player 2')}<input id="player-two" name="two" type="text" value="${L('Belén','Sam')}" maxlength="30" required autocomplete="off"></label></div><fieldset class="difficulty"><legend>${L('Nivel','Level')}</legend><label><input type="radio" name="difficulty" value="normal" checked> <strong>${L('Aprendizaje (normal)','Learning (normal)')}</strong><span class="setting-help">${L('Poné y sacá compuertas todas las veces que quieras antes de confirmar.','Add and remove gates as many times as you like before confirming.')}</span></label><label><input type="radio" name="difficulty" value="hard"> <strong>${L('Difícil','Hard')}</strong><span class="setting-help">${L('Podés sacar compuertas solo 2 veces por mano. Pensá el circuito antes de armarlo.','You may remove gates only twice per hand. Plan the circuit before building it.')}</span></label></fieldset><p class="callout">${view.host_local?L('Simulación local con Qiskit: partidas completas, sin IonQ.','Local Qiskit simulation: full games, no IonQ.'):esc(view.mode)}</p><label><input id="dev-mode" type="checkbox" ${view.development_mode?'checked':''} ${view.host_local?'disabled':''}> ${L('Simulación local con Qiskit (no IonQ; permite una partida completa)','Local Qiskit simulation (no IonQ; allows a full game)')}</label>${view.host_local?'':`<p class="sphere-caption">${L('IonQ es el modo por defecto en Qollab. Su límite de un job por ejecución impide mediciones sucesivas; no se cambia de modo automáticamente.','IonQ is the default mode on Qollab. Its one-job-per-run limit prevents successive measurements; the mode never switches automatically.')}</p>`}<label class="privacy-option"><input id="privacy-mode" type="checkbox"> ${L('Jugar con privacidad','Play with privacy')}</label><p class="sphere-caption">${L('Activado: la mano se oculta al pasar el dispositivo.','On: your hand is hidden when the device is passed.')}</p><button id="deal" class="primary" type="button">${L('Repartir primera mano','Deal the first hand')}</button></form></section>`;
+  const deal=async()=>{if(busy)return;const names=['player-one','player-two'].map(id=>document.getElementById(id).value.trim());if(names.some(name=>!name)){showError(L('Escribí el nombre de ambos jugadores.','Enter both player names.'));return;}const privacy=document.getElementById('privacy-mode').checked;const dev=document.getElementById('dev-mode').checked;const difficulty=document.querySelector('[name="difficulty"]:checked').value;await action('dev_mode',dev);if(view.error)return;screen='game';await action('new',{names,privacy,difficulty});focus();};
   document.getElementById('deal').onclick=deal;
   document.getElementById('names').onsubmit=event=>{event.preventDefault();deal();};
 }
 function handoff(g){
-  stage.innerHTML+=`<section class="panel neutral"><p class="lock" aria-hidden="true">◈</p><h2>Turno de ${esc(g.names[g.actor])}</h2><p>Pasale el dispositivo y asegurate de que el rival no esté mirando.</p><label><input type="checkbox" id="alone"> Estoy listo para ver mi información privada</label><div class="actions" style="justify-content:center"><button id="reveal" class="primary" disabled>Revelar mi mano</button></div></section>`;
+  stage.innerHTML+=`<section class="panel neutral"><p class="lock" aria-hidden="true">◈</p><h2>${L(`Turno de ${esc(g.names[g.actor])}`,`${esc(g.names[g.actor])}'s turn`)}</h2><p>${L('Pasale el dispositivo y asegurate de que el rival no esté mirando.','Pass the device and make sure your opponent is not looking.')}</p><label><input type="checkbox" id="alone"> ${L('Estoy listo para ver mi información privada','I am ready to see my private information')}</label><div class="actions" style="justify-content:center"><button id="reveal" class="primary" disabled>${L('Revelar mi mano','Reveal my hand')}</button></div></section>`;
   document.getElementById('alone').onchange=e=>document.getElementById('reveal').disabled=!e.target.checked;
   document.getElementById('reveal').onclick=()=>action('reveal');
 }
 function editor(g,priv){
-  const q=priv.quantum;
-  stage.innerHTML+=turnGuide(g,priv);
+  const q=priv.quantum,left=priv.removals_left,limited=left!==null&&left!==undefined,blocked=limited&&left===0;
+  stage.innerHTML+=(view.coach?coachPanel(view.coach):turnGuide(g,priv));
   stage.innerHTML+=table(g,{art:TABLE_ART,cards:priv.cards,quantum:q,prepare:true});
-  document.getElementById('activate-quantum').onclick=()=>{quantumOpen=true;render();focus();};
   stage.querySelectorAll('[data-card]').forEach(b=>b.onclick=()=>action('choose',Number(b.dataset.card)));
+  const activate=document.getElementById('activate-quantum');
+  if(activate)activate.onclick=()=>{quantumOpen=true;render();focus();};
   if(!q||!quantumOpen)return;
-  stage.innerHTML+=`<dialog id="composer-dialog" class="overlay quantum-composer" aria-label="Compositor de la carta cuántica"><button id="close-composer" class="close-composer" aria-label="Volver a la mesa">Volver a la mesa ×</button><h2>Una carta, dos resultados posibles</h2><p class="composer-intro">Ambas conservan el número. Las fichas cambian sus probabilidades; la medición elige una identidad definitiva.</p>${quantumOptions(q)}<div class="composer-layout"><section class="circuit-workbench" aria-label="Circuito y esfera">${circuitStrip(q.preview.gates,q)}<div class="composer-sphere">${sphere(q.preview,null,'composer-'+q.original.label)}</div></section><aside class="gate-rack" aria-label="Cuatro fichas privadas"><h2>Tus compuertas</h2><div class="rack-frame">${q.tokens.map((token,i)=>`<button class="gate-tile gate-${token[0]}" style="${gateStyle(token)}" data-token="${i}" title="${esc(gateHelp[token])}" aria-label="Agregar ${esc(gateLabel(token))}, ficha ${i+1}: ${esc(gateHelp[token])}" ${q.sequence.includes(i)||q.sequence.length===3?'disabled':''}><span>${esc(gateLabel(token))}</span><small>Ficha ${i+1}</small></button>`).join('')}</div><p>Hasta 3 compuertas.<br>Cada ficha, una vez.</p></aside></div><div class="composer-controls">${(uiError||view.error)?`<p class="error" role="alert">${esc(uiError||view.error)}</p>`:''}<div class="actions"><button id="undo" ${q.sequence.length?'':'disabled'}>Deshacer</button><button id="reset">Reiniciar</button></div><label><input type="checkbox" id="lock-ok"> Confirmo el circuito; quedará bloqueado durante esta mano</label><button id="lock-circuit" class="primary" disabled>Confirmar circuito</button><p class="sphere-caption">Leé el circuito de izquierda a derecha. Editar no mide la carta. Sin fichas, el estado ideal conserva la original.</p><details class="gate-help"><summary>¿Qué hace cada ficha?</summary><ul>${Object.entries(gateHelp).map(([gate,text])=>`<li><strong>${esc(gateLabel(gate))}</strong>: ${esc(text)}</li>`).join('')}</ul></details>${technical(q.preview)}</div></dialog>`;
+  const allGates=['H','X','Z','RX:pi/2','RY:pi/2','RZ:pi/2'];
+  stage.innerHTML+=`<dialog id="composer-dialog" class="overlay quantum-composer" aria-label="${L('Compositor de la carta cuántica','Quantum card composer')}"><button id="close-composer" class="close-composer">${L('Volver a la mesa ×','Back to the table ×')}</button>${view.coach?coachPanel(view.coach):''}<h2>${L('Una carta, dos resultados posibles','One card, two possible results')}</h2><p class="composer-intro">${L('Ambas conservan el número. Las fichas cambian sus probabilidades; la medición elige una identidad definitiva.','Both keep the number. Tokens change their probabilities; the measurement picks one final identity.')}</p>${quantumOptions(q)}<div class="composer-layout"><section class="circuit-workbench" aria-label="${L('Circuito y esfera','Circuit and sphere')}">${circuitStrip(q.preview.gates,{locked:blocked})}<div class="composer-sphere">${sphere(q.preview,null,'composer-'+cardName(q.original))}</div></section><aside class="gate-rack" aria-label="${L('Cuatro fichas privadas','Four private tokens')}"><h2>${L('Tus compuertas','Your gates')}</h2><div class="rack-frame">${q.tokens.map((token,i)=>`<button class="gate-tile gate-${token[0]}" style="${gateStyle(token)}" data-token="${i}" title="${esc(gateHelpPlain(token))}" aria-label="${L('Agregar','Add')} ${esc(gateLabel(token))}, ${L('ficha','token')} ${i+1}: ${esc(gateHelpPlain(token))}" ${q.sequence.includes(i)||q.sequence.length===3?'disabled':''}><span>${esc(gateLabel(token))}</span><small>${L('Ficha','Token')} ${i+1}</small></button>`).join('')}</div><p>${L('Hasta 3 compuertas. Cada ficha, una vez.','Up to 3 gates. Each token once.')}</p>${limited?`<p class="removals ${blocked?'none-left':''}" role="status">${L(`Modo difícil · retiros restantes: <strong>${left}</strong> de 2`,`Hard mode · removals left: <strong>${left}</strong> of 2`)}</p>`:''}</aside></div><div class="composer-controls">${(uiError||view.error)?`<p class="error" role="alert">${esc(uiError||view.error)}</p>`:''}<div class="actions"><button id="undo" ${q.sequence.length&&!blocked?'':'disabled'}>${L('Deshacer','Undo')}</button><button id="reset" ${q.sequence.length&&!blocked?'':'disabled'}>${L('Reiniciar','Reset')}</button><button id="lock-circuit" class="primary">${L('Confirmar','Confirm')}</button></div><p class="sphere-caption">${L('Al confirmar, el circuito queda fijo durante la mano. Leelo de izquierda a derecha; editar no mide la carta. Sin fichas, la carta sigue siendo la original.','Once confirmed, the circuit stays fixed for the hand. Read it left to right; editing does not measure the card. With no tokens, the card stays the original.')}</p><details class="gate-help"><summary>${L('¿Qué hace cada ficha?','What does each token do?')}</summary><ul>${allGates.map(gate=>`<li>${gateHelp(gate)}</li>`).join('')}<li>${L('RX, RY y RZ también aparecen con 30°, −30° y 60°: giran menos sobre el mismo eje.','RX, RY and RZ also come at 30°, −30° and 60°: smaller turns around the same axis.')}</li></ul></details>${technical(q.preview)}</div></dialog>`;
   document.getElementById('close-composer').onclick=()=>{quantumOpen=false;render();focus();};
   document.getElementById('activate-quantum').onclick=()=>{quantumOpen=true;render();focus();};
   // Rebind after replacing markup with +=.
@@ -246,50 +219,50 @@ function editor(g,priv){
   for(const direction of ['left','right'])stage.querySelectorAll(`[data-${direction}]`).forEach(b=>b.onclick=()=>{const i=Number(b.dataset[direction]),j=i+(direction==='left'?-1:1),seq=[...q.sequence];[seq[i],seq[j]]=[seq[j],seq[i]];action('edit',seq);});
   document.getElementById('undo').onclick=()=>action('edit',q.sequence.slice(0,-1));
   document.getElementById('reset').onclick=()=>action('edit',[]);
-  document.getElementById('lock-ok').onchange=e=>document.getElementById('lock-circuit').disabled=!e.target.checked;
   document.getElementById('lock-circuit').onclick=()=>action('confirm');
 }
 function publicSummary(g){
   const report=g.report;
   if(!report)return '';
-  return `<section class="panel public-summary"><p class="pill">Resumen público · Mano ${g.hand}</p>${handSummary(g)}<div class="player-summaries">${report.quantum.map((q,p)=>{
-    const result=q?.result===null?'Terminó sin medir':q?(q.result?q.linked:q.original).label:'Sin carta cuántica';
-    return `<article class="player-summary"><h3>${esc(g.names[p])}</h3><p>Resultado cuántico: <strong>${esc(result)}</strong></p><p>Cartas: ${report.cards?.[p].map(c=>`${esc(c.effective.label)}${c.quantum?' (Q)':''}`).join(' · ')||'—'}</p><p>Circuito: ${q?.preview.gates.map(gateLabel).map(esc).join(' → ')||'Sin compuertas'}</p>${g.envido?`<p>Envido: <strong>${g.envido.values[p]} tantos</strong></p>`:''}<details><summary>Ampliar detalles de ${esc(g.names[p])}</summary>${quantumReport(q)}</details></article>`;
-  }).join('')}</div>${g.phase==='match_end'?`<details><summary>Manos anteriores (${g.history.length})</summary>${g.history.map(h=>`<details><summary>Mano ${h.hand} · ${h.scores.join(' / ')}</summary>${h.quantum.map((q,p)=>`<h3>${esc(g.names[p])}</h3>${quantumReport(q)}`).join('')}</details>`).join('')}</details><button id="download">Descargar informe JSON</button>`:''}<button id="close-summary">Volver al resultado</button></section>`;
+  return `<section class="panel public-summary"><p class="pill">${L('Resumen público · Mano','Public summary · Hand')} ${g.hand}</p>${handSummary(g)}<div class="player-summaries">${report.quantum.map((q,p)=>{
+    const result=q?.result===null?L('Terminó sin medir','Ended unmeasured'):q?cardName(q.result?q.linked:q.original):L('Sin carta cuántica','No quantum card');
+    return `<article class="player-summary"><h3>${esc(g.names[p])}</h3><p>${L('Resultado cuántico','Quantum result')}: <strong>${esc(result)}</strong></p><p>${L('Cartas','Cards')}: ${report.cards?.[p].map(c=>`${esc(cardName(c.effective))}${c.quantum?' (Q)':''}`).join(' · ')||'—'}</p><p>${L('Circuito','Circuit')}: ${q?.preview.gates.map(gateLabel).map(esc).join(' → ')||L('Sin compuertas','No gates')}</p>${g.envido?`<p>Envido: <strong>${g.envido.values[p]} ${L('tantos','points')}</strong></p>`:''}${q?`<details><summary>${L('Ampliar detalles de','More details for')} ${esc(g.names[p])}</summary>${quantumReport(q)}</details>`:''}</article>`;
+  }).join('')}</div>${g.phase==='match_end'?`<details><summary>${L('Manos anteriores','Previous hands')} (${g.history.length})</summary>${g.history.map(h=>`<details><summary>${L('Mano','Hand')} ${h.hand} · ${h.scores.join(' / ')}</summary>${h.quantum.map((q,p)=>`<h3>${esc(g.names[p])}</h3>${quantumReport(q)}`).join('')}</details>`).join('')}</details><button id="download">${L('Descargar informe JSON','Download JSON report')}</button>`:''}<button id="close-summary">${L('Volver al resultado','Back to the result')}</button></section>`;
 }
 function resultScreen(g){
   const match=g.phase==='match_end',loser=1-g.winner;
   if(view.coach)stage.innerHTML+=coachPanel(view.coach);
-  stage.innerHTML+=`<section class="panel outcome" aria-label="Resultado de ${match?'partida':'mano'}"><p class="pill">${match?'Partida terminada':view.guided?'Tutorial · mano terminada':'Mano terminada'}</p><h2>Victoria de ${esc(g.names[g.winner])}</h2><p class="defeat">Derrota de ${esc(g.names[loser])}</p><p>${g.names.map((n,p)=>`${esc(n)}: ${g.scores[p]}`).join(' · ')}</p><div class="actions"><button id="view-summary" class="primary">Ver resumen</button>${match?'<button id="again">Nueva partida</button>':view.coach?.final?'':actionButtons(g)}</div></section>`;
+  stage.innerHTML+=`<section class="panel outcome" aria-label="${match?L('Resultado de la partida','Match result'):L('Resultado de la mano','Hand result')}"><p class="pill">${match?L('Partida terminada','Match over'):view.guided?L('Tutorial · mano terminada','Tutorial · hand over'):L('Mano terminada','Hand over')}</p><h2>${L(`Victoria de ${esc(g.names[g.winner])}`,`${esc(g.names[g.winner])} wins`)}</h2><p class="defeat">${L(`Derrota de ${esc(g.names[loser])}`,`${esc(g.names[loser])} loses`)}</p><p>${g.names.map((n,p)=>`${esc(n)}: ${g.scores[p]}`).join(' · ')}</p><div class="actions"><button id="view-summary" class="primary">${L('Ver resumen','See summary')}</button>${match?`<button id="again">${L('Nueva partida','New game')}</button>`:view.coach?.final?'':actionButtons(g)}</div></section>`;
   if(summaryOpen)stage.innerHTML+=publicSummary(g);
   document.getElementById('view-summary').onclick=()=>{summaryOpen=true;render();stage.querySelector('.public-summary')?.scrollIntoView({block:'start',behavior:reducedMotion()?'instant':'smooth'});};
   document.getElementById('close-summary')?.addEventListener('click',()=>{summaryOpen=false;render();focus();});
   document.getElementById('again')?.addEventListener('click',()=>{screen='setup';render();});
-  document.getElementById('download')?.addEventListener('click',()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(g.history,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='truco-cuantico-informe.json';a.click();URL.revokeObjectURL(url);});
+  document.getElementById('download')?.addEventListener('click',()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(g.history,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='truco-cuantico-report.json';a.click();URL.revokeObjectURL(url);});
   bindActions();
 }
+const CALLS={envido:'Envido',real:'Real Envido',falta:'Falta Envido'};
 function game(){
   const g=view.game;
   if(!g){screen='setup';setup();return;}
-  stage.innerHTML=`<p class="round-meta">${esc(g.names[0])}: ${g.scores[0]} · ${esc(g.names[1])}: ${g.scores[1]} · Mano ${g.hand} · ${view.guided?'Tutorial con Bot Q':g.privacy?'Con privacidad':'Sin pausa de privacidad'}</p>`;
+  stage.innerHTML=`<p class="round-meta">${esc(g.names[0])}: ${g.scores[0]} · ${esc(g.names[1])}: ${g.scores[1]} · ${L('Mano','Hand')} ${g.hand} · ${view.guided?L('Tutorial con Bot Q','Tutorial with Bot Q'):g.difficulty==='hard'?L('Nivel difícil','Hard level'):L('Nivel aprendizaje','Learning level')}</p>`;
   if(presentation){
     if(presentation.type==='flip'){
-      stage.innerHTML+=`<p class="turn-banner" role="status">Turno de ${esc(g.names[g.actor])}</p>`+table(g,{art:TABLE_ART,cards:view.private?.cards,quantum:view.private?.quantum,prepare:g.phase==='prepare',faceDown:presentation.faceDown,flip:!presentation.faceDown});return;
+      stage.innerHTML+=`<p class="turn-banner" role="status">${L(`Turno de ${esc(g.names[g.actor])}`,`${esc(g.names[g.actor])}'s turn`)}</p>`+table(g,{art:TABLE_ART,cards:view.private?.cards,quantum:view.private?.quantum,prepare:g.phase==='prepare',faceDown:presentation.faceDown,flip:!presentation.faceDown});return;
     }
     return;
   }
   if(['match_end','hand_end'].includes(g.phase)){resultScreen(g);return;}
   if(g.phase==='measure'){
-    stage.innerHTML+=`<section class="panel neutral"><h2>${g.public_measurement?'Midiendo la carta':'Resolviendo el Envido'}</h2><p role="status">Esperando el resultado de la medición.</p><button id="retry">Reintentar consulta del mismo job</button></section>`;document.getElementById('retry').onclick=retryMeasure;return;
+    stage.innerHTML+=`<section class="panel neutral"><h2>${g.public_measurement?L('Midiendo la carta','Measuring the card'):L('Resolviendo el Envido','Settling the Envido')}</h2><p role="status">${L('Esperando el resultado de la medición.','Waiting for the measurement result.')}</p><button id="retry">${L('Reintentar consulta del mismo job','Retry the same job')}</button></section>`;document.getElementById('retry').onclick=retryMeasure;return;
   }
   if(!revealed){handoff(g);return;}
   const priv=view.private||{};
   if(g.phase==='prepare'){editor(g,priv);return;}
   stage.innerHTML+=(view.coach?coachPanel(view.coach):turnGuide(g,priv))+table(g,{art:TABLE_ART,cards:priv.cards,quantum:priv.quantum});
   if(priv.quantum)stage.innerHTML+=quantumStatus(priv.quantum,g.names[g.actor]);
-  if(g.envido)stage.innerHTML+=`<p class="callout">Envido: ${esc(g.names[0])} ${g.envido.values[0]} · ${esc(g.names[1])} ${g.envido.values[1]}. Ganó ${esc(g.names[g.envido.winner])}: +${g.envido.points}.</p>`;
-  if(g.pending)stage.innerHTML+=`<section class="panel"><h2>Respuesta de ${esc(g.names[g.actor])}</h2><p>${esc(g.names[g.pending.proposer])} propone ${g.pending.kind==='envido'?g.pending.chain.map(c=>({envido:'Envido',real:'Real Envido',falta:'Falta Envido'}[c])).join(' → '):({2:'Truco',3:'Retruco',4:'Vale Cuatro'}[g.pending.level])}.</p></section>`;
-  stage.innerHTML+=actionButtons(g)+`<details><summary>Línea temporal pública</summary><div class="timeline">${g.events.map(e=>`<p>${esc(e.kind==='speech'?speechText(e):e.text)} ${e.player!==undefined?'· '+esc(g.names[e.player]):''} ${e.points?'+ '+e.points+' puntos':''}</p>`).join('')}</div></details>`;
+  if(g.envido)stage.innerHTML+=`<p class="callout">Envido: ${esc(g.names[0])} ${g.envido.values[0]} · ${esc(g.names[1])} ${g.envido.values[1]}. ${L('Ganó','Won by')} ${esc(g.names[g.envido.winner])}: +${g.envido.points}.</p>`;
+  if(g.pending)stage.innerHTML+=`<section class="panel pending-call"><h2>${L(`Respuesta de ${esc(g.names[g.actor])}`,`${esc(g.names[g.actor])} must answer`)}</h2><p>${L(`${esc(g.names[g.pending.proposer])} propone`,`${esc(g.names[g.pending.proposer])} calls`)} ${g.pending.kind==='envido'?g.pending.chain.map(c=>CALLS[c]).join(' → '):({2:'Truco',3:'Retruco',4:'Vale Cuatro'}[g.pending.level])}.</p></section>`;
+  stage.innerHTML+=actionButtons(g)+`<details class="timeline-box"><summary>${L('Línea temporal pública','Public timeline')}</summary><div class="timeline">${g.events.map(e=>`<p>${esc(e.kind==='speech'?displayText(e):eventText(e.text))} ${e.player!==undefined?'· '+esc(g.names[e.player]):''} ${e.points?'+ '+e.points+' '+L('puntos','points'):''}</p>`).join('')}</div></details>`;
   bindActions();
   if(g.phase==='play')stage.querySelectorAll('[data-card]').forEach(b=>{
     b.onclick=()=>action('play',Number(b.dataset.card));b.draggable=true;
@@ -304,8 +277,8 @@ function game(){
 async function openTutorial(){screen='game';revealed=false;summaryOpen=false;await action('tutorial');focus();}
 // Bot Q's explanation for the current tutorial step. Without 'expect' the player advances with «Siguiente».
 function coachPanel(c){
-  const controls=c.final?'<button id="coach-play" class="primary">Jugar una partida</button><button id="coach-home">Volver al inicio</button>':`${c.expect?'':'<button id="coach-next" class="primary">Siguiente</button>'}<button id="coach-exit">Salir del tutorial</button>`;
-  return `<aside class="coach" aria-label="Tutorial con Bot Q" aria-live="polite"><span class="coach-avatar" aria-hidden="true">Q</span><div><p class="coach-step">Tutorial · paso ${c.step} de ${c.total}</p><h2>${esc(c.title)}</h2><p>${esc(c.text)}</p><div class="actions">${controls}</div></div></aside>`;
+  const controls=c.final?`<button id="coach-play" class="primary">${L('Jugar una partida','Play a game')}</button><button id="coach-home">${L('Volver al inicio','Back to the menu')}</button>`:`${c.expect?'':`<button id="coach-next" class="primary">${L('Siguiente','Next')}</button>`}<button id="coach-exit">${L('Salir del tutorial','Leave the tutorial')}</button>`;
+  return `<aside class="coach" aria-label="${L('Tutorial con Bot Q','Tutorial with Bot Q')}" aria-live="polite"><span class="coach-avatar" aria-hidden="true">Q</span><div><p class="coach-step">${L(`Tutorial · paso ${c.step} de ${c.total}`,`Tutorial · step ${c.step} of ${c.total}`)}</p><h2>${esc(L(c.title,c.title_en||c.title))}</h2><p>${axes(esc(L(c.text,c.text_en||c.text)))}</p><div class="actions">${controls}</div></div></aside>`;
 }
 // Highlights the explained element and leaves only the expected control enabled.
 function applyCoach(){
@@ -315,26 +288,37 @@ function applyCoach(){
   target?.classList.add('coach-target');
   const [expected,value]=c.expect||[];
   stage.querySelectorAll('[data-action]').forEach(b=>{if(b.dataset.action!==expected)b.disabled=true;});
-  stage.querySelectorAll('[data-card]').forEach(b=>{if(expected!=='play'||Number(b.dataset.card)!==value){b.disabled=true;b.draggable=false;}});
+  stage.querySelectorAll('[data-card]').forEach(b=>{if(!['play','choose'].includes(expected)||Number(b.dataset.card)!==value){b.disabled=true;b.draggable=false;}});
   document.getElementById('coach-next')?.addEventListener('click',()=>action('coach_next'));
   document.getElementById('coach-exit')?.addEventListener('click',()=>{screen='home';render();focus();});
   document.getElementById('coach-home')?.addEventListener('click',()=>{screen='home';render();focus();});
   document.getElementById('coach-play')?.addEventListener('click',()=>{screen='setup';render();focus();});
   if(target){const box=target.getBoundingClientRect();if(box.top<0||box.bottom>innerHeight)target.scrollIntoView({block:'center',behavior:reducedMotion()?'instant':'smooth'});}
 }
-function explanationLanguage(){
-  return `<label class="explanation-language">Idioma / Language <select data-learning-language><option value="es" ${preferences.language==='es'?'selected':''}>Español</option><option value="en" ${preferences.language==='en'?'selected':''}>English</option></select></label>`;
-}
 function rules(){
-  stage.innerHTML=explanationLanguage()+rulesContent(preferences.language);
+  stage.innerHTML=rulesContent(lang());
 }
 function credits(){
-  stage.innerHTML=`<article class="panel help credits-page"><h2>Qriollo · ${VERSION}</h2><p class="credits-intro">Aprender cuántica jugando al Truco.</p><p>Un proyecto de <a href="${REPOSITORY_URL}" target="_blank" rel="noopener">Guidomc15</a>. El autor aportó los diseños del menú, la mesa y las cartas.</p><dl><dt>Motor cuántico</dt><dd>Qiskit: estados, compuertas, canales de ruido y mediciones.</dd><dt>Esfera interactiva</dt><dd>Adaptada de <a href="https://qollab.xyz/u/qollab/interactive-bloch-sphere" target="_blank" rel="noopener">Interactive Bloch Sphere, de Qollab</a>.</dd><dt>Música y voces</dt><dd>Música original generada en el navegador. Lectura de cantos con las voces disponibles en el dispositivo.</dd><dt>Desarrollo</dt><dd>Código, pruebas y documentación con asistencia de OpenAI Codex. Preparación del fondo con la herramienta de imágenes de OpenAI.</dd></dl><p>This effort is supported by Qollab &amp; IonQ.</p><p>Código original: MIT. Los recursos aportados y la esfera tienen avisos separados en <a href="${REPOSITORY_URL}/blob/main/THIRD_PARTY_NOTICES.md" target="_blank" rel="noopener">Third-party notices</a>.</p><details><summary>Video y funcionamiento técnico</summary><p>El video de 56 segundos documenta una versión anterior. La partida completa actual usa simulación local con Qiskit; la ejecución IonQ disponible en Qollab admite un solo job por sesión. El ruido educativo usa una matriz de densidad local, sin enviarse a IonQ.</p><button id="demo-button">Ver video histórico</button><div id="demo-view"></div></details></article>`;
-  document.getElementById('demo-button').onclick=async()=>{const d=await api('demo_json');if(d.error){showError(d.error);return;}document.getElementById('demo-view').innerHTML=`<video controls preload="metadata" aria-label="Video histórico con textos visibles" src="data:video/mp4;base64,${d.data}"></video><details><summary>Transcripción</summary><pre>${esc(d.transcript)}</pre></details>`;};
+  stage.innerHTML=`<article class="panel help credits-page"><h2>Qriollo · ${VERSION}</h2><p class="credits-intro">${L('Aprender computación cuántica jugando al Truco.','Learning quantum computing by playing Truco.')}</p><p>${L('Un proyecto de','A project by')} <a href="${REPOSITORY_URL}" target="_blank" rel="noopener">Guido Miniero Cocco, Alejo Dellape ${L('y','and')} Gaspar Osterrieth</a>. ${L('El equipo aportó los diseños del menú, la mesa y las cartas.','The team contributed the menu, table and card designs.')}</p><dl><dt>${L('Motor cuántico','Quantum engine')}</dt><dd>${L('Qiskit: estados, compuertas y mediciones.','Qiskit: states, gates and measurements.')}</dd><dt>${L('Esfera interactiva','Interactive sphere')}</dt><dd>${L('Adaptada de','Adapted from')} <a href="https://qollab.xyz/u/qollab/interactive-bloch-sphere" target="_blank" rel="noopener">Interactive Bloch Sphere, Qollab</a>.</dd><dt>${L('Música y voces','Music and voices')}</dt><dd>${L('Tema musical aportado por el equipo. Los cantos se leen con las voces disponibles en el dispositivo.','Music track provided by the team. Calls are read with the voices available on the device.')}</dd><dt>${L('Desarrollo','Development')}</dt><dd>${L('Código, pruebas y documentación con asistencia de OpenAI Codex y Claude (Anthropic). Fondo preparado con la herramienta de imágenes de OpenAI.','Code, tests and documentation with assistance from OpenAI Codex and Claude (Anthropic). Background prepared with OpenAI’s image tool.')}</dd></dl><p>This effort is supported by Qollab &amp; IonQ.</p><p>${L('Código original: MIT. Los recursos aportados y la esfera tienen avisos separados en','Original code: MIT. Contributed assets and the sphere have separate notices in')} <a href="${REPOSITORY_URL}/blob/main/THIRD_PARTY_NOTICES.md" target="_blank" rel="noopener">Third-party notices</a>.</p><details><summary>${L('Video y funcionamiento técnico','Video and technical notes')}</summary><p>${L('El video de 56 segundos documenta una versión anterior. Las partidas completas usan simulación local con Qiskit; la ejecución IonQ disponible en Qollab admite un solo job por sesión.','The 56-second video documents an earlier version. Full games use local Qiskit simulation; the IonQ run available on Qollab allows one job per session.')}</p><button id="demo-button">${L('Ver video histórico','Watch the earlier video')}</button><div id="demo-view"></div></details></article>`;
+  document.getElementById('demo-button').onclick=async()=>{const d=await api('demo_json');if(d.error){showError(d.error);return;}document.getElementById('demo-view').innerHTML=`<video controls preload="metadata" aria-label="${L('Video histórico','Earlier video')}" src="data:video/mp4;base64,${d.data}"></video><details><summary>${L('Transcripción','Transcript')}</summary><pre>${esc(d.transcript)}</pre></details>`;};
+}
+// Static chrome (header, navigation, footer) follows the chosen language too.
+function chrome(){
+  document.documentElement.lang=lang();
+  const text={'.skip':L('Saltar al juego','Skip to the game'),'.eyebrow':L('QUANTUM PLAYGROUND · DOS PERSONAS, UNA MESA','QUANTUM PLAYGROUND · TWO PLAYERS, ONE TABLE'),'#home':L('Inicio','Home'),'#tutorial':L('Tutorial con Bot Q','Tutorial with Bot Q'),'#rules':L('Cómo jugar','How to play'),'#credits':L('Créditos','Credits'),'#motion-label':L('Reducir animaciones','Reduce motion')};
+  for(const [selector,value] of Object.entries(text)){const el=document.querySelector(selector);if(el)el.textContent=value;}
+  const title=document.querySelector('.brand h1');if(title)title.innerHTML=L('Truco <em>Cuántico</em>','Quantum <em>Truco</em>');
+  const repo=document.getElementById('repo');if(repo&&REPOSITORY_URL)repo.innerHTML=`<a href="${REPOSITORY_URL}" target="_blank" rel="noopener">${L('Repositorio','Repository')}</a>`;
+  const footer=document.getElementById('footer-license');if(footer)footer.textContent=L('MIT (código propio) · Circuitos de un qubit · ','MIT (original code) · One-qubit circuits · ');
+  const select=document.getElementById('language');if(select)select.value=lang();
+}
+function setLanguage(value){
+  if(!['es','en'].includes(value)||value===lang())return;
+  savePreference('language',value);chrome();render();
+  sound.apply();
 }
 function render(){
   const scroll={x:window.scrollX,y:window.scrollY};
-  stage.style.minHeight=screen==='game'?Math.max(0,scroll.y+innerHeight-stage.offsetTop-(document.querySelector('footer')?.offsetHeight||0))+'px':'';
   stage.classList.remove('waiting');
   document.getElementById('notice').innerHTML=(uiError||view.error)?`<p class="error">${esc(uiError||view.error)}</p>`:'';
   document.querySelector('.app-shell').classList.toggle('landing',screen==='home');
@@ -347,21 +331,20 @@ function render(){
   mountFusionCards(stage);
   stage.setAttribute('aria-busy',String(busy));
   if(busy)stage.querySelectorAll('button,input,select').forEach(control=>{if(!control.hasAttribute('data-skip-presentation')&&!control.hasAttribute('data-presentation-timer'))control.disabled=true;});
-  stage.querySelector('[data-learning-language]')?.addEventListener('change',event=>{savePreference('language',event.target.value);render();});
+  stage.querySelectorAll('[data-language]').forEach(select=>select.onchange=event=>setLanguage(event.target.value));
   if(screen==='game')window.scrollTo({left:scroll.x,top:scroll.y,behavior:'instant'});
-  resetNoiseClock();
 }
 for(const id of ['home','tutorial','rules','credits'])document.getElementById(id).onclick=()=>{if(busy)return;revealed=false;if(id==='tutorial')openTutorial();else{screen=id;render();focus();}};
+document.getElementById('language').onchange=event=>setLanguage(event.target.value);
 document.getElementById('motion').onchange=e=>{document.querySelector('.app-shell').classList.toggle('reduced',e.target.checked);};
 document.addEventListener('pointerdown',()=>sound.unlock());
 document.addEventListener('keydown',event=>{if(['Enter',' '].includes(event.key))sound.unlock();});
-document.addEventListener('visibilitychange',()=>{resetNoiseClock();if(document.hidden)sound.pause();else if(sound.context)sound.unlock();});
-stage.addEventListener('toggle',()=>resetNoiseClock(),true);
-setInterval(()=>updateNoise(),1000);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)sound.pause();else if(sound.context)sound.unlock();});
 document.documentElement.style.setProperty('--table-art',`url("${TABLE_ART}")`);
 document.documentElement.style.setProperty('--cards-art',`url("${CARDS_ART}")`);
-try{setView(await api('dispatch_json',JSON.stringify({action:'public'})));render();}
-catch(error){showError('No se pudo cargar el juego. Comprobá que el servidor esté activo y recargá la página. '+error.message);stage.innerHTML='<section class="panel"><h2>El juego todavía no pudo conectarse</h2><p>Volvé a cargar la página cuando la conexión se restablezca. Si el servidor sigue activo, tu sesión se conserva.</p><button id="reload-game">Volver a intentar</button></section>';document.querySelectorAll('nav button').forEach(button=>button.disabled=true);document.getElementById('reload-game').onclick=()=>location.reload();}
+chrome();
+try{setView(await send('public'));render();}
+catch(error){showError(L('No se pudo cargar el juego. Comprobá que el servidor esté activo y recargá la página. ','The game could not load. Check that the server is running and reload the page. ')+error.message);stage.innerHTML=`<section class="panel"><h2>${L('El juego todavía no pudo conectarse','The game could not connect yet')}</h2><p>${L('Volvé a cargar la página cuando la conexión se restablezca. Si el servidor sigue activo, tu sesión se conserva.','Reload the page once the connection is back. If the server is still running, your session is kept.')}</p><button id="reload-game">${L('Volver a intentar','Try again')}</button></section>`;document.querySelectorAll('nav button').forEach(button=>button.disabled=true);document.getElementById('reload-game').onclick=()=>location.reload();}
 
 // Keep the Qollab run alive while interactive controls need its injected backend.
 // The documented runtime has no run time limit; Stop terminates this session.

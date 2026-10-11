@@ -29,7 +29,7 @@ jobs:
         run: |
           python -m pip check
           python -m unittest discover -s tests -v
-          python build_qollab.py --check --verify-zip QOLLAB_0.2.1.zip
+          python build_qollab.py --check --verify-zip QOLLAB_0.2.2.zip
       - name: Check JavaScript syntax
         run: |
           for module in *.js; do node --check "$module"; done
@@ -61,7 +61,7 @@ jobs:
           node tests/browser_full_match.cjs
           TRUCO_PRIVACY=1 node tests/browser_full_match.cjs
           node tests/browser_animations.cjs
-          node tests/browser_0.2.1.cjs
+          node tests/browser_0.2.2.cjs
           node tests/browser_tutorial.cjs
       - name: Keep browser evidence and server logs
         if: always()

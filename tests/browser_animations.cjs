@@ -33,7 +33,7 @@ fs.mkdirSync(output,{recursive:true});
     await click('[data-card="0"]');await click('#activate-quantum');
     assert.equal(await page.locator('.quantum-option').count(),2);
     await page.screenshot({path:path.join(output,privacy?'composer-private.png':'composer-desktop.png')});
-    await page.locator('#lock-ok').check();await click('#lock-circuit');
+    await click('#lock-circuit');
    }
    if(privacy){await page.locator('#alone').check();await click('#reveal');}
   };

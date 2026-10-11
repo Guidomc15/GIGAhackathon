@@ -208,8 +208,6 @@ nav .motion,.mode,.playing nav button,.playing .mode{font-size:15px}
 .baza-comparison .card{margin:12px auto;width:95px;height:152px}
 .baza-comparison p{font-size:17px}
 .waiting .live-hand,.waiting .quantum-status,.waiting #composer-dialog{visibility:hidden}
-.noise-lesson{padding:18px;background:#243023;border:1px solid #c9b57c;border-radius:8px;margin:18px 0}
-.noise-lesson [aria-pressed=true]{outline:3px solid #b2f4cb}
 .played-slot .measurement-result>.fusion-card{width:80px;height:128px}
 .played-slot .measurement-result{width:80px;height:128px}
 .scoreboard .match-tallies{display:none}
@@ -272,3 +270,18 @@ nav .motion,.mode,.playing nav button,.playing .mode{font-size:15px}
 @media(max-width:700px){.coach{padding:12px;font-size:15px}.coach-avatar{width:36px;height:36px;font-size:19px}.coach h2{font-size:18px}}
 /* En el tutorial las cartas bloqueadas se siguen viendo: Bot Q las está explicando. */
 .coach~.table-scene .card:disabled{opacity:1;cursor:default}
+/* 0.2.2 · Idioma, ejes de colores, nivel y menú en inglés. */
+.menu-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.english-menu .menu-label{position:absolute;inset:9% 6%;width:auto;height:auto;clip:auto;display:grid;place-items:center;border-radius:8px;background:linear-gradient(#4a3826,#2b1f13);box-shadow:inset 0 0 0 2px #b79a5c,inset 0 0 14px #000a;color:#f2e2b5;font:700 clamp(18px,3.2vw,34px)/1 Georgia,'Times New Roman',serif;letter-spacing:.02em;text-shadow:0 2px 0 #0009,0 0 10px #f6d57a55;pointer-events:none}
+.start-menu .language-switch{position:absolute;top:2.5%;right:2.5%;z-index:3}
+.language-switch{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;background:#1d2a20e6;border:1px solid #c9b57c;border-radius:20px;color:#f2e2b5;font:600 15px system-ui}
+.language-switch select{background:transparent;color:inherit;border:0;font:inherit;padding:2px;cursor:pointer}
+.language-switch select option{background:#1d2a20;color:#f2e2b5}
+nav .nav-language{margin-left:auto}
+.axis{font-weight:800}
+.difficulty{border:1px solid #c9b57c88;border-radius:8px;padding:8px 14px;margin:12px 0;display:grid;gap:8px}
+.difficulty legend{padding:0 6px;color:var(--gold);font:700 15px system-ui}
+.difficulty label{display:grid;grid-template-columns:auto 1fr;column-gap:8px;align-items:start}
+.difficulty .setting-help{grid-column:2;font-size:14px;color:var(--muted)}
+.removals{margin:8px 0 0;padding:6px 10px;border-radius:6px;background:#2b2a1c;border:1px solid #c9b57c;font:600 14px system-ui}
+.removals.none-left{border-color:#ff8585;color:#ffc2c2}

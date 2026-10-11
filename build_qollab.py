@@ -5,7 +5,7 @@ from pathlib import Path
 import zipfile
 
 ROOT = Path(__file__).resolve().parent
-MODULES = ('__init__', 'gates', 'classic', 'quantum', 'remote', 'game', 'tutorial', 'service')
+MODULES = ('__init__', 'i18n', 'gates', 'classic', 'quantum', 'remote', 'game', 'tutorial', 'service')
 
 
 def engine_source():
@@ -36,7 +36,7 @@ def _service():
         package.__package__ = root
         sys.modules[root] = package
         exec(compile(_SOURCES['__init__'], '<qollab_engine/__init__.py>', 'exec'), package.__dict__)
-        for name in ('gates', 'classic', 'quantum', 'remote', 'game', 'tutorial', 'service'):
+        for name in ('i18n', 'gates', 'classic', 'quantum', 'remote', 'game', 'tutorial', 'service'):
             module = types.ModuleType(root + '.' + name)
             module.__package__ = root
             module.__file__ = '<qollab_engine/' + name + '.py>'

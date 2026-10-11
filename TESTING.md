@@ -4,7 +4,7 @@ Entorno usado: Python 3.12.14, Qiskit 2.5.2 y Chromium local. La suite tiene **4
 
 ```sh
 .venv/bin/python -m unittest discover -s tests -v
-python build_qollab.py --check --verify-zip QOLLAB_0.2.1.zip
+python build_qollab.py --check --verify-zip QOLLAB_0.2.2.zip
 ```
 
 Las pruebas verifican reglas, jerarquía, pardas, cadenas de cantos, conservación del mazo, privacidad, medición única y atómica, sesiones HTTP, recuperación de errores remotos con dobles de prueba y el motor de Qollab aislado sin carpeta `truco/`.
@@ -18,7 +18,7 @@ node tests/browser_interface.cjs
 node tests/browser_full_match.cjs
 TRUCO_PRIVACY=1 node tests/browser_full_match.cjs
 node tests/browser_animations.cjs
-node tests/browser_0.2.1.cjs
+node tests/browser_0.2.2.cjs
 node tests/browser_tutorial.cjs
 ```
 

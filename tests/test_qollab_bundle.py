@@ -68,9 +68,9 @@ while not coach['final']:
     coach = action(name, value)['coach']
 assert json.loads(engine.poll_json())['done']
 
-view = action('new', {'names': ['Ana', 'Luis'], 'privacy': True, 'noise': True})
+view = action('new', {'names': ['Ana', 'Luis'], 'privacy': True, 'difficulty': 'hard'})
 assert view['game']['privacy']
-assert view['game']['noise']
+assert view['game']['difficulty'] == 'hard'
 assert 'private' not in view
 assert len(action('reveal')['private']['cards']) == 3
 measurements = 0
@@ -89,11 +89,7 @@ for step in range(500):
         view = measure()
         measurements += 1
     elif phase == 'play':
-        before = action('reveal')['private']['quantum']
-        private = action('noise_tick', {'hand': view['game']['hand'],
-                                      'player': view['game']['actor'], 'seconds': 3})
-        seconds = private['private']['quantum']['preview']['noise']['seconds']
-        assert seconds == before['preview']['noise']['seconds'] + (3 if before['result'] is None else 0)
+        assert 'noise' not in action('reveal')['private']['quantum']['preview']
         legal = [item['id'] for item in view['game']['actions']]
         view = action('envido' if 'envido' in legal else 'fold')
     elif phase == 'hand_end':
