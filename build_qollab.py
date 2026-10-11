@@ -66,7 +66,7 @@ def demo_json():
 
 def upload_files():
     files = [*sorted(ROOT.glob('*.js')), ROOT / 'main.css', ROOT / 'index.html',
-             ROOT / 'qollab_engine.py', ROOT / 'requirements.txt', ROOT / 'LICENSE',
+             ROOT / 'qollab_engine.py', ROOT / 'requirements.txt', ROOT / 'README.md', ROOT / 'LICENSE',
              ROOT / 'QOLLAB_UPDATE.md', ROOT / 'THIRD_PARTY_NOTICES.md', ROOT / 'DEMO_SCRIPT.md',
              ROOT / 'artifacts' / 'truco-cuantico-demo.mp4',
              ROOT / 'artifacts' / 'DEMO_TRANSCRIPT.txt']

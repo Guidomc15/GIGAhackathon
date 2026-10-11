@@ -1,8 +1,16 @@
 # Cambios
 
+## 0.2.4
+
+README bilingüe pensado como Project Card de Qollab: primero en inglés y después en español, responde qué es, por qué importa y para quién, cómo funciona la parte cuántica, cómo ejecutarlo y qué resultados esperar. El README se incluye en `QOLLAB_0.2.4.zip`. Reemplaza a `docs/README.en.md`, `QOLLAB_SUBMISSION.md` y `JUDGING_SUMMARY.md`.
+
+El juego no tiene música: se quitó el tema de 0.2.2 (`music-data.js`) porque no tenía licencia para redistribuirse. El menú 🔊 Voces conserva las voces de los cantos con su volumen.
+
+Limpieza de la entrega: se quitaron archivos de versiones anteriores (`main.py` y `qollab_smoke/`, la prueba de backend de 0.1.9; `docs/history/`, `docs/ROLLBACK.md`, `STATUS.md` y `RUNNING.md`, cuyo contenido vigente pasó al README), estilos de pantallas que ya no existen (menú anterior, galería de cartas, tablas de rangos, animaciones de medición en desuso) y los alias de compuertas `RY+`/`RY-`. `browser_0.2.2.cjs` pasa a llamarse `browser_settings.cjs`. Las versiones anteriores siguen disponibles en sus tags.
+
 ## 0.2.3
 
-Inicio nuevo según el boceto del equipo: logo de Qriollo, lema bilingüe, placas Tutorial, Partida rápida, Ayuda rápida y Créditos, y la carta Q con la esfera de Bloch; ocupa toda la ventana y en celulares se apila. El juego no tiene música: se quitó el tema de 0.2.2 (`music-data.js`) porque no tenía licencia para redistribuirse; el menú 🔊 Voces conserva las voces de los cantos con su volumen.
+Inicio nuevo según el boceto del equipo: logo de Qriollo, lema bilingüe, placas Tutorial, Partida rápida, Ayuda rápida y Créditos, y la carta Q con la esfera de Bloch; ocupa toda la ventana y en celulares se apila.
 
 Diecisiete diapositivas antes de la partida, con glosario tocable: reglas, palos, escala por niveles, un duelo para practicar qué carta gana, dos manos de ejemplo jugadas baza por baza, cantos Truco/Retruco/Vale Cuatro, cantar Truco, responder como rival, cómo termina la mano y cinco de Envido (valores, cuatro ejemplos de cálculo con tres cartas del mismo palo sin flor, Envido del rival, respuestas con Real y Falta Envido, y Falta Envido desde un marcador 12–9) y dos de la carta cuántica: qué es (un qubit con la carta original |0⟩ y la ligada |1⟩, con probabilidades para sin fichas, H y X y un botón para medir) y los palos ligados (basto ↔ oro, copa ↔ espada) con la fila de la escala de cada carta.
 
@@ -11,8 +19,6 @@ La partida con Bot Q pasa a ser una práctica de cuatro manos y 33 pasos: 6 desa
 Ayuda rápida: «Valores de las cartas» muestra la escala ilustrada de las diapositivas con las 40 cartas. El resumen de la mano se puede recorrer con rueda, trackpad, teclado o toque (sin barra visible) hasta el registro de cada medición. Cada medición se escribe en la consola del navegador como «[Qriollo] Medición», con el registro crudo de Qiskit o IonQ; la versión se ve en el pie de página y en la consola.
 
 La esfera de Bloch rotula los seis polos: |0⟩ y |1⟩ en Z, |+⟩ y |−⟩ en X, |+i⟩ y |−i⟩ en Y, con el color de cada eje. Mazo de fichas rebalanceado a 41: H, Z, RX, RY y RZ con 8 fichas cada una (cerca de 20 % cada familia) y una sola X (2,4 %). Entrega plana `QOLLAB_0.2.3.zip`; los módulos nuevos son `slides.js` y `home-art.js`, y `menu-art.js` ya no se usa.
-
-Entrega final ordenada: README nuevo en español e inglés; se quitaron archivos de versiones anteriores (`main.py` y `qollab_smoke/`, la prueba de backend de 0.1.9; `docs/history/`, `docs/ROLLBACK.md`, `STATUS.md` y `RUNNING.md`, cuyo contenido vigente pasó al README), estilos de pantallas que ya no existen (menú anterior, galería de cartas, tablas de rangos, animaciones de medición en desuso) y los alias de compuertas `RY+`/`RY-`. `browser_0.2.2.cjs` pasa a llamarse `browser_settings.cjs`. Las versiones anteriores siguen disponibles en sus tags.
 
 ## 0.2.2
 
