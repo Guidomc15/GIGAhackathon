@@ -1,5 +1,4 @@
 import {preferences} from './preferences.js';
-import {MUSIC_TRACK} from './music-data.js';
 import {L} from './i18n.js';
 
 // Looped background track plus browser speech for the calls. Audio starts after a user gesture.
@@ -8,7 +7,8 @@ export class SoundMixer {
   async unlock(){
     if(!preferences.music)return;
     try{
-      if(!this.audio){this.audio=new Audio(MUSIC_TRACK);this.audio.loop=true;this.audio.preload='auto';}
+      // The 1 MB track loads on first use, so the game never waits for it (and runs without it).
+      if(!this.audio){const {MUSIC_TRACK}=await import('./music-data.js');this.audio=new Audio(MUSIC_TRACK);this.audio.loop=true;this.audio.preload='auto';}
       this.apply();
       if(this.audio.paused&&!document.hidden){await this.audio.play();this.context={state:'running'};}
     }catch{/* Autoplay restrictions never prevent playing. */}
