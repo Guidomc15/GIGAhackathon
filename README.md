@@ -1,6 +1,6 @@
 # Qriollo · Truco Cuántico 0.2.1
 
-Un juego para aprender computación cuántica jugando al Truco argentino. Dos personas comparten un dispositivo, preparan una carta cuántica y compiten hasta 15 puntos. El tutorial con Bot Q explica cada idea con ejemplos, experimentos y detalle técnico opcional.
+Un juego para aprender computación cuántica jugando al Truco argentino. Dos personas comparten un dispositivo, preparan una carta cuántica y compiten hasta 15 puntos. El tutorial es una partida guiada de Truco contra Bot Q que explica cada parte de la pantalla; la carta cuántica se suma al tutorial en una próxima etapa.
 
 **[English overview](docs/README.en.md)** · [Ejecutar localmente](RUNNING.md) · [Subir o actualizar Qollab](QOLLAB_UPDATE.md) · [Pruebas](TESTING.md) · [Cambios 0.2.1](CHANGELOG.md)
 
@@ -26,7 +26,7 @@ Para Qollab, descomprimí **[QOLLAB_0.2.1.zip](QOLLAB_0.2.1.zip)** y cargá sus 
 - Los cambios de turno conservan el scroll. Los textos, ejes y valores de la esfera, identificación de mano y cartas jugadas son más grandes.
 - Las dos identidades de la carta Q se leen con nombres completos y porcentajes blancos, aunque el recorte de una figura oculte su palo.
 - Música original generada en el navegador y lectura de cantos con síntesis de voz. En Inicio hay controles de silencio y volumen independientes. El audio empieza después de interactuar; las voces dependen del dispositivo.
-- Reglas y tutorial en español e inglés, con ejemplos para quien nunca jugó ni programó.
+- Reglas en español e inglés, con ejemplos para quien nunca jugó ni programó. Tutorial interactivo de Truco en español: tres manos guionadas contra Bot Q.
 - Ruido cuántico educativo opcional, activado inicialmente en simulación local. Usa canales de relajación y desfasaje de Qiskit; afecta las probabilidades y la medición real, no solo el dibujo.
 
 ## Ruido y medición
@@ -43,7 +43,7 @@ Dos jugadores, a 15 puntos y sin Flor. El Envido compara los tantos; el Truco au
 
 | Archivo o carpeta | Función |
 | --- | --- |
-| `truco/` | Reglas, estado de partida, Qiskit, ruido, tutorial y API de sesión |
+| `truco/` | Reglas, estado de partida, Qiskit, ruido, guion del tutorial y API de sesión |
 | `main.js`, `ui.js`, `main.css` | Interfaz y controles |
 | `presentation.js`, `preferences.js`, `sound.js` | Avisos, ajustes, música y voces |
 | `learning.js` | Reglas, explicación del ruido y referencias bilingües |

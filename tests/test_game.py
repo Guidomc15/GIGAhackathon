@@ -186,54 +186,69 @@ class SessionTests(unittest.TestCase):
         with self.assertRaises(ValueError): session.action({'action':'new','value':{'names':['Ana','Luis'],'privacy':'yes'}})
         self.assertIs(session.game,game)
 
-    def test_pending_tutorial_cannot_change_context(self):
-        session = Session(local=True)
-        session.action({'action':'tutorial', 'value':1})
-        session.action({'action':'tutorial_sample', 'value':0})
-        for action, value in (('tutorial',2), ('new',['Ana','Luis']), ('guided','Vos')):
-            with self.assertRaises(ValueError): session.action({'action':action, 'value':value})
-        self.assertTrue(session.output()['tutorial']['pending'])
-        result = session.start()['tutorial']
-        self.assertEqual(result['index'], 1)
-        self.assertEqual(result['result']['bit'], 1)
-        self.assertFalse(result['pending'])
+    def play_tutorial(self, session):
+        view = session.action({'action':'tutorial'})
+        while not view['coach']['final']:
+            name, value = view['coach']['expect'] or ('coach_next', None)
+            view = session.action({'action':name, 'value':value})
+            self.assertNotEqual(session.game.phase, 'measure')
+        return view
 
-    def test_invalid_new_keeps_guided_game(self):
+    def test_tutorial_script_plays_three_classic_hands(self):
         session = Session(local=True)
-        session.action({'action':'guided', 'value':'Vos'})
+        view = self.play_tutorial(session)
+        game = session.game
+        self.assertFalse(game.quantum)
+        self.assertEqual(game.hand_number, 3)
+        self.assertEqual(game.scores, [7, 0])
+        self.assertEqual(game.phase, 'hand_end')
+        self.assertEqual(view['coach']['step'], view['coach']['total'])
+        self.assertTrue(all(q is None for h in game.history for q in h['quantum']))
+
+    def test_tutorial_only_accepts_the_highlighted_action(self):
+        session = Session(local=True)
+        session.action({'action':'tutorial'})
+        with self.assertRaises(ValueError): session.action({'action':'play', 'value':0})
+        while not session.output()['coach']['expect']:
+            session.action({'action':'coach_next'})
+        self.assertEqual(session.output()['coach']['expect'], ['play', 0])
+        for action, value in (('coach_next',None), ('play',1), ('truco',None), ('fold',None)):
+            with self.assertRaises(ValueError): session.action({'action':action, 'value':value})
+        self.assertEqual(session.game.table, [])
+        session.action({'action':'play', 'value':0})
+        self.assertEqual(len(session.game.table), 2)  # Bot Q answered with its scripted card.
+
+    def test_new_game_leaves_tutorial_and_invalid_new_keeps_it(self):
+        session = Session(local=True)
+        session.action({'action':'tutorial'})
         game = session.game
         with self.assertRaises(ValueError): session.action({'action':'new', 'value':['Solo']})
         self.assertTrue(session.guided)
         self.assertIs(session.game, game)
-        self.assertEqual(game.events[0]['mano'], game.mano)
+        view = session.action({'action':'new', 'value':['Ana','Luis']})
+        self.assertFalse(session.guided)
+        self.assertNotIn('coach', view)
+        self.assertTrue(view['game']['quantum'])
 
-    def test_pending_game_cannot_receive_tutorial_measurements(self):
+    def test_pending_measurement_blocks_tutorial(self):
         session = Session(local=True); session.game = prepared()
         session.game.dispatch('play', 0)
-        with self.assertRaises(ValueError): session.action({'action':'tutorial_sample', 'value':0})
-        self.assertIsNone(session.tutorial_pending)
+        with self.assertRaises(ValueError): session.action({'action':'tutorial'})
+        self.assertFalse(session.guided)
 
-    def test_pending_tutorial_cannot_mutate_existing_game(self):
-        session = Session(local=True); session.game = prepared()
-        session.action({'action':'tutorial','value':1})
-        session.action({'action':'tutorial_sample','value':0})
-        with self.assertRaises(ValueError): session.action({'action':'play','value':0})
-        self.assertEqual(session.game.phase, 'play')
-        self.assertEqual(session.game.table, [])
+    def test_classic_game_skips_quantum_card(self):
+        game = Game(['Ana','Luis'], rng=random.Random(4), quantum=False, mano=0)
+        self.assertEqual(game.phase, 'play')
+        self.assertEqual(game.tokens, [[],[]])
+        game.dispatch('envido'); game.dispatch('accept')
+        self.assertIsNotNone(game.envido_result)
+        self.assertNotIn('Se miden', game.action_hint('fold') + str(game.public_view()['actions']))
+        game.dispatch('play', 0)
+        self.assertEqual(game.phase, 'play')
+        self.assertEqual(len(game.table), 1)
 
-    def test_guided_bot_hand_finishes(self):
-        session = Session(local=True)
-        session.action({'action':'guided', 'value':'Vos'})
-        for action, value in (('choose',0), ('edit',[0]), ('confirm',None), ('envido',None)):
-            session.action({'action':action, 'value':value})
-        session.start(); session.action({'action':'accept'})
-        for _ in range(20):
-            game = session.game
-            if game.phase == 'hand_end': break
-            if game.phase == 'measure': session.start()
-            elif game.phase == 'report': session.action({'action':'hide'})
-            else:
-                self.assertEqual(game.actor, 0)
-                session.action({'action':'play','value':next(i for i in range(3) if i not in game.played[0])})
-        self.assertEqual(session.game.phase, 'hand_end')
-        self.assertTrue(session.game.history)
+    def test_scripted_deals_are_validated(self):
+        same = ((1,'espada'), (2,'oro'), (3,'copa'))
+        with self.assertRaises(ValueError): Game(['A','B'], deals=[(same, same)])
+        with self.assertRaises(ValueError): Game(['A','B'], deals=[(same[:2], ((4,'oro'),(5,'oro'),(6,'oro')))])
+        with self.assertRaises(ValueError): Game(['A','B'], mano=2)

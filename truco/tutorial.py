@@ -1,151 +1,157 @@
-"""Beginner lessons; ideal circuits and explicit educational noise experiments."""
-LESSONS = [{'title': 'Bienvenido a la mesa',
-  'title_en': 'Welcome to the table',
-  'text': 'Bot Q te acompaña a aprender. Una mano es un reparto de tres cartas; una baza es una '
-          'carta de cada jugador. La partida termina cuando alguien llega a 15 puntos. Vas a '
-          'convertir una carta en la representación de un qubit: un sistema que medimos con dos '
-          'resultados posibles.',
-  'text_en': 'Bot Q helps you learn. A hand is a deal of three cards; a trick (baza) is one card '
-             'from each player. The first player to 15 points wins. You will turn a card into a '
-             'representation of a qubit: a system measured with two possible results.',
-  'example': 'Original |0⟩: 4 de oro. Ligada |1⟩: 4 de basto. Conserva el 4 y cambia el palo. '
-             'Espada se liga con copa; basto, con oro.',
-  'example_en': 'Original |0⟩: 4 of coins (oro). Linked |1⟩: 4 of clubs (basto). The rank stays 4; '
-                'the suit changes. Swords pair with cups; clubs with coins.',
-  'technical': '|0⟩ y |1⟩ son los estados de la base de medición. El dibujo de dos cartas muestra '
-               'resultados posibles de un único qubit; no son dos qubits ni hay entrelazamiento.',
-  'technical_en': '|0⟩ and |1⟩ form the measurement basis. The two card images show possible '
-                  'outcomes of one qubit; they are not two qubits and are not entangled.',
-  'circuits': [[]],
-  'sample': False},
- {'title': '1 · X: cambiar de original a ligada',
-  'title_en': '1 · X: from original to linked',
-  'text': 'Una compuerta es una operación sobre el estado del qubit. X intercambia los papeles de '
-          'original y ligada. Empezando en original, X prepara la ligada con 100 % de probabilidad '
-          'en el modelo ideal. Medí para observar un resultado real.',
-  'text_en': 'A gate is an operation on a qubit state. X exchanges the roles of original and '
-             'linked. Starting at original, X prepares linked with 100% probability in the ideal '
-             'model. Measure to observe a real outcome.',
-  'example': 'Desde |0⟩, una X → ligada. Dos X → original. X no quiere decir “elegir siempre la '
-             'ligada”: importa el estado que recibe.',
-  'example_en': 'From |0⟩, one X → linked; two X gates → original. X does not mean “always choose '
-                'linked”: its input state matters.',
-  'technical': 'X(α|0⟩ + β|1⟩) = β|0⟩ + α|1⟩. Equivale a una rotación de π (180°) alrededor del '
-               'eje X de la esfera, salvo fase global. La amplitud es el número que acompaña a '
-               'cada estado; su magnitud al cuadrado es la probabilidad.',
-  'technical_en': 'X(α|0⟩ + β|1⟩) = β|0⟩ + α|1⟩. Up to global phase, this is a π (180°) rotation '
-                  'about the Bloch X axis. An amplitude is the coefficient of a basis state; its '
-                  'squared magnitude is the probability.',
-  'circuits': [['X']],
-  'sample': True},
- {'title': '2 · H: dos posibilidades antes de medir',
-  'title_en': '2 · H: two possibilities before measurement',
-  'text': 'H desde original prepara una superposición: 50 % para original y 50 % para ligada. Esos '
-          'porcentajes describen resultados posibles al medir, no una carta clásica escondida. '
-          'Aceptar Envido mide las cartas Q pendientes para calcular los tantos; el resultado '
-          'queda fijo.',
-  'text_en': 'H from original prepares a superposition: 50% original and 50% linked. These '
-             'percentages describe possible measurement outcomes, not a hidden classical card. '
-             'Accepting Envido measures unresolved Q cards to calculate both totals; the result '
-             'stays fixed.',
-  'example': 'Un solo experimento da 0 o 1, nunca “media carta”. Si repetís muchos experimentos '
-             'preparados igual, sus frecuencias se acercan a 50/50; diez repeticiones no tienen '
-             'por qué dar cinco de cada uno.',
-  'example_en': 'One experiment gives 0 or 1, never “half a card”. Over many identically prepared '
-                'experiments, frequencies approach 50/50; ten trials need not give exactly five of '
-                'each.',
-  'technical': 'H|0⟩ = (|0⟩ + |1⟩)/√2. P(0)=|1/√2|²=1/2; P(1)=1/2. La regla de Born relaciona '
-               'amplitudes y probabilidades. Se hace un único muestreo efectivo por carta y mano.',
-  'technical_en': 'H|0⟩ = (|0⟩ + |1⟩)/√2. P(0)=|1/√2|²=1/2; P(1)=1/2. The Born rule relates '
-                  'amplitudes to probabilities. Each card is sampled effectively once per hand.',
-  'circuits': [['H']],
-  'sample': True},
- {'title': '3 · Rotaciones: importan el eje y el ángulo',
-  'title_en': '3 · Rotations: axis and angle matter',
-  'text': 'RX, RY y RZ giran el estado alrededor de los ejes X, Y y Z de la esfera. Cada ficha '
-          'tiene un ángulo fijo. La esfera es un mapa: norte es original, sur es ligada. La altura '
-          'Z determina sus porcentajes; X e Y también describen información de fase y coherencia.',
-  'text_en': 'RX, RY and RZ rotate the state about the Bloch X, Y and Z axes. Each token has a '
-             'fixed angle. The sphere is a map: north is original, south linked. Height Z sets the '
-             'measurement percentages; X and Y also encode phase and coherence.',
-  'example': 'RY(π/6) desde original da 93,3 % / 6,7 %. Después de H, la misma RY da 25 % / 75 %. '
-             'Una ficha no tiene un porcentaje fijo: opera sobre lo que dejó la anterior.',
-  'example_en': 'RY(π/6) from original gives 93.3% / 6.7%. After H, the same RY gives 25% / 75%. A '
-                'gate does not have a fixed percentage: it acts on the previous state.',
-  'technical': 'π radianes = 180°; π/2 = 90°; π/6 = 30°; −π/6 = −30°. RY(θ)|0⟩ = cos(θ/2)|0⟩ + '
-               'sin(θ/2)|1⟩. RZ cambia fase sin cambiar inmediatamente los porcentajes al medir en '
-               'Z. Girar la cámara no aplica ninguna compuerta.',
-  'technical_en': 'π radians = 180°; π/2 = 90°; π/6 = 30°; −π/6 = −30°. RY(θ)|0⟩ = cos(θ/2)|0⟩ + '
-                  'sin(θ/2)|1⟩. RZ changes phase without immediately changing Z-measurement '
-                  'percentages. Rotating the camera applies no gate.',
-  'circuits': [['H', 'RY:pi/6'],
-               ['H', 'RY:-pi/6'],
-               ['RY:pi/6'],
-               ['RX:pi/2'],
-               ['H', 'RZ:pi/2', 'H']],
-  'sample': True},
- {'title': '4 · Fase e interferencia: el orden importa',
-  'title_en': '4 · Phase and interference: order matters',
-  'text': 'Pensá en ondas que pueden reforzarse o cancelarse. Las amplitudes cuánticas se combinan '
-          'de esa manera. La fase indica cómo se alinean: dos estados pueden mostrar iguales '
-          'porcentajes ahora y dar resultados distintos después de otra compuerta.',
-  'text_en': 'Think of waves reinforcing or cancelling each other. Quantum amplitudes combine that '
-             'way. Phase describes how they align: two states can show the same percentages now '
-             'and behave differently after another gate.',
-  'example': 'H → H vuelve a original. H → Z → H termina en ligada. Z no cambió los porcentajes '
-             'inmediatamente, pero cambió cómo la última H combinó las amplitudes. No medimos '
-             'entre esas operaciones.',
-  'example_en': 'H → H returns to original. H → Z → H ends in linked. Z did not immediately change '
-                'the percentages, but changed how the last H combined amplitudes. We do not '
-                'measure between these operations.',
-  'technical': 'H(α|0⟩ + β|1⟩) = ((α+β)|0⟩ + (α−β)|1⟩)/√2. Z cambia β por −β. El signo afecta la '
-               'interferencia, no produce probabilidades negativas. Una fase global común a ambas '
-               'amplitudes no cambia resultados observables.',
-  'technical_en': 'H(α|0⟩ + β|1⟩) = ((α+β)|0⟩ + (α−β)|1⟩)/√2. Z changes β to −β. The sign affects '
-                  'interference, not the non-negativity of probabilities. A global phase shared by '
-                  'both amplitudes changes no observable outcome.',
-  'circuits': [['H', 'X'], ['X', 'H'], ['H', 'Z', 'H']],
-  'sample': True},
- {'title': 'Mano guiada con Bot Q',
-  'title_en': 'A guided hand with Bot Q',
-  'text': 'Elegí una carta y hasta tres fichas. Bot Q cantará Truco: probá “Envido va primero”. '
-          'Respondé al Truco después de resolver los tantos y jugá las bazas. Bot Q solo aparece '
-          'en esta mano. Al terminar podés pasar a la explicación final del ruido.',
-  'text_en': 'Choose a card and up to three tokens. Bot Q will call Truco: try “Envido goes '
-             'first”. After the totals are resolved, answer Truco and play the tricks. Bot Q '
-             'appears only in this hand. At the end, continue to the final noise lesson.',
-  'example': 'Confirmar bloquea tu circuito, pero no mide. La carta Q se mide al jugarla o aceptar '
-             'Envido. Con privacidad, solo la persona que tiene el turno debe mirar su mano.',
-  'example_en': 'Confirming locks your circuit, without measuring. The Q card is measured when '
-                'played or Envido accepted. With privacy enabled, only the player whose turn it is '
-                'should look at their hand.',
-  'circuits': [],
-  'sample': False,
-  'guided': True},
- {'title': '5 · Ruido: un qubit también cambia al esperar',
-  'title_en': '5 · Noise: waiting can change a qubit',
-  'text': 'Un qubit real interactúa con su entorno. Puede perder energía y la coherencia que '
-          'permite interferir. En el juego simulamos ambas cosas: después de confirmar, el reloj '
-          'corre mientras pensás un turno visible. No corre durante avisos, privacidad, menú ni '
-          'pestañas ocultas. Una carta ya medida queda fija.',
-  'text_en': 'A real qubit interacts with its environment. It can lose energy and the coherence '
-             'that enables interference. This game simulates both: after confirmation, the clock '
-             'runs during your visible decision time. Notices, privacy, menus and hidden tabs '
-             'pause it. A measured card stays fixed.',
-  'example': 'Con H empezás en 50/50. Esperar acerca la distribución a original en este modelo. El '
-             'ruido no siempre acerca todo a 50/50: depende del canal y del estado. Los segundos '
-             'se ampliaron para enseñar; no son tiempos de un dispositivo IonQ.',
-  'example_en': 'H starts at 50/50. Waiting moves the distribution toward original in this model. '
-                'Noise does not always move everything toward 50/50: it depends on the channel and '
-                'state. Times are scaled for teaching, not calibrated to an IonQ device.',
-  'technical': 'El programa evoluciona una matriz de densidad ρ con operadores de Kraus de '
-               'relajación y desfasaje. Los porcentajes mostrados son las diagonales de esa misma '
-               'matriz que se usa para muestrear con Qiskit. Es ruido físico modelado, no un '
-               'porcentaje aleatorio decorativo.',
-  'technical_en': 'The program evolves a density matrix ρ using amplitude-damping and dephasing '
-                  'Kraus operators. Displayed percentages are the diagonal entries of the same '
-                  'matrix sampled by Qiskit. This is a physical noise model, not decorative random '
-                  'percentages.',
-  'circuits': [['H']],
-  'sample': True,
-  'noise': True}]
+"""Interactive Truco tutorial: one scripted match against Bot Q.
+
+The match uses the real game engine in classic mode (no quantum card yet).
+Each step is one of:
+  - an explanation ('title'/'text'), advanced with the «Siguiente» button;
+  - an explanation with 'expect': the only game action the player may take;
+  - a 'bot' move, executed automatically by the session.
+'target' is a CSS selector the interface highlights.
+"""
+
+NAMES = ('Vos', 'Bot Q')
+MANO = 0  # The player starts as mano in the first hand.
+
+# Fixed deals: [player cards, Bot Q cards]. Card indices in 'expect' and 'bot'
+# refer to these positions.
+DEALS = (
+    # Hand 1 · bazas and card strength. Envido is not used.
+    (((3, 'espada'), (5, 'copa'), (12, 'basto')),
+     ((2, 'oro'), (4, 'copa'), (11, 'espada'))),
+    # Hand 2 · Bot Q is mano and calls Envido (player 33, Bot Q 30); parda.
+    (((7, 'oro'), (6, 'oro'), (4, 'basto')),
+     ((3, 'copa'), (6, 'espada'), (4, 'espada'))),
+    # Hand 3 · Truco and Retruco.
+    (((1, 'espada'), (3, 'oro'), (5, 'basto')),
+     ((1, 'basto'), (12, 'oro'), (10, 'copa'))),
+)
+
+STEPS = (
+    # ---------- Hand 1 ----------
+    {'title': 'Bienvenido a la mesa',
+     'text': 'Soy Bot Q. Vamos a jugar tres manos de Truco y te voy a explicar cada parte de '
+             'la pantalla. Leé cada mensaje y tocá «Siguiente». Cuando haya que jugar, te voy '
+             'a marcar qué tocar.',
+     'target': '.table-scene'},
+    {'title': 'El marcador',
+     'text': 'Acá se anotan los puntos de cada jugador: «0 / 15» quiere decir 0 puntos de los '
+             '15 necesarios. Gana la partida quien llega primero a 15.',
+     'target': '.scoreboard'},
+    {'title': 'Las cartas del rival',
+     'text': 'Arriba están mis tres cartas, boca abajo: no las podés ver. Cada vez que juego '
+             'una, desaparece de acá y aparece en el centro de la mesa.',
+     'target': '.opponent-hand'},
+    {'title': 'Tu mano',
+     'text': 'Abajo están tus tres cartas: 3 de espada, 5 de copa y 12 de basto. En el Truco '
+             'la fuerza no es el número: el 3 le gana al 12. El orden completo está en «Valores» '
+             'del menú de inicio.',
+     'target': '.live-hand'},
+    {'title': 'Las bazas',
+     'text': 'El centro tiene tres columnas, una por baza. Una baza es una carta de cada '
+             'jugador: gana la carta más fuerte. Quien gana dos bazas gana la mano.',
+     'target': '.played-bazas'},
+    {'title': 'Quién es mano y cuánto vale',
+     'text': '«Mano: Vos» quiere decir que jugás primero y que ganás los empates de Envido. '
+             'Cambia en cada mano. «Truco: 1» es lo que vale ganar esta mano: 1 punto, hasta '
+             'que alguien cante Truco.',
+     'target': '.table-status'},
+    {'title': 'Tus opciones',
+     'text': 'Estos botones son los cantos: Envido, Real Envido, Falta Envido, Truco e Irse al '
+             'mazo. Debajo de cada uno dice qué pasa si lo elegís. En esta mano no cantamos: '
+             'solo jugamos cartas.',
+     'target': '.actions'},
+    {'title': 'Jugá tu primera carta',
+     'text': 'Tocá tu 3 de espada (o arrastralo al centro). Su fuerza es 10 de 14.',
+     'target': '[data-card="0"]', 'expect': ['play', 0]},
+    {'bot': ['play', 0]},
+    {'title': 'Ganaste la primera baza',
+     'text': 'Yo jugué un 2 de oro (fuerza 9) y tu 3 (fuerza 10) es más fuerte. Cada vez que '
+             'termina una baza aparece un aviso: avanzalo con «Skip · Continuar» o elegí un '
+             'tiempo con ⏱. Quien gana la baza empieza la siguiente.',
+     'target': '.played-bazas'},
+    {'title': 'Segunda baza',
+     'text': 'Jugá tu 12 de basto (fuerza 7). Si ganás esta baza, ya tenés dos de tres.',
+     'target': '[data-card="2"]', 'expect': ['play', 2]},
+    {'bot': ['play', 2]},
+    {'title': 'Ganaste la mano',
+     'text': 'Tu 12 le ganó a mi 11. Con dos bazas ganadas la mano es tuya y, sin cantos, vale '
+             '1 punto. «Ver resumen» muestra por qué se ganó cada baza. Tocá «Nueva mano» para '
+             'repartir otra vez.',
+     'target': '[data-action="next"]', 'expect': ['next', None]},
+
+    # ---------- Hand 2 ----------
+    {'bot': ['envido', None]},
+    {'title': 'Ahora soy mano',
+     'text': 'En cada mano cambia quién es mano: ahora juego primero yo. Antes de tirar mi '
+             'carta canté Envido. El Envido solo se puede cantar antes de jugar tu primera carta.',
+     'target': '.table-status'},
+    {'title': 'Cómo se cuentan los tantos',
+     'text': 'Si tenés dos cartas del mismo palo, sumás 20 más el valor de cada una. Del 1 al 7 '
+             'valen su número; el 10, 11 y 12 valen 0. Tu 7 y 6 de oro dan 20 + 7 + 6 = 33. '
+             'Son muy buenos tantos.',
+     'target': '.live-hand'},
+    {'title': 'Respondé al Envido',
+     'text': 'Tocá «Quiero»: comparamos tantos y el que tiene más suma 2 puntos. «No quiero» me '
+             'daría 1 punto sin comparar. Real Envido y Falta Envido suben la apuesta.',
+     'target': '[data-action="accept"]', 'expect': ['accept', None]},
+    {'bot': ['play', 0]},
+    {'title': 'Ganaste el Envido',
+     'text': 'Tus 33 le ganan a mis 30: sumaste 2 puntos en el marcador. Los puntos del Envido '
+             'son aparte de la mano, que se sigue jugando. Después tiré mi 3 de copa.',
+     'target': '.scoreboard'},
+    {'title': 'Ganale a mi 3',
+     'text': 'Mi 3 de copa tiene fuerza 10. Tu 7 de oro es la cuarta carta más fuerte del juego '
+             '(fuerza 11). Jugalo.',
+     'target': '[data-card="0"]', 'expect': ['play', 0]},
+    {'title': 'Empezás vos',
+     'text': 'Ganaste la baza, así que abrís la segunda. Jugá tu 6 de oro.',
+     'target': '[data-card="1"]', 'expect': ['play', 1]},
+    {'bot': ['play', 1]},
+    {'title': 'Baza parda',
+     'text': 'Los dos jugamos un 6: misma fuerza, la baza es «parda» (empate). Si la primera '
+             'baza tiene ganador y la segunda es parda, gana la mano quien ganó la primera. '
+             'Sumás 1 punto más. Tocá «Nueva mano».',
+     'target': '[data-action="next"]', 'expect': ['next', None]},
+
+    # ---------- Hand 3 ----------
+    {'title': 'Tercera mano: el Truco',
+     'text': 'Volvés a ser mano. Tenés el 1 de espada, el «ancho de espada»: la carta más '
+             'fuerte del juego (fuerza 14). Con buenas cartas conviene cantar Truco.',
+     'target': '.live-hand'},
+    {'title': 'Cantá Truco',
+     'text': 'Tocá «Truco». Si quiero, la mano pasa a valer 2 puntos. Si no quiero, ganás 1 '
+             'punto y la mano termina.',
+     'target': '[data-action="truco"]', 'expect': ['truco', None]},
+    {'bot': ['accept', None]},
+    {'title': 'Dije «Quiero»',
+     'text': 'Ahora la mano vale 2: mirá «Truco: 2». Quien acepta un canto gana el derecho a '
+             'subirlo: yo puedo cantar Retruco (3) y vos, después, Vale Cuatro (4).',
+     'target': '.table-status'},
+    {'title': 'Guardá las cartas fuertes',
+     'text': 'Empezá con tu carta más baja, el 5 de basto. Así guardás el ancho y el 3 para las '
+             'bazas siguientes.',
+     'target': '[data-card="2"]', 'expect': ['play', 2]},
+    {'bot': ['play', 2]},
+    {'bot': ['retruco', None]},
+    {'title': 'Perdiste una baza y canté Retruco',
+     'text': 'Mi 10 de copa (fuerza 5) le ganó a tu 5 (fuerza 2), así que abro la segunda baza. '
+             'Antes de jugar canté Retruco: si querés, la mano vale 3.',
+     'target': '.played-bazas'},
+    {'title': 'Aceptá el Retruco',
+     'text': 'Tocá «Quiero». «No quiero» me daría los 2 puntos del Truco ya aceptado y '
+             'terminaría la mano. «Vale Cuatro» subiría la apuesta a 4.',
+     'target': '[data-action="accept"]', 'expect': ['accept', None]},
+    {'bot': ['play', 0]},
+    {'title': 'Jugá el ancho de espada',
+     'text': 'Tiré el 1 de basto, el «ancho de basto» (fuerza 13). Solo pierde contra tu 1 de '
+             'espada. Jugalo.',
+     'target': '[data-card="0"]', 'expect': ['play', 0]},
+    {'title': 'Última baza',
+     'text': 'Vamos una baza cada uno. Jugá tu 3 de oro (fuerza 10).',
+     'target': '[data-card="1"]', 'expect': ['play', 1]},
+    {'bot': ['play', 1]},
+    {'title': '¡Terminaste el tutorial!',
+     'text': 'Tu 3 le ganó a mi 12 y te llevaste la mano con Retruco: 3 puntos. Ya sabés leer '
+             'la mesa, jugar bazas, cantar y responder Envido y Truco. Una partida real sigue '
+             'hasta 15 puntos. Lo próximo: la carta cuántica.',
+     'target': '.outcome', 'final': True},
+)

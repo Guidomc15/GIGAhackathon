@@ -13,11 +13,11 @@ import {speechText} from './phrases.js';
 import {preferences,savePreference} from './preferences.js';
 import {PresentationPlayer} from './presentation.js';
 import {SoundMixer} from './sound.js';
-import {rulesContent,lessonContent,noiseLesson,sourcesContent} from './learning.js';
-import {esc,card,sphere,circuitStrip,gateStyle,technical,preview,circuitStory,quantumReport,measurementCard,table,turnGuide,handSummary,gateHelp,quantumOptions,quantumStatus} from './ui.js';
+import {rulesContent} from './learning.js';
+import {esc,card,sphere,circuitStrip,gateStyle,technical,quantumReport,measurementCard,table,turnGuide,handSummary,gateHelp,quantumOptions,quantumStatus} from './ui.js';
 const stage=document.getElementById('stage');
 if(REPOSITORY_URL){const a=document.createElement('a');a.href=REPOSITORY_URL;a.textContent='Repositorio';a.target='_blank';a.rel='noopener';document.getElementById('repo').replaceChildren(a);}
-let view=null, screen='home', revealed=false, busy=false, samplePending=false, quantumOpen=false;
+let view=null, screen='home', revealed=false, busy=false, quantumOpen=false;
 let presentation=null, summaryOpen=false;
 let uiError=null;
 const player=new PresentationPlayer(),sound=new SoundMixer();
@@ -28,7 +28,7 @@ const api=async (name,arg)=>{
   const value=arg===undefined?await engine[name].callPromising():await engine[name].callPromising(arg);
   return JSON.parse(String(value));
 };
-function setView(v){view=v;samplePending=!!v.tutorial.pending;if(v.remote_error)console.log(JSON.stringify({backend:v.remote_info,diagnostic:v.remote_error})); document.getElementById('mode').textContent=v.development_mode?'Simulación local con Qiskit · sin IonQ':'Simulador remoto IonQ · Qollab';}
+function setView(v){view=v;if(v.remote_error)console.log(JSON.stringify({backend:v.remote_info,diagnostic:v.remote_error})); document.getElementById('mode').textContent=v.development_mode?'Simulación local con Qiskit · sin IonQ':'Simulador remoto IonQ · Qollab';}
 function focus(selector=null){
   const dialog=document.getElementById('composer-dialog');
   const target=selector?stage.querySelector(selector):null;
@@ -100,7 +100,7 @@ async function presentEvents(before){
 async function showTurn(before, action, wasRevealed){
   const g=view.game;
   if(!g||!['prepare','play','respond','reassert'].includes(g.phase))return;
-  const sameTurn=before?.hand===g.hand&&before.actor===g.actor&&wasRevealed&&!['new','guided','next'].includes(action);
+  const sameTurn=before?.hand===g.hand&&before.actor===g.actor&&wasRevealed&&!['new','tutorial','next'].includes(action);
   if(action==='reveal'||!g.privacy||view.guided||sameTurn){
     if(!view.private){setView(await api('dispatch_json',JSON.stringify({action:'reveal'})));}
     revealed=!!view.private&&!view.error;
@@ -125,10 +125,10 @@ async function action(action,value=null){
     }
     setView(await api('dispatch_json',JSON.stringify({action,value})));
     if(view.error){if(!view.private){revealed=false;quantumOpen=false;}return;}
-    if(['confirm','new','guided'].includes(action))quantumOpen=false;
-    if(['new','guided','next'].includes(action))summaryOpen=false;
+    if(['confirm','new','tutorial'].includes(action))quantumOpen=false;
+    if(['new','tutorial','next'].includes(action))summaryOpen=false;
     if(action==='reveal')revealed=true;
-    if((screen==='tutorial'&&samplePending)||(screen==='game'&&view.game?.phase==='measure'))await measure();
+    if(screen==='game'&&view.game?.phase==='measure')await measure();
     if(view.error)return;
     if(screen==='game'){
       if(!keep)await presentEvents(before);
@@ -259,19 +259,19 @@ function publicSummary(g){
 }
 function resultScreen(g){
   const match=g.phase==='match_end',loser=1-g.winner;
-  stage.innerHTML+=`<section class="panel outcome" aria-label="Resultado de ${match?'partida':'mano'}"><p class="pill">${match?'Partida terminada':view.guided?'Mano guiada terminada':'Mano terminada'}</p><h2>Victoria de ${esc(g.names[g.winner])}</h2><p class="defeat">Derrota de ${esc(g.names[loser])}</p><p>${g.names.map((n,p)=>`${esc(n)}: ${g.scores[p]}`).join(' · ')}</p><div class="actions"><button id="view-summary" class="primary">Ver resumen</button>${match?'<button id="again">Nueva partida</button>':view.guided?'<button id="finish-tutorial">Terminar tutorial</button>':actionButtons(g)}</div></section>`;
+  if(view.coach)stage.innerHTML+=coachPanel(view.coach);
+  stage.innerHTML+=`<section class="panel outcome" aria-label="Resultado de ${match?'partida':'mano'}"><p class="pill">${match?'Partida terminada':view.guided?'Tutorial · mano terminada':'Mano terminada'}</p><h2>Victoria de ${esc(g.names[g.winner])}</h2><p class="defeat">Derrota de ${esc(g.names[loser])}</p><p>${g.names.map((n,p)=>`${esc(n)}: ${g.scores[p]}`).join(' · ')}</p><div class="actions"><button id="view-summary" class="primary">Ver resumen</button>${match?'<button id="again">Nueva partida</button>':view.coach?.final?'':actionButtons(g)}</div></section>`;
   if(summaryOpen)stage.innerHTML+=publicSummary(g);
   document.getElementById('view-summary').onclick=()=>{summaryOpen=true;render();stage.querySelector('.public-summary')?.scrollIntoView({block:'start',behavior:reducedMotion()?'instant':'smooth'});};
   document.getElementById('close-summary')?.addEventListener('click',()=>{summaryOpen=false;render();focus();});
   document.getElementById('again')?.addEventListener('click',()=>{screen='setup';render();});
-  document.getElementById('finish-tutorial')?.addEventListener('click',()=>{screen='tutorial';action('tutorial',view.tutorial.total-1);});
   document.getElementById('download')?.addEventListener('click',()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(g.history,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='truco-cuantico-informe.json';a.click();URL.revokeObjectURL(url);});
   bindActions();
 }
 function game(){
   const g=view.game;
   if(!g){screen='setup';setup();return;}
-  stage.innerHTML=`<p class="round-meta">${esc(g.names[0])}: ${g.scores[0]} · ${esc(g.names[1])}: ${g.scores[1]} · Mano ${g.hand} · ${g.privacy?'Con privacidad':'Sin pausa de privacidad'}</p>`;
+  stage.innerHTML=`<p class="round-meta">${esc(g.names[0])}: ${g.scores[0]} · ${esc(g.names[1])}: ${g.scores[1]} · Mano ${g.hand} · ${view.guided?'Tutorial con Bot Q':g.privacy?'Con privacidad':'Sin pausa de privacidad'}</p>`;
   if(presentation){
     if(presentation.type==='flip'){
       stage.innerHTML+=`<p class="turn-banner" role="status">Turno de ${esc(g.names[g.actor])}</p>`+table(g,{art:TABLE_ART,cards:view.private?.cards,quantum:view.private?.quantum,prepare:g.phase==='prepare',faceDown:presentation.faceDown,flip:!presentation.faceDown});return;
@@ -285,7 +285,7 @@ function game(){
   if(!revealed){handoff(g);return;}
   const priv=view.private||{};
   if(g.phase==='prepare'){editor(g,priv);return;}
-  stage.innerHTML+=turnGuide(g,priv)+table(g,{art:TABLE_ART,cards:priv.cards,quantum:priv.quantum});
+  stage.innerHTML+=(view.coach?coachPanel(view.coach):turnGuide(g,priv))+table(g,{art:TABLE_ART,cards:priv.cards,quantum:priv.quantum});
   if(priv.quantum)stage.innerHTML+=quantumStatus(priv.quantum,g.names[g.actor]);
   if(g.envido)stage.innerHTML+=`<p class="callout">Envido: ${esc(g.names[0])} ${g.envido.values[0]} · ${esc(g.names[1])} ${g.envido.values[1]}. Ganó ${esc(g.names[g.envido.winner])}: +${g.envido.points}.</p>`;
   if(g.pending)stage.innerHTML+=`<section class="panel"><h2>Respuesta de ${esc(g.names[g.actor])}</h2><p>${esc(g.names[g.pending.proposer])} propone ${g.pending.kind==='envido'?g.pending.chain.map(c=>({envido:'Envido',real:'Real Envido',falta:'Falta Envido'}[c])).join(' → '):({2:'Truco',3:'Retruco',4:'Vale Cuatro'}[g.pending.level])}.</p></section>`;
@@ -301,19 +301,26 @@ function game(){
     drop.ondrop=e=>{e.preventDefault();const raw=e.dataTransfer.getData('application/x-truco-card');if(/^[0-2]$/.test(raw))action('play',Number(raw));};
   }
 }
-async function openTutorial(){screen='tutorial';revealed=false;await action('tutorial',0);focus();}
-function tutorial(){
-  const t=view.tutorial,content=lessonContent(t,preferences.language);
-  stage.innerHTML=`<section class="panel"><p class="step-count">Lección ${t.index+1} de ${t.total}</p>${explanationLanguage()}<h2>${esc(content.title)}</h2><p>${esc(content.text)}</p>${content.example?`<p class="callout">${esc(content.example)}</p>`:''}${content.technical?`<details class="lesson-technical"><summary>${preferences.language==='en'?'Technical detail':'Detalle técnico'}</summary><p>${esc(content.technical)}</p></details>`:''}${t.noise?noiseLesson(t.noise_seconds,preferences.language):''}<div class="tutorial-grid">${t.previews.map((p,i)=>`<article class="panel">${preview(p)}${p.gates.length?`<details class="tutorial-story"><summary>Entender este circuito paso a paso</summary>${circuitStory(p)}</details>`:''}${t.sample?`<button data-sample="${i}" class="primary">${t.index===2?'Quiero el Envido de Bot Q':'Medir este experimento'}</button>`:''}</article>`).join('')}</div>${samplePending?'<p role="status" class="callout">Esperando medición. No se inventará un resultado.</p><button id="tutorial-retry">Consultar el mismo job</button>':''}${t.result?`<p class="callout" role="status">${esc(t.result.text)}</p><details><summary>Origen del resultado</summary><pre>${esc(JSON.stringify(t.result.record,null,2))}</pre></details>`:''}<div class="actions"><button id="back" ${t.index===0?'disabled':''}>Retroceder</button><button id="repeat">Repetir lección</button>${t.index<t.total-1?'<button id="forward" class="primary">Avanzar</button>':''}${t.guided?'<button id="guided" class="primary">Jugar mano guiada</button>':''}<button id="skip">Saltar tutorial</button></div><p><label><input id="tutorial-dev" type="checkbox" ${view.development_mode?'checked':''} ${view.host_local?'disabled':''}> Modo de desarrollo local con Qiskit, sin IonQ</label></p><p class="sphere-caption">Repetir una lección prepara un experimento nuevo; no vuelve a medir una carta de partida.</p>${view.host_local?'':'<p class="sphere-caption">En Qollab IonQ admite un solo job: para completar todas las lecciones podés elegir el modo de desarrollo explícitamente.</p>'}</section>`;
-  stage.querySelectorAll('[data-sample]').forEach(b=>b.onclick=()=>action('tutorial_sample',Number(b.dataset.sample)));
-  stage.querySelectorAll('[data-noise-experiment]').forEach(button=>button.onclick=()=>action('tutorial_noise',Number(button.dataset.noiseExperiment)));
-  document.getElementById('tutorial-retry')?.addEventListener('click',retryMeasure);
-  document.getElementById('tutorial-dev').onchange=e=>action('dev_mode',e.target.checked);
-  document.getElementById('back').onclick=()=>action('tutorial',t.index-1);
-  document.getElementById('repeat').onclick=()=>action('tutorial',t.index);
-  document.getElementById('forward')?.addEventListener('click',()=>action('tutorial',t.index+1));
-  document.getElementById('skip').onclick=()=>{screen='setup';render();focus();};
-  document.getElementById('guided')?.addEventListener('click',async()=>{screen='game';await action('guided','Vos');});
+async function openTutorial(){screen='game';revealed=false;summaryOpen=false;await action('tutorial');focus();}
+// Bot Q's explanation for the current tutorial step. Without 'expect' the player advances with «Siguiente».
+function coachPanel(c){
+  const controls=c.final?'<button id="coach-play" class="primary">Jugar una partida</button><button id="coach-home">Volver al inicio</button>':`${c.expect?'':'<button id="coach-next" class="primary">Siguiente</button>'}<button id="coach-exit">Salir del tutorial</button>`;
+  return `<aside class="coach" aria-label="Tutorial con Bot Q" aria-live="polite"><span class="coach-avatar" aria-hidden="true">Q</span><div><p class="coach-step">Tutorial · paso ${c.step} de ${c.total}</p><h2>${esc(c.title)}</h2><p>${esc(c.text)}</p><div class="actions">${controls}</div></div></aside>`;
+}
+// Highlights the explained element and leaves only the expected control enabled.
+function applyCoach(){
+  const c=view?.coach;
+  if(screen!=='game'||!c||presentation)return;
+  const target=c.target?stage.querySelector(c.target):null;
+  target?.classList.add('coach-target');
+  const [expected,value]=c.expect||[];
+  stage.querySelectorAll('[data-action]').forEach(b=>{if(b.dataset.action!==expected)b.disabled=true;});
+  stage.querySelectorAll('[data-card]').forEach(b=>{if(expected!=='play'||Number(b.dataset.card)!==value){b.disabled=true;b.draggable=false;}});
+  document.getElementById('coach-next')?.addEventListener('click',()=>action('coach_next'));
+  document.getElementById('coach-exit')?.addEventListener('click',()=>{screen='home';render();focus();});
+  document.getElementById('coach-home')?.addEventListener('click',()=>{screen='home';render();focus();});
+  document.getElementById('coach-play')?.addEventListener('click',()=>{screen='setup';render();focus();});
+  if(target){const box=target.getBoundingClientRect();if(box.top<0||box.bottom>innerHeight)target.scrollIntoView({block:'center',behavior:reducedMotion()?'instant':'smooth'});}
 }
 function explanationLanguage(){
   return `<label class="explanation-language">Idioma / Language <select data-learning-language><option value="es" ${preferences.language==='es'?'selected':''}>Español</option><option value="en" ${preferences.language==='en'?'selected':''}>English</option></select></label>`;
@@ -332,7 +339,8 @@ function render(){
   document.getElementById('notice').innerHTML=(uiError||view.error)?`<p class="error">${esc(uiError||view.error)}</p>`:'';
   document.querySelector('.app-shell').classList.toggle('landing',screen==='home');
   document.querySelector('.app-shell').classList.toggle('playing',screen==='game');
-  ({home,setup,game,tutorial,rules,credits,values}[screen]||home)();
+  ({home,setup,game,rules,credits,values}[screen]||home)();
+  applyCoach();
   const composer=document.getElementById('composer-dialog');
   if(composer){composer.showModal();composer.oncancel=e=>{e.preventDefault();quantumOpen=false;render();focus();};}
   mountBloch(stage);

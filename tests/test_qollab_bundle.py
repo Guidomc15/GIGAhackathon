@@ -62,21 +62,11 @@ def measure():
 initial = action('public')
 assert not initial['development_mode']
 action('dev_mode', True)
-action('tutorial', 1)
-action('tutorial_sample', 0)
-result = measure()['tutorial']['result']
-assert result['bit'] == 1
-assert 'Qiskit Statevector' in result['record']['backend']
-assert measure()['tutorial']['result'] == result
+coach = action('tutorial')['coach']
+while not coach['final']:
+    name, value = coach['expect'] or ('coach_next', None)
+    coach = action(name, value)['coach']
 assert json.loads(engine.poll_json())['done']
-
-action('tutorial', 6)
-noisy = action('tutorial_noise', 60)['tutorial']['previews'][0]
-action('tutorial_sample', 0)
-sample = measure()['tutorial']['result']
-assert 'DensityMatrix' in sample['record']['method']
-assert sample['record']['noise']['probabilities'] == noisy['probabilities']
-assert sample['record']['noise']['seconds'] == 60
 
 view = action('new', {'names': ['Ana', 'Luis'], 'privacy': True, 'noise': True})
 assert view['game']['privacy']

@@ -1,5 +1,11 @@
 # Cambios
 
+## Sin publicar · Gaspar
+
+Tutorial nuevo: una partida guiada de Truco clásico contra Bot Q, con tres manos guionadas y 27 pasos. Explica marcador, cartas del rival, tu mano, bazas, mano y valor del Truco, botones de canto, Envido, parda, Truco y Retruco. Resalta el elemento explicado y solo habilita la acción indicada. Reemplaza las lecciones cuánticas anteriores (conservadas en el tag `v0.2.1`); la carta cuántica se agregará como etapa siguiente.
+
+El motor admite partidas clásicas (`quantum=False`, sin fase de preparación ni mediciones) y repartos fijos validados. El botón «Quiero» del Envido ya no menciona mediciones cuando no hay carta cuántica. Prueba de navegador `browser_tutorial.cjs`.
+
 ## 0.2.1
 
 Avisos de cantos, bazas, mediciones y puntos con avance manual inicial, Skip y temporizador 1/3/7 s. Reducir movimiento conserva el tiempo de lectura. Los turnos conservan la posición del scroll, sin reemplazar la mesa por un bloque pequeño.

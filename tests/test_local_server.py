@@ -70,13 +70,12 @@ class LocalServerTests(unittest.TestCase):
         self.assertTrue(self.api()['host_local'])
         self.assertTrue(self.api(action='dev_mode', value=False)['error'])
 
-    def test_real_tutorial_measurement(self):
-        self.api(action='tutorial', value=1)
-        self.api(action='tutorial_sample', value=0)
-        result = self.api(method='start_json')['tutorial']['result']
-        self.assertEqual(result['bit'], 1)
-        self.assertIn('Qiskit Statevector', result['record']['backend'])
-        self.assertEqual(self.api(method='start_json')['tutorial']['result'], result)
+    def test_tutorial_over_http(self):
+        view = self.api(action='tutorial')
+        self.assertEqual(view['coach']['step'], 1)
+        self.assertFalse(view['game']['quantum'])
+        self.assertTrue(self.api(action='play', value=0)['error'])
+        self.assertEqual(self.api(action='coach_next')['coach']['step'], 2)
 
     def test_reject_cross_origin_and_malformed_requests(self):
         for headers, body, expected in (

@@ -57,7 +57,12 @@ class RemoteTests(unittest.TestCase):
 
     def test_pending_job_blocks_mode_switch(self):
         session = Session()
-        session.action({'action':'tutorial','value':1}); session.action({'action':'tutorial_sample','value':0})
+        session.action({'action':'new','value':['Ana','Luis']})
+        for _ in range(2):
+            for action, value in (('choose',0), ('edit',[0]), ('confirm',None)):
+                session.action({'action':action,'value':value})
+        session.action({'action':'play','value':0})
+        self.assertEqual(session.game.phase, 'measure')
         session.start(Simulator())
         with self.assertRaises(ValueError): session.action({'action':'dev_mode','value':True})
         self.assertFalse(session.local)

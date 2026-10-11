@@ -19,9 +19,12 @@ node tests/browser_full_match.cjs
 TRUCO_PRIVACY=1 node tests/browser_full_match.cjs
 node tests/browser_animations.cjs
 node tests/browser_0.2.1.cjs
+node tests/browser_tutorial.cjs
 ```
 
 Instalá Playwright para ejecutar las pruebas de navegador. `PLAYWRIGHT_MODULE` permite una instalación externa; `CHROMIUM_EXECUTABLE_PATH` elige Chromium del sistema. `TRUCO_URL` cambia el destino y `ARTIFACT_DIR` la carpeta de capturas.
+
+`browser_tutorial.cjs` juega el tutorial completo tocando solo el control que resalta Bot Q y comprueba que el resto quede bloqueado.
 
 Las pruebas largas usan el botón Skip real para avanzar. La prueba `browser_0.2.1.cjs` conserva el control manual: comprueba que los avisos no desaparezcan al reducir movimiento, el ciclo 1/3/7/manual, el cierre a 1 segundo, ruido en vivo y pausa durante avisos y ayudas, posición del scroll, tipografía, cartas jugadas, reglas/experimentos EN/ES y controles de audio. Activa un AudioContext real para la música. Las solicitudes de voz se interceptan para verificar texto, volumen y silencio; escuchar una voz instalada requiere un dispositivo que la tenga.
 

@@ -76,19 +76,16 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     await page.getByText('Qué pasó en esta mano',{exact:true}).waitFor();
     assert.match(await page.locator('.hand-summary').innerText(),/Truco no querido/);
     await noOverflow();
-    // Bot Q through actual browser controls.
-    await click('#tutorial');for(let i=0;i<5;i++)await click('#forward');await click('#guided');
-    for(let step=0;step<30;step++){
-      const {game:g}=await api('public');
-      if(g.phase==='hand_end'){await page.getByText('Mano guiada terminada',{exact:true}).waitFor();break;}
-      if(await page.locator('#alone').count()){await page.locator('#alone').check();await click('#reveal');}
-      if(g.phase==='prepare'){await click('[data-card="0"]');await click('#activate-quantum');await page.locator('#lock-ok').check();await click('#lock-circuit');}
-      else if(g.phase==='respond'){if(g.pending.kind==='truco'&&!g.envido)await click('[data-action="envido"]');else await click('[data-action="accept"]');}
-      else if(g.phase==='reassert')await click('[data-action="reassert"]');
-      else if(g.phase==='play')await click('[data-card] >> nth=0');
-      else throw Error('Bot phase '+g.phase);
-      if(step===29)throw Error('Bot hand did not finish');
+    // Truco tutorial with Bot Q on a phone-sized screen, through the highlighted controls.
+    await click('#tutorial');
+    for(let step=0;step<60;step++){
+      if(await page.locator('#coach-play').count())break;
+      if(await page.locator('#coach-next').count())await click('#coach-next');
+      else await click('.coach-target');
+      if(step===59)throw Error('Tutorial did not finish');
     }
+    assert.match(await page.locator('.coach h2').innerText(),/Terminaste el tutorial/);
+    await noOverflow();
     await page.screenshot({path:path.join(output,'mobile-report.png'),fullPage:true});
     assert.deepEqual(errors,[]);
     const disconnected=await browser.newPage();
@@ -98,6 +95,6 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     assert(await disconnected.locator('#home').isDisabled());
     await disconnected.unroute('**/api');await disconnected.locator('#reload-game').click();await disconnected.locator('#start').waitFor();
     assert.deepEqual(errors,[]);await disconnected.close();
-    console.log('PASS mobile, deck, composer, reorder keyboard focus, empty circuit, private handoff, transport error recovery, canto hints, reports and Bot Q');
+    console.log('PASS mobile, deck, composer, reorder keyboard focus, empty circuit, private handoff, transport error recovery, canto hints, reports and Truco tutorial');
   }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1});

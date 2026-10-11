@@ -7,7 +7,6 @@ import numpy as np
 from truco.quantum import noisy_state, noise_view, preview, NOISE_T1, NOISE_T2
 from truco.service import Session
 from truco.classic import envido_value
-from truco.tutorial import LESSONS
 
 
 def noisy_session():
@@ -78,17 +77,6 @@ class NoiseTests(unittest.TestCase):
         backend=type('Backend',(),{'run':lambda *args: self.fail('Noise was submitted remotely')})()
         with self.assertRaises(ValueError): session.start(backend)
         self.assertIsNone(session.remote)
-
-    def test_final_tutorial_experiment_has_real_density_matrix_sampling(self):
-        session=Session(local=True)
-        session.action({'action':'tutorial','value':len(LESSONS)-1})
-        session.action({'action':'tutorial_noise','value':60})
-        probabilities=session.output()['tutorial']['previews'][0]['probabilities']
-        session.action({'action':'tutorial_sample','value':0})
-        result=session.start()['tutorial']['result']
-        self.assertIn('DensityMatrix',result['record']['method'])
-        self.assertEqual(result['record']['noise']['probabilities'],probabilities)
-        self.assertEqual(result['record']['noise']['seconds'],60)
 
     def test_card_played_player_cannot_propose_envido_after_truco(self):
         session=noisy_session();g=session.game

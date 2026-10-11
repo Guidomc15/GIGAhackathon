@@ -11,7 +11,7 @@ LABELS = {'envido':'Envido', 'real':'Real Envido', 'falta':'Falta Envido',
           'next':'Nueva mano'}
 
 class Game:
-    def __init__(self, names, rng=None, privacy=False, noise=False):
+    def __init__(self, names, rng=None, privacy=False, noise=False, quantum=True, deals=None, mano=None):
         if not isinstance(names, (list, tuple)) or len(names) != 2 or any(not isinstance(n,str) or not n.strip() or len(n)>30 for n in names):
             raise ValueError('Ingresá dos nombres de hasta 30 caracteres')
         self.names = [n.strip() for n in names]
@@ -19,17 +19,23 @@ class Game:
         self.privacy = privacy
         if type(noise) is not bool: raise ValueError('Ruido inválido')
         self.noise = noise
+        # quantum=False plays classic Truco: no preparation phase and no measurements.
+        if type(quantum) is not bool: raise ValueError('Modo cuántico inválido')
+        self.quantum = quantum
+        self.deals = [self.validate_deal(d) for d in deals or []]
         self.rng = rng or random.SystemRandom()
         self.scores = [0,0]
-        self.mano = self.rng.randrange(2)
+        self.mano = self.rng.randrange(2) if mano is None else mano
+        if self.mano not in (0,1): raise ValueError('Mano inválida')
         self.gate_deck = GateDeck(self.rng)
         self.history = []
         self.hand_number = 0
         self.new_hand()
     def new_hand(self):
         self.hand_number += 1
-        self.cards = deal(self.rng)
-        self.tokens = self.gate_deck.draw_hand()
+        # Scripted deals (tutorial) are used first; afterwards the deal is random.
+        self.cards = self.deals.pop(0) if self.deals else deal(self.rng)
+        self.tokens = self.gate_deck.draw_hand() if self.quantum else [[],[]]
         self.q = [None, None]
         self.played = [set(), set()]
         self.table = []
@@ -37,7 +43,7 @@ class Game:
         self.events = []
         self.actor = self.mano
         self.turn = self.mano
-        self.phase = 'prepare'
+        self.phase = 'prepare' if self.quantum else 'play'
         self.stake = 1
         self.truco_right = None
         self.pending = None
@@ -49,6 +55,13 @@ class Game:
         self.last_public_measurement = None
         self.winner = None
         self.event('Reparto de mano', mano=self.mano)
+    @staticmethod
+    def validate_deal(hands):
+        if not isinstance(hands,(list,tuple)) or len(hands) != 2 or any(not isinstance(h,(list,tuple)) or len(h) != 3 for h in hands):
+            raise ValueError('Reparto inválido: tres cartas por jugador')
+        cards = [[c if isinstance(c,Card) else Card(*c) for c in hand] for hand in hands]
+        if len({c for hand in cards for c in hand}) != 6: raise ValueError('Reparto inválido: cartas repetidas')
+        return cards
     def event(self, text, **data):
         self.events.append({'text':text, 'time':datetime.now(timezone.utc).isoformat(), **data})
     def effective_card(self, player, index):
@@ -136,7 +149,8 @@ class Game:
         elif action == 'play':
             if type(value) is not int or not 0 <= value < 3 or value in self.played[p]:
                 raise ValueError('Carta no disponible')
-            if self.q[p].index == value and self.q[p].result is None:
+            q = self.q[p]
+            if q is not None and q.index == value and q.result is None:
                 self.play_intent = (p, value)
                 self.begin_measure('play', [p])
             else: self.commit_play(p, value)
@@ -148,7 +162,7 @@ class Game:
             self.new_hand()
     def begin_measure(self, context, players):
         self.measure_context = context
-        self.measure_requests = [p for p in players if self.q[p].result is None]
+        self.measure_requests = [p for p in players if self.q[p] is not None and self.q[p].result is None]
         self.phase = 'measure'
         if not self.measure_requests: self.after_measure()
     def complete_measure(self, measurements):
@@ -246,7 +260,7 @@ class Game:
                 'bazas':self.bazas,'table':self.table,'pending':self.pending,
                 'envido':self.envido_result,'events':self.events,
                 'actions':[{'id':a,'label':LABELS.get(a,a),'hint':self.action_hint(a)} for a in self.legal() if a not in ('choose','edit','play')],
-                'winner':self.winner, 'privacy':self.privacy, 'noise':self.noise}
+                'winner':self.winner, 'privacy':self.privacy, 'noise':self.noise, 'quantum':self.quantum}
         if self.last_public_measurement and self.phase != 'measure':
             # The explicit public-play exception discloses circuit and preview, never tokens.
             data['public_measurement'] = {k:v for k,v in self.last_public_measurement.items() if k in ('player','original','linked','preview','result','record')}
@@ -263,7 +277,8 @@ class Game:
                 return f"La mano pasa a valer {self.pending['level']} puntos. Después se sigue jugando."
             chain = self.pending['chain']
             stake = str(15-max(self.scores)) if chain[-1] == 'falta' else str(envido_value(chain))
-            return f'El ganador suma {stake} puntos. Se miden las cartas cuánticas que aún no se midieron.'
+            measure = ' Se miden las cartas cuánticas que aún no se midieron.' if self.quantum else ''
+            return f'El ganador suma {stake} puntos.{measure}'
         if action == 'reject':
             pending = self.pending
             points = refusal_value(pending['chain']) if pending['kind'] == 'envido' else pending['level']-1

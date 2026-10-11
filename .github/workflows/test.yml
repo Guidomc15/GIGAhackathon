@@ -62,6 +62,7 @@ jobs:
           TRUCO_PRIVACY=1 node tests/browser_full_match.cjs
           node tests/browser_animations.cjs
           node tests/browser_0.2.1.cjs
+          node tests/browser_tutorial.cjs
       - name: Keep browser evidence and server logs
         if: always()
         uses: actions/upload-artifact@v4
