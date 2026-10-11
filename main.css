@@ -672,3 +672,10 @@ nav .nav-language{margin-left:auto}
   .help-ladder{margin:6px 0 0}
   .help-ladder .ladder .card{width:clamp(20px,3.4vh,40px)}
 }
+/* Resumen abierto: el escenario se desplaza (rueda, trackpad, teclado o táctil) sin mostrar barra. */
+@media(min-width:900px) and (min-height:540px){
+  .playing.summary-open #stage{display:block;overflow-y:auto;scrollbar-width:none}
+  .playing.summary-open #stage::-webkit-scrollbar{display:none}
+  .playing.summary-open .game-layout{height:100%}
+  .playing.summary-open .public-summary{margin-top:14px}
+}

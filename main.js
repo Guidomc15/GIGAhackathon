@@ -30,7 +30,22 @@ const api=async (name,arg)=>{
 };
 // Every request carries the interface language so engine messages come back translated.
 const send=(action,value=null)=>api('dispatch_json',JSON.stringify({action,value,lang:lang()}));
-function setView(v){view=v;if(v.remote_error)console.log(JSON.stringify({backend:v.remote_info,diagnostic:v.remote_error}));document.getElementById('mode').textContent=v.development_mode?L('Simulación local con Qiskit · sin IonQ','Local Qiskit simulation · no IonQ'):L('Simulador remoto IonQ · Qollab','Remote IonQ simulator · Qollab');}
+// Every qubit measurement is also written to the browser console (DevTools → Console),
+// with the raw record from Qiskit or IonQ, so the collapse can be checked outside the UI.
+const loggedMeasurements=new Set();
+function logMeasurements(v){
+  const g=v.game;if(!g)return;
+  const found=[];
+  if(g.public_measurement?.record)found.push([g.hand,g.public_measurement.player,g.public_measurement]);
+  for(const h of g.history||[])(h.quantum||[]).forEach((q,p)=>{if(q?.record)found.push([h.hand,p,q]);});
+  for(const [hand,player,q] of found){
+    const key=`${v.guided?'t':'g'}-${hand}-${player}-${q.record.moment}-${q.record.job_id||''}`;
+    if(loggedMeasurements.has(key))continue;
+    loggedMeasurements.add(key);
+    console.info(`[Qriollo] Medición · mano ${hand} · ${g.names[player]}: |${q.result}⟩ → ${q.result===1?cardName(q.linked):cardName(q.original)}`,q.record);
+  }
+}
+function setView(v){view=v;try{logMeasurements(v);}catch{}if(v.remote_error)console.log(JSON.stringify({backend:v.remote_info,diagnostic:v.remote_error}));document.getElementById('mode').textContent=v.development_mode?L('Simulación local con Qiskit · sin IonQ','Local Qiskit simulation · no IonQ'):L('Simulador remoto IonQ · Qollab','Remote IonQ simulator · Qollab');}
 const actionLabel=a=>L(a.label,a.label_en||a.label);
 const actionHint=a=>L(a.hint,a.hint_en||a.hint);
 function focus(selector=null){
@@ -130,6 +145,7 @@ async function action(action,value=null){
     if(view.error){if(!view.private){revealed=false;quantumOpen=false;}return;}
     if(['confirm','new','tutorial'].includes(action))quantumOpen=false;
     if(['new','tutorial','next'].includes(action))summaryOpen=false;
+    if(['new','tutorial'].includes(action))loggedMeasurements.clear();
     if(action==='reveal')revealed=true;
     if(screen==='game'&&view.game?.phase==='measure')await measure();
     if(action==='lesson')lessonCircuit=Math.min(lessonCircuit,(view.lesson?.circuits.length||1)-1);
@@ -421,6 +437,8 @@ function render(){
   document.getElementById('notice').innerHTML=(uiError||view.error)?`<p class="error">${esc(uiError||view.error)}</p>`:'';
   document.querySelector('.app-shell').classList.toggle('landing',screen==='home');
   document.querySelector('.app-shell').classList.toggle('playing',screen==='game');
+  // The public summary is longer than the window: the stage scrolls while it is open.
+  document.querySelector('.app-shell').classList.toggle('summary-open',screen==='game'&&summaryOpen);
   ({home,setup,game,rules,credits,values,learn,lessons,slides}[screen]||home)();
   applyCoach();
   const composer=document.getElementById('composer-dialog');

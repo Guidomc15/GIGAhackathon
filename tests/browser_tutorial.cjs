@@ -15,6 +15,9 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     page.setDefaultTimeout(12000);
     const errors=[];
     page.on('pageerror',e=>errors.push(e.message));
+    // Each qubit measurement is logged to the console with its raw Qiskit record.
+    const measurements=[];
+    page.on('console',async msg=>{if(msg.text().startsWith('[Qriollo] Medición'))measurements.push([msg.text(),await msg.args()[1]?.jsonValue()]);});
     const idle=()=>page.waitForFunction(()=>document.querySelector('#stage')?.getAttribute('aria-busy')==='false'&&!document.querySelector('#presentation-layer'));
     await page.goto(base);
     // TRUCO_LANG=en plays the same tutorial with the English interface.
@@ -39,6 +42,16 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     assert.match(await page.locator('.round-meta').textContent(),/(Vos|You): 8 · Bot Q: 0/);
     assert.equal(seen.length,33);
     assert.equal(await page.locator('#view-summary').count(),1,'El paso final muestra «Ver resumen»');
+    assert.equal(measurements.length,2,'Dos mediciones en la mano cuántica');
+    assert(measurements.every(([,record])=>record.method==='Qiskit Statevector.sample_memory(1)'&&record.shots===1));
+    assert(measurements.some(([text,record])=>/7 de espada|7 of Swords/.test(text)&&record.result===1&&record.gates.join()==='X'));
+    // The summary is longer than the window: the stage scrolls to the measurement record.
+    await page.locator('#view-summary').click();await idle();
+    await page.locator('.public-summary details').evaluateAll(els=>els.forEach(e=>e.open=true));
+    await page.locator('.public-summary pre').last().scrollIntoViewIfNeeded();
+    assert(await page.locator('.public-summary pre').last().isVisible());
+    assert(await page.evaluate(()=>document.querySelector('#stage').scrollTop>0));
+    await page.locator('#close-summary').click();
     assert.equal(kinds.challenge,6,'Six challenges');assert.equal(kinds.quiz,6,'Six quick questions');
     await page.locator('#coach-play').click();
     await page.locator('#deal').waitFor();
