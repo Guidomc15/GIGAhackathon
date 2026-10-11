@@ -23,7 +23,6 @@
 | `requirements.txt` | Qiskit |
 | `README.md` | Texto del proyecto, en inglés y en español: Qollab lo muestra como Project Card |
 | `LICENSE`, `THIRD_PARTY_NOTICES.md`, `DEMO_SCRIPT.md`, este archivo | Licencia, avisos y guion de demostración |
-| `truco-cuantico-demo.mp4`, `DEMO_TRANSCRIPT.txt` | Video histórico de una versión anterior, enlazado desde Créditos |
 
 Errores frecuentes:
 - **Error que menciona `truco.service`:** se está ejecutando un `main.js` viejo. Reemplazalo y comprobá que el import diga `qollab_engine`.

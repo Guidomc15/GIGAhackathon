@@ -2,7 +2,9 @@
 
 ## 0.2.5
 
-Entrega en Qollab con solo los 30 archivos de `QOLLAB_0.2.5.zip`: se quitaron del proyecto los tests, el servidor local y los módulos sueltos de `truco/`, que ya van dentro de `qollab_engine.py`. El juego no cambia.
+El video de demostración pasa a YouTube (2:44): se quitaron `artifacts/truco-cuantico-demo.mp4` y su transcripción, y Créditos enlaza al video nuevo. El repositorio se renombró a `GIGAhackathon`; el README enlaza al video y al código fuente.
+
+Entrega en Qollab con solo los archivos de `QOLLAB_0.2.5.zip`: se quitaron del proyecto los tests, el servidor local y los módulos sueltos de `truco/`, que ya van dentro de `qollab_engine.py`. El juego no cambia.
 
 ## 0.2.4
 

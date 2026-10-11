@@ -37,6 +37,6 @@ Qollab e IonQ proporcionan su runtime y su backend según sus propios términos.
 
 OpenAI Codex asistió en el código, la documentación, las pruebas y la revisión hasta 0.2.1. Desde 0.2.2, Claude (Anthropic) asistió en el código, las traducciones, los tutoriales, las pruebas y la documentación.
 
-El video de `artifacts/` y su transcripción documentan una versión anterior del juego.
+El video de demostración está en YouTube: https://www.youtube.com/watch?v=RtFtEx-7exg
 
 This effort is supported by Qollab & IonQ.

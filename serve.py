@@ -12,8 +12,6 @@ from truco.service import Session, demo_json
 
 ROOT = Path(__file__).resolve().parent
 PUBLIC = {p.name for p in ROOT.iterdir() if p.suffix in {'.js', '.css'}}
-PUBLIC.add('artifacts/truco-cuantico-demo.mp4')
-PUBLIC.add('artifacts/DEMO_TRANSCRIPT.txt')
 TYPES = {'.js': 'text/javascript', '.css': 'text/css', '.mp4': 'video/mp4', '.txt': 'text/plain'}
 
 

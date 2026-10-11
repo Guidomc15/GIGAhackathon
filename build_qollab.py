@@ -67,9 +67,7 @@ def demo_json():
 def upload_files():
     files = [*sorted(ROOT.glob('*.js')), ROOT / 'main.css', ROOT / 'index.html',
              ROOT / 'qollab_engine.py', ROOT / 'requirements.txt', ROOT / 'README.md', ROOT / 'LICENSE',
-             ROOT / 'QOLLAB_UPDATE.md', ROOT / 'THIRD_PARTY_NOTICES.md', ROOT / 'DEMO_SCRIPT.md',
-             ROOT / 'artifacts' / 'truco-cuantico-demo.mp4',
-             ROOT / 'artifacts' / 'DEMO_TRANSCRIPT.txt']
+             ROOT / 'QOLLAB_UPDATE.md', ROOT / 'THIRD_PARTY_NOTICES.md', ROOT / 'DEMO_SCRIPT.md']
     # The HTTP bridge is only for local development, never part of Qollab.
     return [file for file in files if file.name != 'local-engine.js']
 

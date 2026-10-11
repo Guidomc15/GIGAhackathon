@@ -25,8 +25,8 @@ class QollabBundleTests(unittest.TestCase):
                 names = set(archive.namelist())
                 self.assertTrue(all('/' not in name for name in names))
                 self.assertTrue({'main.js', 'main.css', 'index.html', 'qollab_engine.py',
-                                 'THIRD_PARTY_NOTICES.md', 'truco-cuantico-demo.mp4',
-                                 'DEMO_TRANSCRIPT.txt'} <= names)
+                                 'THIRD_PARTY_NOTICES.md'} <= names)
+                self.assertNotIn('truco-cuantico-demo.mp4', names)
                 self.assertNotIn('local-engine.js', names)
                 self.assertNotIn('serve.py', names)
                 for name in names:
