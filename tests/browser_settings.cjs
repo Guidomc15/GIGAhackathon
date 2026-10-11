@@ -35,7 +35,7 @@ fs.mkdirSync(output,{recursive:true});
   const noOverflow=async()=>assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
   await page.goto(base);await page.locator('#start').waitFor();
   // Home from the team sketch: logo, tagline and four plaques, all in the chosen language.
-  assert.deepEqual(await page.locator('.home-menu .plaque').allInnerTexts(),['Tutorial','Quick game','Quick help','Credits']);
+  assert.deepEqual(await page.locator('.home-menu .plaque').allInnerTexts(),['Tutorial','Custom game','Quick help','Credits']);
   assert.match(await page.locator('.home-tagline').innerText(),/Argentine way to learn quantum computing/);
   assert.equal(await page.locator('.home-logo img').evaluate(img=>img.complete&&img.naturalWidth>0),true);
   assert.equal(await page.evaluate(()=>document.documentElement.lang),'en');

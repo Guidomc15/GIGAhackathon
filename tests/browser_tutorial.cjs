@@ -45,6 +45,9 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     assert.match(await page.locator('.round-meta').textContent(),/(Vos|You): 8 · Bot Q: 0/);
     assert.equal(seen.length,33);
     assert.equal(await page.locator('#view-summary').count(),1,'El paso final muestra «Ver resumen»');
+    // The final table stays visible: every baza's cards, with the winning card of each baza marked.
+    assert.equal(await page.locator('.outcome').count(),1);
+    assert(await page.locator('.played-slot.baza-winner').count()>=2,'Winning cards are marked on the final table');
     assert.equal(measurements.length,2,'Dos mediciones en la mano cuántica');
     assert(measurements.every(([,record])=>record.method==='Qiskit Statevector.sample_memory(1)'&&record.shots===1));
     assert(measurements.some(([text,record])=>/7 de espada|7 of Swords/.test(text)&&record.result===1&&record.gates.join()==='X'));

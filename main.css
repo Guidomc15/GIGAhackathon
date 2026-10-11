@@ -684,3 +684,23 @@ nav .nav-language{margin-left:auto}
 .ls-pair figcaption{display:flex;flex-direction:column;align-items:center;font:13px system-ui;color:#efe6cf}
 .ls-pair small{color:var(--gold);font-weight:700}
 .number-tabs button{min-width:38px}
+/* Compositor más amplio en escritorio: compuertas más grandes y legibles en el circuito. */
+@media(min-width:900px) and (min-height:540px){
+  .playing dialog.quantum-composer{width:min(1180px,96vw)}
+  .quantum-composer .composer-layout{grid-template-columns:minmax(360px,1fr) auto}
+  .quantum-composer .circuit-workbench{min-width:360px;padding:14px 16px}
+  .quantum-composer .circuit-slots{grid-template-columns:36px repeat(3,minmax(72px,1fr)) 40px;gap:10px;min-height:96px}
+  .quantum-composer .circuit-slots:before{top:34px}
+  .quantum-composer .circuit-position{min-height:62px}
+  .quantum-composer .circuit-position strong{font:700 18px/1.15 system-ui;padding:8px 2px;overflow-wrap:normal}
+  .quantum-composer .slot-tools button{min-width:26px;min-height:28px;font-size:15px}
+}
+/* Mesa final de la mano: la carta ganadora de cada baza se marca y la última carta jugada cae sobre la mesa. */
+.played-slot.baza-winner .card,.played-slot.baza-winner .fusion-card{box-shadow:0 0 0 3px var(--gold),0 0 16px #f6d57acc;border-radius:6px}
+.played-slot.last-played>*{animation:last-card .9s cubic-bezier(.2,.8,.3,1) both}
+@keyframes last-card{0%{opacity:0;transform:translateY(60px) rotate(-12deg) scale(1.25)}60%{opacity:1;transform:translateY(-6px) rotate(2deg) scale(1.06)}100%{transform:none}}
+.reduced .played-slot.last-played>*{animation:none}
+@media(prefers-reduced-motion:reduce){.played-slot.last-played>*{animation:none}}
+.outcome h2{margin:4px 0}
+.played-slot.baza-winner .card,.played-slot.baza-winner .fusion-card{box-shadow:0 0 0 3px var(--gold),0 0 22px #f6d57a}
+.played-slot.baza-loser .card,.played-slot.baza-loser .fusion-card{filter:saturate(.55) brightness(.75)}
