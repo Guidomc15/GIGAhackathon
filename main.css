@@ -612,9 +612,9 @@ nav .nav-language{margin-left:auto}
 .call-steps small{font:12px system-ui;color:#d8ccb0}
 .call-arrow{font:700 22px Georgia,serif;color:var(--gold)}
 .call-note{text-align:center;font:15px system-ui;color:#d8ccb0}
-.pov{display:flex;flex-direction:column;align-items:center;gap:12px}
+.pov{display:flex;flex-direction:column;align-items:center;gap:10px}
 .pov-hand{display:flex;gap:10px;justify-content:center}
-.pov-hand .card{width:clamp(70px,8vw,110px);height:auto;aspect-ratio:78/125;min-height:0;transform:none}
+.pov-hand .card{width:clamp(60px,min(8vw,11.5vh),110px);height:auto;aspect-ratio:78/125;min-height:0;transform:none}
 .pov-hand .card:first-child{box-shadow:0 0 18px #f6d57a88}
 .rival-pov .pov-hand .card:first-child{box-shadow:none}
 .pov-calls{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
@@ -630,3 +630,24 @@ nav .nav-language{margin-left:auto}
 .score-goal span{font:14px system-ui;color:#d8ccb0;margin-top:6px}
 @media(max-width:820px){.baza-card .card{width:60px}.call-arrow{display:none}}
 .nowrap{white-space:nowrap}
+/* Diapositivas 11–15: Envido. */
+.envido-row figure.negra figcaption{color:#ff8585}
+.envido-row figcaption{font:800 16px Georgia,serif;color:var(--gold)}
+.envido-hand{display:flex;justify-content:center;gap:10px}
+.envido-hand .baza-card .card{width:clamp(48px,min(7vw,9vh),86px)}
+.envido-total{display:flex;flex-direction:column;align-items:center;gap:4px;margin:0;text-align:center}
+.envido-total strong{font:800 clamp(22px,3.4vw,32px) Georgia,serif;color:var(--gold)}
+.envido-total span{font:14px system-ui;color:#efe6cf}
+.envido-duel{display:flex;flex-direction:column;align-items:center;gap:6px}
+.envido-duel .envido-hand .baza-card .card{width:clamp(40px,min(6vw,7vh),76px)}
+.envido-ladder{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+.envido-ladder li{display:flex;gap:8px;align-items:baseline;padding:4px 10px;border:1px solid #c9b57c66;border-radius:8px;background:#1c231c;font:13px system-ui;color:#efe6cf}
+.envido-ladder strong{font:800 16px Georgia,serif;color:var(--gold)}
+.falta-board .winner{border-color:#77e08b;box-shadow:0 0 14px #77e08b66}
+.envido-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%}
+.envido-side{display:flex;flex-direction:column;align-items:center;padding:6px;border-radius:10px;background:#1a1f19}
+.envido-duel .envido-hand{gap:4px}
+.envido-duel .envido-hand .card,.envido-duel .card-back{width:clamp(36px,min(4.6vw,8vh),70px);aspect-ratio:78/125;height:auto;min-height:0}
+.envido-duel .envido-hand .baza-card span{font-size:11px}
+@media(max-width:820px){.envido-pair{grid-template-columns:1fr}}
+.slide-envidoCalc .suit-tabs button{text-transform:none}

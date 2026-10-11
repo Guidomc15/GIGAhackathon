@@ -20,7 +20,13 @@ export const GLOSSARY={
   quiero:{es:['Quiero','«Acepto»: se juega por lo que se cantó.'],en:['Quiero','“I accept”: the hand is played for what was called.']},
   'no quiero':{es:['No quiero','«No acepto»: quien cantó suma los puntos que ya estaban en juego y la mano termina. Es lo mismo que irse al mazo.'],en:['No quiero','“I decline”: the caller scores the points already at stake and the hand ends. It is the same as folding (irse al mazo).']},
 };
-const DEFINITIONS={bazas:'baza',palos:'palo',pardas:'parda',bravas:'brava',anchos:'ancho','anchos falsos':'falso','quiero retruco':'retruco','quiero vale cuatro':'vale cuatro'};
+Object.assign(GLOSSARY,{
+  tantos:{es:['Tantos','Los puntos de Envido de tu mano: dos cartas del mismo palo suman sus valores más 20; si no, vale la carta más alta.'],en:['Tantos','Your hand’s Envido points: two cards of the same suit add their values plus 20; otherwise your highest card counts.']},
+  negras:{es:['Negras','El 10, el 11 y el 12. Para el Envido valen 0.'],en:['Negras (face cards)','The 10, 11 and 12. They are worth 0 for the Envido.']},
+  'real envido':{es:['Real Envido','Subida del Envido: suma 3 puntos más a lo que ya estaba en juego.'],en:['Real Envido','An Envido raise: adds 3 more points to what was at stake.']},
+  'falta envido':{es:['Falta Envido','La subida máxima del Envido: vale lo que le falta al que va ganando para llegar a 15.'],en:['Falta Envido','The top Envido raise: worth what the leader still needs to reach 15.']},
+});
+const DEFINITIONS={bazas:'baza',palos:'palo',pardas:'parda',bravas:'brava',anchos:'ancho','anchos falsos':'falso','quiero retruco':'retruco','quiero vale cuatro':'vale cuatro',negra:'negras'};
 
 // Escaped text with **terms**: bold, and clickable when they have a definition.
 export function terms(text){
@@ -79,9 +85,9 @@ export const SLIDES=[
          ['Example 2: if you win the first two bazas, the hand is already yours. **There is no need to play the third one**.']],
    kind:'bazas', example:{you:[[7,'espada'],[1,'basto']],rival:[[7,'oro'],[2,'copa']]}},
   {title:['¿Dónde está el truco?','Where is the trick?'],
-   body:[['Ganando la mano de cualquiera de estas formas, el ganador suma **1 punto**. Para ganar más puntos hay apuestas: el **Truco**, que sube lo que vale la mano, y el **Envido**, que se juega aparte con los tantos (lo vas a ver en la partida).',
+   body:[['Ganando la mano de cualquiera de estas formas, el ganador suma **1 punto**. Para ganar más puntos hay apuestas: el **Truco**, que sube lo que vale la mano, y el **Envido**, que se juega aparte con los tantos (lo vemos después del Truco).',
           'El Truco tiene un orden: primero **Truco**, después **Retruco** y por último **Vale Cuatro**. Cada canto pone en juego más puntos.'],
-         ['Winning the hand in any of these ways gives the winner **1 point**. To score more there are bets: **Truco**, which raises what the hand is worth, and **Envido**, a separate bet on your card points (you will see it in the game).',
+         ['Winning the hand in any of these ways gives the winner **1 point**. To score more there are bets: **Truco**, which raises what the hand is worth, and **Envido**, a separate bet on your card points (coming after the Truco).',
           'Truco goes in order: first **Truco**, then **Retruco** and finally **Vale Cuatro**. Each call puts more points at stake.']],
    kind:'calls'},
   {title:['Ejemplo: cantar Truco','Example: calling Truco'],
@@ -98,10 +104,40 @@ export const SLIDES=[
    kind:'rivalTruco'},
   {title:['Cómo termina la mano','How the hand ends'],
    body:[['Cuando termina la mano, quien ganó 2 de las 3 bazas se anota los puntos en juego: 1, 2, 3 o 4.',
-          'El primero que llega a **15 puntos** gana la partida. Ahora sí: juguemos con Bot Q.'],
+          'El primero que llega a **15 puntos** gana la partida. Falta la otra apuesta: el **Envido**.'],
          ['When the hand ends, whoever won 2 of the 3 bazas scores the points at stake: 1, 2, 3 or 4.',
-          'The first to reach **15 points** wins the game. Now let’s play with Bot Q.']],
+          'The first to reach **15 points** wins the game. One bet is left: the **Envido**.']],
    kind:'scoring'},
+  {title:['El Envido: los tantos','Envido: counting your tantos'],
+   body:[['El **Envido** es opcional: si querés lo cantás y si no, no. Si lo cantás, tiene que ser antes de jugar tu primera carta y antes de aceptar el **Truco**. Si te cantan Truco primero, podés responder «el Envido está primero».',
+          'Para el Envido cada carta vale su número, del 1 al 7, y las **negras** (10, 11 y 12) valen 0. Con dos cartas del mismo **palo** se suman sus valores y se agregan 20: eso son tus **tantos**.'],
+         ['**Envido** is optional: call it if you want to. If you do, it must be before you play your first card and before accepting the **Truco**. If Truco is called on you first, you may answer “el Envido está primero” (Envido comes first).',
+          'For the Envido each card is worth its number, 1 to 7, and the **negras** (10, 11 and 12) are worth 0. With two cards of the same **palo** (suit) you add their values plus 20: those are your **tantos**.']],
+   kind:'envidoValues'},
+  {title:['Cómo calcular el Envido','How to count the Envido'],
+   body:[['Elegí un ejemplo y tocá «Calcular». Se trata de sumar la mayor cantidad de puntos posible.',
+          'Jugamos sin flor: si tenés las tres cartas del mismo palo, se suman las **dos más altas** y se agregan 20.'],
+         ['Pick an example and press “Count”. The goal is to add up as many points as possible.',
+          'We play without flor: if all three cards share a suit, add the **two highest** plus 20.']],
+   kind:'envidoCalc'},
+  {title:['Ej. 3: el Envido del rival','Example 3: your opponent’s Envido'],
+   body:[['Tenés 7 y 2 de espada: 29 tantos. Cantá **Envido** y mirá qué tiene el rival.',
+          'Gana quien tiene más tantos. Si empatan, gana el que es **mano**. Los puntos del Envido se anotan aparte de la mano, que sigue jugándose.'],
+         ['You hold the 7 and 2 of swords: 29 tantos. Call **Envido** and see what your opponent has.',
+          'The higher count wins. On a tie, the **mano** (the player who leads) wins. Envido points are scored apart from the hand, which goes on.']],
+   kind:'envidoDuel'},
+  {title:['Envido, Real Envido y Falta Envido','Envido, Real Envido and Falta Envido'],
+   body:[['Te cantaron Envido. Igual que en el Truco, podés aceptar, rechazar o redoblar la apuesta si confiás en tus cartas. Tocá cada respuesta.',
+          'Si rechazás una subida, quien subió se lleva lo que ya estaba aceptado. Por ejemplo, Envido y Envido no querido: 2 puntos.'],
+         ['Envido was called on you. As in the Truco, you can accept, decline or raise if you trust your cards. Tap each answer.',
+          'If you decline a raise, the raiser takes what was already accepted. For example, Envido and Envido declined: 2 points.']],
+   kind:'envidoAnswers'},
+  {title:['Falta Envido: puede ganar la partida','Falta Envido: it can win the game'],
+   body:[['Si el rival dice **Quiero** a la **Falta Envido**, quien tenga más tantos se lleva los puntos que le faltan al que va ganando para llegar a 15.',
+          'Si ganás y eras el que iba adelante, ¡ganaste la partida! Tocá un resultado para verlo.'],
+         ['If your opponent says **Quiero** to the **Falta Envido**, whoever has more tantos takes the points the leader still needs to reach 15.',
+          'If you win and you were ahead, you have won the game! Tap a result to see it.']],
+   kind:'falta'},
 ];
 
 const cardData=([number,suit])=>({number,suit});
@@ -165,8 +201,59 @@ function scoringPart(){
   return `<div class="slide-visual"><div class="score-goal"><div><strong>1 · 2 · 3 · 4</strong><span>${L('puntos por mano, según los cantos','points per hand, depending on the calls')}</span></div><div><strong>15</strong><span>${L('puntos para ganar la partida','points to win the game')}</span></div></div></div>`;
 }
 
+// Envido count without flor: best same-suit pair plus 20, else the highest card. Figures count 0.
+const envidoValue=n=>n<=7?n:0;
+export function envidoOf(cards){
+  let best={total:Math.max(...cards.map(([n])=>envidoValue(n))),used:[]};
+  best.used=[cards.findIndex(([n])=>envidoValue(n)===best.total)];
+  for(let i=0;i<cards.length;i++)for(let j=i+1;j<cards.length;j++)if(cards[i][1]===cards[j][1]){
+    const total=20+envidoValue(cards[i][0])+envidoValue(cards[j][0]);
+    if(best.used.length<2||total>best.total)best={total,used:[i,j]};
+  }
+  return best;
+}
+const formula=(cards,{total,used})=>used.length===2?`${used.map(i=>envidoValue(cards[i][0])).join(' + ')} + 20 = ${total}`:`${total}`;
+function envidoValuesPart(){
+  return `<div class="slide-visual"><div class="suit-row envido-row">${NUMBERS.map(n=>`<figure class="${n>7?'negra':''}">${card({number:n,suit:'espada'})}<figcaption>${envidoValue(n)}</figcaption></figure>`).join('')}</div><p class="call-note">${L('Valor de cada carta para el Envido','Each card’s value for the Envido')}</p></div>`;
+}
+export const ENVIDO_EXAMPLES=[
+  {cards:[[2,'copa'],[11,'espada'],[12,'oro']],name:['Ej. 1: sin palo repetido','Ex. 1: no shared suit'],why:['Ninguna carta comparte palo: vale la más alta. Las negras valen 0, así que tenés 2.','No two cards share a suit: the highest one counts. Face cards are 0, so you have 2.']},
+  {cards:[[7,'espada'],[2,'espada'],[10,'oro']],name:['Ej. 2: dos del mismo palo','Ex. 2: two of a suit'],why:['El 7 y el 2 son de espada: 7 + 2 + 20. El 10 no cuenta.','The 7 and 2 are both swords: 7 + 2 + 20. The 10 does not count.']},
+  {cards:[[7,'oro'],[5,'oro'],[4,'oro']],name:['Ej. 3: tres del mismo palo','Ex. 3: three of a suit'],why:['Sin flor, se toman las dos más altas: 7 + 5 + 20. El 4 queda afuera.','Without flor, take the two highest: 7 + 5 + 20. The 4 is left out.']},
+  {cards:[[12,'copa'],[10,'copa'],[5,'basto']],name:['Ej. 4: dos negras','Ex. 4: two face cards'],why:['El 12 y el 10 de copa valen 0 cada uno, pero juntos suman 20: le ganan al 5 solo.','The 12 and 10 of cups are 0 each, but together they make 20: better than the 5 alone.']},
+];
+function envidoHand(cards,used=[],shown=true){return `<div class="pov-hand envido-hand">${cards.map((c,i)=>`<div class="baza-card ${shown&&used.includes(i)?'wins':''} ${shown&&used.length&&!used.includes(i)?'loses':''}">${card(cardData(c))}<span>${esc(cardName(cardData(c)))}</span></div>`).join('')}</div>`;}
+function envidoCalcPart(state){
+  const k=state.example||0,ex=ENVIDO_EXAMPLES[k],res=envidoOf(ex.cards),shown=state.counted;
+  return `<div class="slide-visual"><div class="suit-tabs" role="tablist">${ENVIDO_EXAMPLES.map((e,i)=>`<button role="tab" data-example="${i}" aria-selected="${i===k}" class="${i===k?'current':''}">${esc(L(...e.name))}</button>`).join('')}</div>${envidoHand(ex.cards,res.used,shown)}<div class="baza-actions">${shown?`<p class="envido-total" role="status"><strong>${L('Envido','Envido')} = ${formula(ex.cards,res)}</strong><span>${esc(L(...ex.why))}</span></p>`:`<button type="button" class="primary" data-count>${L('Calcular','Count')}</button>`}</div></div>`;
+}
+const YOU_ENVIDO=[[7,'espada'],[2,'espada'],[10,'oro']],RIVAL_ENVIDO=[[6,'copa'],[5,'copa'],[1,'basto']];
+function envidoDuelPart(state){
+  const you=envidoOf(YOU_ENVIDO),rival=envidoOf(RIVAL_ENVIDO),called=state.called;
+  const side=(who,cards,res,shown)=>`<div class="envido-side"><p class="baza-title">${who} · ${shown?formula(cards,res):'?'}</p>${shown?envidoHand(cards,res.used):`<div class="pov-hand envido-hand hidden-hand">${cards.map(()=>'<div class="baza-card"><div class="card-back" aria-hidden="true"><span>◈</span></div></div>').join('')}</div>`}</div>`;
+  return `<div class="slide-visual envido-duel"><div class="envido-pair">${side(L('Vos','You'),YOU_ENVIDO,you,true)}${side(L('Rival','Opponent'),RIVAL_ENVIDO,rival,called)}</div>${called?`<p class="callout" role="status">${L(`El rival dijo «Quiero». ${rival.total} contra ${you.total}: el rival se lleva los 2 puntos del Envido.`,`Your opponent said “Quiero”. ${rival.total} against ${you.total}: your opponent takes the 2 Envido points.`)}</p>`:`<div class="pov-calls"><button type="button" class="primary" data-call-envido>Envido</button></div>`}</div>`;
+}
+const ENVIDO_ANSWERS={
+  quiero:['Quiero','Quiero','Se comparan los tantos y quien tiene más suma 2 puntos.','You compare tantos and the higher count scores 2 points.'],
+  noquiero:['No quiero','No quiero','No se muestran los tantos: quien cantó Envido suma 1 punto y la mano sigue.','No tantos are shown: the Envido caller scores 1 point and the hand goes on.'],
+  envido:['Envido','Envido','Aceptás y subís 2 más: si el otro quiere, se juega por 4. Si no quiere, sumás 2.','You accept and raise by 2: if they accept, it is worth 4. If they decline, you score 2.'],
+  real:['Real Envido','Real Envido','Aceptás y subís 3 más: si el otro quiere, se juega por 5. Si no quiere, sumás 2.','You accept and raise by 3: if they accept, it is worth 5. If they decline, you score 2.'],
+  falta:['Falta Envido','Falta Envido','Se juega por lo que le falta al que va ganando para llegar a 15. Si no quiere, sumás 2.','It is worth what the leader needs to reach 15. If they decline, you score 2.'],
+};
+function envidoAnswersPart(state){
+  const pick=state.answer,ladder=[['Envido',2],['Envido + Envido',4],['Real Envido',3],['Envido + Real Envido',5],['Falta Envido',L('hasta 15','up to 15')]];
+  return `<div class="slide-visual pov rival-pov"><div class="pov-bubble incoming"><strong>¡Envido!</strong></div><div class="pov-calls">${Object.entries(ENVIDO_ANSWERS).map(([id,[es,en]])=>`<button type="button" data-reply="${id}" class="${pick===id?'called':''}">${esc(L(es,en))}</button>`).join('')}</div>${pick?`<p class="callout" role="status"><strong>${esc(L(ENVIDO_ANSWERS[pick][0],ENVIDO_ANSWERS[pick][1]))}:</strong> ${esc(L(ENVIDO_ANSWERS[pick][2],ENVIDO_ANSWERS[pick][3]))}</p>`:''}<ul class="envido-ladder">${ladder.map(([n,v])=>`<li><span>${n}</span><strong>${v}</strong></li>`).join('')}</ul></div>`;
+}
+const FALTA_SCORE=[12,9];
+function faltaPart(state){
+  const need=15-Math.max(...FALTA_SCORE),pick=state.answer,score=[...FALTA_SCORE];
+  if(pick==='you')score[0]+=need;if(pick==='rival')score[1]+=need;
+  const text=pick==='you'?L(`Ganaste el Envido: sumás ${need} y llegás a 15. ¡Ganaste la partida!`,`You won the Envido: you add ${need} and reach 15. You won the game!`):pick==='rival'?L(`Ganó el rival: suma ${need} y queda ${score[1]} a ${score[0]}. La partida sigue.`,`Your opponent won: they add ${need} and it is ${score[1]} to ${score[0]}. The game goes on.`):'';
+  return `<div class="slide-visual"><div class="score-goal falta-board"><div class="${pick==='you'?'winner':''}"><strong>${score[0]}</strong><span>${L('Vos','You')}</span></div><div class="${pick==='rival'?'winner':''}"><strong>${score[1]}</strong><span>${L('Rival','Opponent')}</span></div></div><p class="call-note">${L(`Vas ganando ${FALTA_SCORE[0]} a ${FALTA_SCORE[1]}: te faltan ${need} para 15, así que la Falta Envido vale ${need}.`,`You lead ${FALTA_SCORE[0]} to ${FALTA_SCORE[1]}: you need ${need} to reach 15, so the Falta Envido is worth ${need}.`)}</p><div class="pov-calls"><button type="button" data-reply="you" class="${pick==='you'?'called':''}">${L('Ganás vos el Envido','You win the Envido')}</button><button type="button" data-reply="rival" class="${pick==='rival'?'called':''}">${L('Gana el rival','Your opponent wins')}</button></div>${pick?`<p class="callout" role="status">${text}</p>`:''}</div>`;
+}
+
 export function slideHtml(index,state={}){
-  const s=SLIDES[index],lang=L(0,1),parts={rules:rulesPart,suits:suitsPart,ladder:ladderPart,duel:duelPart,bazas:bazasPart,calls:callsPart,callTruco:callTrucoPart,rivalTruco:rivalTrucoPart,scoring:scoringPart};
-  const last=index===SLIDES.length-1,locked=(s.kind==='duel'&&(state.round||0)<DUEL.length)||(s.kind==='callTruco'&&!state.called);
+  const s=SLIDES[index],lang=L(0,1),parts={rules:rulesPart,suits:suitsPart,ladder:ladderPart,duel:duelPart,bazas:bazasPart,calls:callsPart,callTruco:callTrucoPart,rivalTruco:rivalTrucoPart,scoring:scoringPart,envidoValues:envidoValuesPart,envidoCalc:envidoCalcPart,envidoDuel:envidoDuelPart,envidoAnswers:envidoAnswersPart,falta:faltaPart};
+  const last=index===SLIDES.length-1,locked=(s.kind==='duel'&&(state.round||0)<DUEL.length)||(s.kind==='callTruco'&&!state.called)||(s.kind==='envidoDuel'&&!state.called);
   return `<article class="panel slide slide-${s.kind}" aria-label="Tutorial"><header class="slide-head"><p class="coach-step">${L(`Antes de jugar · ${index+1} de ${SLIDES.length}`,`Before playing · ${index+1} of ${SLIDES.length}`)}</p><div class="slide-progress" aria-hidden="true">${SLIDES.map((_,i)=>`<span class="${i<=index?'done':''}"></span>`).join('')}</div><h2>${esc(s.title[lang])}</h2></header><div class="slide-body"><div class="slide-text">${s.body[lang].map(p=>`<p>${terms(p)}</p>`).join('')}</div>${parts[s.kind]?.(state,s)||''}</div><footer class="actions slide-nav"><button id="slide-prev" ${index===0?'disabled':''}>${L('← Anterior','← Previous')}</button><button id="slide-skip">${L('Saltar a la partida','Skip to the game')}</button><button id="slide-next" class="primary" ${locked?'disabled':''}>${last?L('Jugar con Bot Q →','Play with Bot Q →'):L('Siguiente →','Next →')}</button></footer><div id="term-popover" role="dialog" aria-live="polite" hidden></div></article>`;
 }

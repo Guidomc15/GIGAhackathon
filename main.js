@@ -305,6 +305,9 @@ function slides(){
   stage.querySelector('[data-baza-next]')?.addEventListener('click',()=>{slideState.step=(slideState.step||0)+1;render();});
   stage.querySelector('[data-baza-reset]')?.addEventListener('click',()=>{slideState.step=0;render();});
   stage.querySelector('[data-call-truco]')?.addEventListener('click',()=>{slideState.called=true;sound.speak('¡Truco!');render();});
+  stage.querySelector('[data-call-envido]')?.addEventListener('click',()=>{slideState.called=true;sound.speak('Envido');render();});
+  stage.querySelectorAll('[data-example]').forEach(b=>b.onclick=()=>{slideState.example=Number(b.dataset.example);slideState.counted=false;render();});
+  stage.querySelector('[data-count]')?.addEventListener('click',()=>{slideState.counted=true;render();});
   stage.querySelectorAll('[data-reply]').forEach(b=>b.onclick=()=>{slideState.answer=b.dataset.reply;render();});
   stage.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{
     const round=slideState.round||0,ok=b.dataset.pick===duelAnswer(round);
