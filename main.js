@@ -173,8 +173,8 @@ function languageSelect(id){
   return `<label class="language-switch"><span aria-hidden="true">🌐</span><span class="visually-hidden">${L('Idioma','Language')}</span><select id="${id}" data-language aria-label="${L('Idioma','Language')}"><option value="es" ${lang()==='es'?'selected':''}>Español</option><option value="en" ${lang()==='en'?'selected':''}>English</option></select></label>`;
 }
 function home(){
-  stage.innerHTML=`<section class="start-menu ${lang()==='en'?'english-menu':''}" aria-label="${L('Menú principal de Truco Cuántico','Quantum Truco main menu')}"><img class="menu-art" src="${MENU_ART}" alt="" draggable="false">${languageSelect('menu-language')}<h1 class="visually-hidden">${L('Truco Cuántico','Quantum Truco')}</h1><div class="menu-controls"><button class="menu-hit menu-start" id="start"><span class="menu-label">${L('Empezar partida','Start game')}</span></button><button class="menu-hit menu-tutorial" id="learn"><span class="menu-label">Tutorial</span></button><button class="menu-hit menu-values" id="values"><span class="menu-label">${L('Valores','Card values')}</span></button><button class="menu-hit menu-credits" id="menu-credits"><span class="menu-label">${L('Créditos','Credits')}</span></button></div></section>${view.game?`<button class="resume-menu" id="resume">${L('Retomar partida','Resume game')}</button>`:''}`;
-  stage.innerHTML+=`<section class="panel menu-settings"><h2>${L('Idioma, sonido y lectura','Language, sound and reading')}</h2>${languageSelect('home-language')}<div class="mixer-controls"><label><input id="disable-voices" type="checkbox" ${preferences.voices?'':'checked'}> ${L('Desactivar voces','Turn voices off')}</label><label>${L('Volumen de voces','Voice volume')}<input id="voice-volume" type="range" min="0" max="100" value="${Math.round(preferences.voiceVolume*100)}"></label><label><input id="disable-music" type="checkbox" ${preferences.music?'':'checked'}> ${L('Desactivar música','Turn music off')}</label><label>${L('Volumen de música','Music volume')}<input id="music-volume" type="range" min="0" max="100" value="${Math.round(preferences.musicVolume*100)}"></label></div><p id="audio-status">${esc(sound.status())}</p><p>${L('El sonido empieza al tocar un control. Las voces leen los cantos en español, como se dicen en la mesa.','Sound starts when you touch a control. Voices read the calls in Spanish, as they are said at the table.')}</p><p>${L('Los avisos esperan tu «Continuar». El botón ⏱ elige 1 s, 3 s, 7 s o avance manual.','Notices wait for your “Continue”. The ⏱ button picks 1 s, 3 s, 7 s or manual.')}</p></section>`;
+  const settings=`<div class="menu-settings"><div class="mixer-controls"><label><input id="disable-voices" type="checkbox" ${preferences.voices?'':'checked'}> ${L('Desactivar voces','Turn voices off')}</label><label>${L('Volumen de voces','Voice volume')}<input id="voice-volume" type="range" min="0" max="100" value="${Math.round(preferences.voiceVolume*100)}"></label><label><input id="disable-music" type="checkbox" ${preferences.music?'':'checked'}> ${L('Desactivar música','Turn music off')}</label><label>${L('Volumen de música','Music volume')}<input id="music-volume" type="range" min="0" max="100" value="${Math.round(preferences.musicVolume*100)}"></label></div><p id="audio-status">${esc(sound.status())}</p><p>${L('El sonido empieza al tocar un control. Las voces leen los cantos en español, como se dicen en la mesa.','Sound starts when you touch a control. Voices read the calls in Spanish, as they are said at the table.')}</p><p>${L('Los avisos esperan tu «Continuar». El botón ⏱ elige 1 s, 3 s, 7 s o avance manual.','Notices wait for your “Continue”. The ⏱ button picks 1 s, 3 s, 7 s or manual.')}</p></div>`;
+  stage.innerHTML=`<section class="start-menu ${lang()==='en'?'english-menu':''}" aria-label="${L('Menú principal de Truco Cuántico','Quantum Truco main menu')}"><img class="menu-art" src="${MENU_ART}" alt="" draggable="false">${languageSelect('menu-language')}<h1 class="visually-hidden">${L('Truco Cuántico','Quantum Truco')}</h1><details class="menu-sound"><summary>🔊 ${L('Sonido','Sound')}</summary>${settings}</details><div class="menu-controls"><button class="menu-hit menu-start" id="start"><span class="menu-label">${L('Empezar partida','Start game')}</span></button><button class="menu-hit menu-tutorial" id="learn"><span class="menu-label">Tutorial</span></button><button class="menu-hit menu-values" id="values"><span class="menu-label">${L('Valores','Card values')}</span></button><button class="menu-hit menu-credits" id="menu-credits"><span class="menu-label">${L('Créditos','Credits')}</span></button></div>${view.game?`<button class="resume-menu" id="resume">${L('Retomar partida','Resume game')}</button>`:''}</section>`;
   for(const [id,key] of [['disable-voices','voices'],['disable-music','music']])document.getElementById(id).onchange=e=>{savePreference(key,!e.target.checked);sound.apply();if(key==='music'&&preferences.music)sound.unlock();};
   for(const [id,key] of [['voice-volume','voiceVolume'],['music-volume','musicVolume']])document.getElementById(id).oninput=e=>{savePreference(key,Number(e.target.value)/100);sound.apply();};
   document.getElementById('start').onclick=()=>{screen='setup';render();focus();};
@@ -205,8 +205,7 @@ function editor(g,priv){
   const q=priv.quantum,left=priv.removals_left,limited=left!==null&&left!==undefined,blocked=limited&&left===0;
   const composing=!!q&&quantumOpen;
   // With the composer open, Bot Q speaks inside the dialog only (the page behind is inert).
-  stage.innerHTML+=view.coach?(composing?'':coachPanel(view.coach)):turnGuide(g,priv);
-  stage.innerHTML+=table(g,{art:TABLE_ART,cards:priv.cards,quantum:q,prepare:true});
+  stage.innerHTML+=layout(table(g,{art:TABLE_ART,cards:priv.cards,quantum:q,prepare:true}),view.coach?(composing?'':coachPanel(view.coach)):turnGuide(g,priv));
   stage.querySelectorAll('[data-card]').forEach(b=>b.onclick=()=>action('choose',Number(b.dataset.card)));
   const activate=document.getElementById('activate-quantum');
   if(activate)activate.onclick=()=>{quantumOpen=true;render();focus();};
@@ -244,13 +243,15 @@ function resultScreen(g){
   bindActions();
 }
 const CALLS={envido:'Envido',real:'Real Envido',falta:'Falta Envido'};
+// Desktop layout: the table fills the left column; guidance and calls live in the side panel.
+const layout=(tableHtml,side)=>`<div class="game-layout"><div class="table-wrap">${tableHtml}</div><aside class="side-panel">${side}</aside></div>`;
 function game(){
   const g=view.game;
   if(!g){screen='setup';setup();return;}
   stage.innerHTML=`<p class="round-meta">${esc(g.names[0])}: ${g.scores[0]} · ${esc(g.names[1])}: ${g.scores[1]} · ${L('Mano','Hand')} ${g.hand} · ${view.guided?L('Tutorial con Bot Q','Tutorial with Bot Q'):g.difficulty==='hard'?L('Nivel difícil','Hard level'):L('Nivel aprendizaje','Learning level')}</p>`;
   if(presentation){
     if(presentation.type==='flip'){
-      stage.innerHTML+=`<p class="turn-banner" role="status">${L(`Turno de ${esc(g.names[g.actor])}`,`${esc(g.names[g.actor])}'s turn`)}</p>`+table(g,{art:TABLE_ART,cards:view.private?.cards,quantum:view.private?.quantum,prepare:g.phase==='prepare',faceDown:presentation.faceDown,flip:!presentation.faceDown});return;
+      stage.innerHTML+=layout(table(g,{art:TABLE_ART,cards:view.private?.cards,quantum:view.private?.quantum,prepare:g.phase==='prepare',faceDown:presentation.faceDown,flip:!presentation.faceDown}),`<p class="turn-banner" role="status">${L(`Turno de ${esc(g.names[g.actor])}`,`${esc(g.names[g.actor])}'s turn`)}</p>`);return;
     }
     return;
   }
@@ -261,11 +262,13 @@ function game(){
   if(!revealed){handoff(g);return;}
   const priv=view.private||{};
   if(g.phase==='prepare'){editor(g,priv);return;}
-  stage.innerHTML+=(view.coach?coachPanel(view.coach):turnGuide(g,priv))+table(g,{art:TABLE_ART,cards:priv.cards,quantum:priv.quantum});
-  if(priv.quantum)stage.innerHTML+=quantumStatus(priv.quantum,g.names[g.actor]);
-  if(g.envido)stage.innerHTML+=`<p class="callout">Envido: ${esc(g.names[0])} ${g.envido.values[0]} · ${esc(g.names[1])} ${g.envido.values[1]}. ${L('Ganó','Won by')} ${esc(g.names[g.envido.winner])}: +${g.envido.points}.</p>`;
-  if(g.pending)stage.innerHTML+=`<section class="panel pending-call"><h2>${L(`Respuesta de ${esc(g.names[g.actor])}`,`${esc(g.names[g.actor])} must answer`)}</h2><p>${L(`${esc(g.names[g.pending.proposer])} propone`,`${esc(g.names[g.pending.proposer])} calls`)} ${g.pending.kind==='envido'?g.pending.chain.map(c=>CALLS[c]).join(' → '):({2:'Truco',3:'Retruco',4:'Vale Cuatro'}[g.pending.level])}.</p></section>`;
-  stage.innerHTML+=actionButtons(g)+`<details class="timeline-box"><summary>${L('Línea temporal pública','Public timeline')}</summary><div class="timeline">${g.events.map(e=>`<p>${esc(e.kind==='speech'?displayText(e):eventText(e.text))} ${e.player!==undefined?'· '+esc(g.names[e.player]):''} ${e.points?'+ '+e.points+' '+L('puntos','points'):''}</p>`).join('')}</div></details>`;
+  let side=view.coach?coachPanel(view.coach):turnGuide(g,priv);
+  if(g.pending)side+=`<section class="panel pending-call"><h2>${L(`Respuesta de ${esc(g.names[g.actor])}`,`${esc(g.names[g.actor])} must answer`)}</h2><p>${L(`${esc(g.names[g.pending.proposer])} propone`,`${esc(g.names[g.pending.proposer])} calls`)} ${g.pending.kind==='envido'?g.pending.chain.map(c=>CALLS[c]).join(' → '):({2:'Truco',3:'Retruco',4:'Vale Cuatro'}[g.pending.level])}.</p></section>`;
+  if(priv.quantum)side+=quantumStatus(priv.quantum,g.names[g.actor]);
+  side+=actionButtons(g);
+  if(g.envido)side+=`<p class="callout envido-result">Envido: ${esc(g.names[0])} ${g.envido.values[0]} · ${esc(g.names[1])} ${g.envido.values[1]}. ${L('Ganó','Won by')} ${esc(g.names[g.envido.winner])}: +${g.envido.points}.</p>`;
+  side+=`<details class="timeline-box"><summary>${L('Línea temporal pública','Public timeline')}</summary><div class="timeline">${g.events.map(e=>`<p>${esc(e.kind==='speech'?displayText(e):eventText(e.text))} ${e.player!==undefined?'· '+esc(g.names[e.player]):''} ${e.points?'+ '+e.points+' '+L('puntos','points'):''}</p>`).join('')}</div></details>`;
+  stage.innerHTML+=layout(table(g,{art:TABLE_ART,cards:priv.cards,quantum:priv.quantum}),side);
   bindActions();
   if(g.phase==='play')stage.querySelectorAll('[data-card]').forEach(b=>{
     b.onclick=()=>action('play',Number(b.dataset.card));b.draggable=true;
@@ -331,8 +334,21 @@ function applyCoach(){
   document.getElementById('coach-gates')?.addEventListener('click',()=>openLesson(0));
   if(target){const box=target.getBoundingClientRect();if(box.top<0||box.bottom>innerHeight)target.scrollIntoView({block:'center',behavior:reducedMotion()?'instant':'smooth'});}
 }
+let rulesPage=0;
+// The rules are split into tabs (one h3 section per page) so each fits on screen.
 function rules(){
   stage.innerHTML=rulesContent(lang());
+  const article=stage.querySelector('.rules-guide');
+  const intro=[...article.children].findIndex(el=>el.tagName==='H3');
+  const sections=[];let current=null;
+  for(const el of [...article.children].slice(intro)){
+    if(el.tagName==='H3'){current=document.createElement('section');current.className='rules-section';sections.push(current);el.before(current);}
+    if(current&&el.tagName!=='DETAILS')current.append(el);
+  }
+  rulesPage=Math.min(rulesPage,sections.length-1);
+  const tabs=document.createElement('nav');tabs.className='rules-tabs';tabs.setAttribute('aria-label',L('Secciones','Sections'));
+  sections.forEach((section,i)=>{section.hidden=i!==rulesPage;const b=document.createElement('button');b.textContent=section.querySelector('h3').textContent;b.className=i===rulesPage?'current':'';b.setAttribute('aria-pressed',String(i===rulesPage));b.onclick=()=>{rulesPage=i;render();};tabs.append(b);});
+  sections[0]?.before(tabs);
 }
 function credits(){
   stage.innerHTML=`<article class="panel help credits-page"><h2>Qriollo · ${VERSION}</h2><p class="credits-intro">${L('Aprender computación cuántica jugando al Truco.','Learning quantum computing by playing Truco.')}</p><p>${L('Un proyecto de','A project by')} <a href="${REPOSITORY_URL}" target="_blank" rel="noopener">Guido Miniero Cocco, Alejo Dellape ${L('y','and')} Gaspar Osterrieth</a>. ${L('El equipo aportó los diseños del menú, la mesa y las cartas.','The team contributed the menu, table and card designs.')}</p><dl><dt>${L('Motor cuántico','Quantum engine')}</dt><dd>${L('Qiskit: estados, compuertas y mediciones.','Qiskit: states, gates and measurements.')}</dd><dt>${L('Esfera interactiva','Interactive sphere')}</dt><dd>${L('Adaptada de','Adapted from')} <a href="https://qollab.xyz/u/qollab/interactive-bloch-sphere" target="_blank" rel="noopener">Interactive Bloch Sphere, Qollab</a>.</dd><dt>${L('Música y voces','Music and voices')}</dt><dd>${L('Tema musical aportado por el equipo. Los cantos se leen con las voces disponibles en el dispositivo.','Music track provided by the team. Calls are read with the voices available on the device.')}</dd><dt>${L('Desarrollo','Development')}</dt><dd>${L('Código, pruebas y documentación con asistencia de OpenAI Codex y Claude (Anthropic). Fondo preparado con la herramienta de imágenes de OpenAI.','Code, tests and documentation with assistance from OpenAI Codex and Claude (Anthropic). Background prepared with OpenAI’s image tool.')}</dd></dl><p>This effort is supported by Qollab &amp; IonQ.</p><p>${L('Código original: MIT. Los recursos aportados y la esfera tienen avisos separados en','Original code: MIT. Contributed assets and the sphere have separate notices in')} <a href="${REPOSITORY_URL}/blob/main/THIRD_PARTY_NOTICES.md" target="_blank" rel="noopener">Third-party notices</a>.</p><details><summary>${L('Video y funcionamiento técnico','Video and technical notes')}</summary><p>${L('El video de 56 segundos documenta una versión anterior. Las partidas completas usan simulación local con Qiskit; la ejecución IonQ disponible en Qollab admite un solo job por sesión.','The 56-second video documents an earlier version. Full games use local Qiskit simulation; the IonQ run available on Qollab allows one job per session.')}</p><button id="demo-button">${L('Ver video histórico','Watch the earlier video')}</button><div id="demo-view"></div></details></article>`;
@@ -374,6 +390,8 @@ for(const id of ['home','tutorial','rules','credits'])document.getElementById(id
 document.getElementById('language').onchange=event=>setLanguage(event.target.value);
 document.getElementById('motion').onchange=e=>{document.querySelector('.app-shell').classList.toggle('reduced',e.target.checked);};
 document.addEventListener('pointerdown',()=>sound.unlock());
+// The sound popover on the menu closes when you touch anywhere else.
+document.addEventListener('pointerdown',event=>document.querySelectorAll('.menu-sound[open]').forEach(d=>{if(!d.contains(event.target))d.open=false;}));
 document.addEventListener('keydown',event=>{if(['Enter',' '].includes(event.key))sound.unlock();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)sound.pause();else if(sound.context)sound.unlock();});
 document.documentElement.style.setProperty('--table-art',`url("${TABLE_ART}")`);

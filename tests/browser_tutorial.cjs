@@ -19,6 +19,8 @@ const CONTROLS=['[data-action]','[data-card]','[data-token]','#lock-circuit','#a
     page.on('pageerror',e=>errors.push(e.message));
     const idle=()=>page.waitForFunction(()=>document.querySelector('#stage')?.getAttribute('aria-busy')==='false'&&!document.querySelector('#presentation-layer'));
     await page.goto(base);
+    // TRUCO_LANG=en plays the same tutorial with the English interface.
+    if(process.env.TRUCO_LANG==='en'){await page.locator('#menu-language').selectOption('en');await idle();}
     await page.locator('#learn').click();
     await page.locator('#hub-truco').click();
     await page.locator('.coach').waitFor();
@@ -41,8 +43,8 @@ const CONTROLS=['[data-action]','[data-card]','[data-token]','#lock-circuit','#a
         await page.locator('.coach-target').click();
       }
     }
-    assert.match(await page.locator('.coach h2').textContent(),/Terminaste el tutorial/);
-    assert.match(await page.locator('.round-meta').textContent(),/Vos: 8 · Bot Q: 0/);
+    assert.match(await page.locator('.coach h2').textContent(),/Terminaste el tutorial|You finished the Truco tutorial/);
+    assert.match(await page.locator('.round-meta').textContent(),/(Vos|You): 8 · Bot Q: 0/);
     assert.equal(seen.length,38);
     await page.locator('#coach-play').click();
     await page.locator('#deal').waitFor();

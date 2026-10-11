@@ -37,6 +37,7 @@ fs.mkdirSync(output,{recursive:true});
   assert.equal(await page.locator('#start .menu-label').innerText(),'Start game');
   assert.equal(await page.evaluate(()=>document.documentElement.lang),'en');
   // Music: the supplied MP3 loops, follows the volume slider and stops when muted.
+  await page.locator('.menu-sound summary').click();
   assert(await page.locator('#disable-music').isChecked());
   await page.locator('#disable-music').uncheck();
   await page.waitForFunction(()=>window.played.length>0);
@@ -48,8 +49,13 @@ fs.mkdirSync(output,{recursive:true});
   await page.locator('#disable-voices').check();
   assert((await page.evaluate(()=>window.voiceCancels))>0);
   await page.locator('#disable-voices').uncheck();
+  await page.locator('.menu-sound summary').click();
+  assert.equal(await page.locator('.menu-sound[open]').count(),0);
   await click('#values');assert.match(await page.locator('.help').innerText(),/Card values/);
-  await click('#full-rules');assert.match(await page.locator('.rules-guide').innerText(),/15 minus the leading score/);
+  await click('#full-rules');
+  assert(await page.locator('.rules-tabs button').count()>=6,'Rules are split into tabs');
+  await page.locator('.rules-tabs button',{hasText:'Envido'}).first().click();
+  assert.match(await page.locator('.rules-guide').innerText(),/15 minus the leading score/);
   await noOverflow();
   // The header switch changes every screen at once.
   await page.locator('#language').selectOption('es');

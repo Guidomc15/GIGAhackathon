@@ -1,4 +1,8 @@
-# Volver a 0.2.0
+# Volver a una versión anterior
+
+Para volver a **0.2.1** (con ruido educativo y lecciones anteriores) usá el tag `v0.2.1` (`c7ef21d`) y su `QOLLAB_0.2.1.zip`, con los mismos pasos que se describen abajo para `v0.2.0`.
+
+## Volver a 0.2.0
 
 El tag remoto **v0.2.0** conserva exactamente el commit `5a96b4fd534ac5c7fd961866a163d21711d4e719`, anterior a los cambios de 0.2.1. No se reemplaza ese tag ni se borra la rama `codex/0.2.0-polish`.
 

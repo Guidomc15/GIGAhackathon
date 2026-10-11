@@ -1,15 +1,13 @@
-# Validación de 0.2.1
+# Validación de 0.2.2
 
-Entorno usado: Python 3.12.14, Qiskit 2.5.2 y Chromium local. La suite tiene **46 pruebas Python**:
+Entorno local: Python 3.13.16, Qiskit 2.5.2 y Chromium 138. La suite tiene **48 pruebas Python**:
 
 ```sh
 .venv/bin/python -m unittest discover -s tests -v
 python build_qollab.py --check --verify-zip QOLLAB_0.2.2.zip
 ```
 
-Las pruebas verifican reglas, jerarquía, pardas, cadenas de cantos, conservación del mazo, privacidad, medición única y atómica, sesiones HTTP, recuperación de errores remotos con dobles de prueba y el motor de Qollab aislado sin carpeta `truco/`.
-
-El ruido se contrasta con la solución exponencial analítica para diferentes estados y tiempos: probabilidades normalizadas, matriz positiva, Bloch dentro de la esfera y trayectoria consistente. Se comprueba que la medición use la distribución mostrada, que el tiempo no cambie cartas medidas, que los ticks no afecten al rival, que se rechacen turnos/intervalos inválidos y que nunca se envíe el canal local a IonQ. Se completan partidas con ruido hasta 15. El tutorial final ejecuta un muestreo real desde DensityMatrix.
+Verifican reglas, jerarquía, pardas, cadenas de cantos, conservación del mazo, privacidad, medición única y atómica, niveles Aprendizaje y Difícil (2 retiros por jugador y por mano, reordenar no cuenta, cambiar de carta con compuertas sí), partidas completas en los dos niveles, el tutorial completo en español e inglés (también con sesión IonQ, que igual mide en local), las 9 lecciones de compuertas, sesiones HTTP, recuperación de errores remotos con dobles de prueba y el motor de Qollab aislado sin carpeta `truco/`.
 
 Con `serve.py` ejecutándose:
 
@@ -20,14 +18,14 @@ TRUCO_PRIVACY=1 node tests/browser_full_match.cjs
 node tests/browser_animations.cjs
 node tests/browser_0.2.2.cjs
 node tests/browser_tutorial.cjs
+TRUCO_LANG=en node tests/browser_tutorial.cjs
 ```
 
 Instalá Playwright para ejecutar las pruebas de navegador. `PLAYWRIGHT_MODULE` permite una instalación externa; `CHROMIUM_EXECUTABLE_PATH` elige Chromium del sistema. `TRUCO_URL` cambia el destino y `ARTIFACT_DIR` la carpeta de capturas.
 
-`browser_tutorial.cjs` juega el tutorial completo tocando solo el control que resalta Bot Q y comprueba que el resto quede bloqueado.
+- `browser_0.2.2.cjs`: inglés por defecto en un navegador en inglés, cambio de idioma en cualquier pantalla y en plena partida, error del motor traducido, nivel Difícil desde la interfaz, botón Confirmar, colores de los ejes, música desde el MP3 (bucle, volumen, silencio), temporizadores 1/3/7/manual, posición del scroll y voces.
+- `browser_tutorial.cjs`: juega los 38 pasos tocando solo el control que resalta Bot Q, comprueba que el resto quede bloqueado y recorre las 9 lecciones.
 
-Las pruebas largas usan el botón Skip real para avanzar. La prueba `browser_0.2.1.cjs` conserva el control manual: comprueba que los avisos no desaparezcan al reducir movimiento, el ciclo 1/3/7/manual, el cierre a 1 segundo, ruido en vivo y pausa durante avisos y ayudas, posición del scroll, tipografía, cartas jugadas, reglas/experimentos EN/ES y controles de audio. Activa un AudioContext real para la música. Las solicitudes de voz se interceptan para verificar texto, volumen y silencio; escuchar una voz instalada requiere un dispositivo que la tenga.
+`browser_full_match.cjs` termina la partida completa; en Chromium sin aceleración por hardware abrir «Ver resumen» al final puede tardar más de 12 s porque dibuja una esfera por mano jugada.
 
-El workflow de GitHub reproduce Python, verificación de entrega y navegador. Su resultado remoto se informa separadamente del resultado local.
-
-Estas pruebas no ejecutan el wrapper de Qollab ni prueban una nueva partida IonQ, disponibilidad de voces en cada sistema, multijugador por red o hosting público. [Registros históricos](docs/history/TESTING_0.2.0.md).
+Estas pruebas no ejecutan el wrapper de Qollab ni una partida IonQ nueva, ni comprueban voces instaladas en cada sistema. [Registros anteriores](docs/history/TESTING_0.2.0.md).

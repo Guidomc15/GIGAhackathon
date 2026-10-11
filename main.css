@@ -320,3 +320,162 @@ nav .nav-language{margin-left:auto}
 @media(max-width:800px){.lesson-body{grid-template-columns:1fr}.demo-sphere{width:min(100%,320px)}}
 .odds-row .probability-track{height:10px;margin:0;border-radius:5px;background:#2a332c;overflow:hidden}
 .odds-row .probability-track span{display:block;height:100%;background:linear-gradient(90deg,#77e08b,#f6d57a)}
+/* 0.2.2 · Pantallas ajustadas a la ventana (escritorio): sin barra de desplazamiento. */
+.menu-sound{position:absolute;top:2.5%;right:calc(2.5% + 150px);z-index:4}
+.menu-sound summary{list-style:none;cursor:pointer;padding:6px 12px;background:#1d2a20e6;border:1px solid #c9b57c;border-radius:20px;color:#f2e2b5;font:600 15px system-ui}
+.menu-sound summary::-webkit-details-marker{display:none}
+.menu-sound[open] .menu-settings{position:absolute;right:0;top:44px;width:min(360px,80vw);padding:14px;background:#1b201ae8;border:2px ridge #9a8458;border-radius:8px;font:14px/1.45 system-ui;box-shadow:0 8px 30px #000a}
+.menu-settings p{margin:6px 0 0}
+.menu-settings .mixer-controls{display:grid;gap:6px}
+.start-menu .resume-menu{position:absolute;left:50%;bottom:3%;transform:translateX(-50%);margin:0;z-index:3}
+.turn-banner{text-align:center;font:700 18px system-ui;color:var(--gold)}
+.game-layout{display:block}
+.side-panel>*{margin:0}
+.side-panel .actions{margin:0}
+@media(min-width:900px) and (min-height:540px){
+  body{overflow:hidden}
+  .app-shell:not(.landing){box-sizing:border-box;height:calc(100svh - 20px);margin:10px auto;padding:10px 20px 8px;display:flex;flex-direction:column;max-width:min(1500px,98vw)}
+  .app-shell:not(.landing) .brand{padding-bottom:4px}
+  .app-shell:not(.landing) .brand h1{font-size:24px;margin:0}
+  .app-shell:not(.landing) .brand .eyebrow{font-size:9px}
+  .app-shell:not(.landing) .brand-mark{width:38px;height:38px;font-size:19px}
+  .app-shell:not(.landing) nav{margin:6px 0;gap:8px}
+  .app-shell:not(.landing) nav button{padding:4px 10px;font-size:13px;min-height:30px}
+  .app-shell:not(.landing) .language-switch{padding:2px 8px;font-size:13px}
+  .app-shell:not(.landing) .mode{margin:0 0 4px;padding:3px 10px;font-size:11px}
+  #notice .error{margin:4px 0}
+  #stage{flex:1;min-height:0;overflow:auto}
+  .app-shell:not(.landing) footer{margin-top:4px;padding-top:4px;display:flex;justify-content:space-between;gap:12px;font-size:11px}
+  .app-shell:not(.landing) footer p{margin:0}
+  .app-shell.landing{max-width:min(1024px,calc((100svh - 50px)*1.333333))}
+  .landing footer{padding:6px 18px}
+  .landing footer p{margin:0}
+  .playing #stage{display:flex;flex-direction:column;overflow:hidden}
+  .playing .round-meta{margin:0 0 4px}
+  .game-layout{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) clamp(300px,30%,420px);gap:14px}
+  .table-wrap{container-type:size;min-height:0;display:grid;place-items:center}
+  .table-wrap .table-scene{aspect-ratio:4/3.5;width:min(100cqw,calc(100cqh * 8 / 7));max-width:none;margin:0}
+  .side-panel{min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-right:2px}
+  .side-panel .coach{flex-direction:column;gap:6px;padding:12px 14px;font-size:15px}
+  .side-panel .coach-avatar{width:34px;height:34px;font-size:18px}
+  .side-panel .coach h2{font-size:18px}
+  .side-panel .coach .actions{display:flex;flex-wrap:wrap;gap:6px}
+  .side-panel .turn-guide{padding:10px 12px;font-size:14px;line-height:1.45}
+  .side-panel .turn-guide h2{font-size:17px}
+  .side-panel .pending-call{padding:8px 12px}
+  .side-panel .pending-call h2{font-size:17px;margin:0 0 4px}
+  .side-panel .pending-call p{margin:0}
+  .side-panel>.actions{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .side-panel>.actions button{max-width:none;min-height:0;padding:6px 8px;font-size:14px;text-align:left}
+  .side-panel>.actions button small{font-size:11.5px;line-height:1.3}
+  .side-panel .quantum-status{margin:0;padding:10px;font-size:14px}
+  .side-panel .timeline-box{font-size:13px}
+  .side-panel .envido-result{padding:6px 10px;font-size:14px}
+  /* Composer: two columns that fit the window. */
+  .playing .quantum-composer{max-height:calc(100svh - 24px);width:min(1100px,96vw);padding:38px 20px 12px;overflow:auto}
+  .quantum-composer[open]{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);column-gap:20px;align-items:start}
+  .quantum-composer>.close-composer,.quantum-composer>.coach,.quantum-composer>h2,.quantum-composer>.composer-intro,.quantum-composer>.composer-controls{grid-column:1/-1}
+  .quantum-composer>h2{margin:0;font-size:22px}
+  .quantum-composer>.composer-intro{margin:2px 0 8px;font-size:14px}
+  .quantum-composer>.coach{margin:0 0 8px;padding:10px 14px}
+  .quantum-composer .quantum-options{grid-column:1;margin:0}
+  .quantum-composer .composer-layout{grid-column:2;gap:14px;margin:0;max-width:none}
+  .quantum-composer .composer-controls{margin:8px auto 0;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 16px;max-width:none}
+  .quantum-composer .composer-controls>.actions{margin:0}
+  .quantum-composer .composer-controls>.sphere-caption{flex-basis:100%;margin:2px 0}
+  .quantum-composer .composer-controls>details{font-size:13px}
+  .quantum-composer .quantum-option .card{max-height:20svh}
+  .quantum-composer .composer-sphere .interactive-bloch{max-width:min(220px,26svh)}
+  /* Long reading pages scroll inside the panel, never the whole window. */
+  .lesson{height:100%;box-sizing:border-box;overflow:auto}
+  .demo-sphere{width:min(100%,calc(100svh - 430px),340px)}
+}
+@media(max-width:899px){.game-layout .side-panel{display:flex;flex-direction:column;gap:10px;margin-top:8px}}
+@media(min-width:900px) and (min-height:540px){
+  .quantum-composer>.composer-intro{display:none}
+  .quantum-composer>.coach{font-size:14px;line-height:1.45}
+  .quantum-composer>.coach h2{font-size:17px}
+  .quantum-composer>.coach p{margin:0 0 6px}
+  .quantum-composer .quantum-options{gap:10px;padding:8px}
+  .quantum-composer .quantum-option{padding:8px 10px}
+  .quantum-composer .quantum-option .pill{font-size:11px}
+  .quantum-composer .quantum-option h3{font-size:15px;margin:4px 0 0}
+  .quantum-composer .quantum-option .card{width:auto;height:clamp(90px,17svh,170px);aspect-ratio:78/125;margin:6px auto 0}
+  .quantum-composer .option-probability{font-size:clamp(20px,3.6svh,30px)}
+  .quantum-composer .composer-sphere .sphere-caption,.quantum-composer .composer-sphere .trajectory-legend{display:none}
+  .quantum-composer .composer-layout{grid-template-columns:minmax(0,1fr) auto;align-items:start}
+  .quantum-composer .gate-rack h2{font-size:16px;margin:0 0 6px;text-align:center}
+  .quantum-composer .rack-frame{display:grid;grid-template-columns:repeat(2,minmax(64px,1fr));gap:6px;padding:8px}
+  .quantum-composer .gate-tile{width:auto;height:auto;min-height:0;aspect-ratio:auto;padding:8px 6px;margin:0}
+  .quantum-composer .gate-tile span{font-size:20px}
+  .quantum-composer .gate-rack>p{font-size:12px;margin:4px 0 0;text-align:center}
+  .quantum-composer .composer-sphere .interactive-bloch{max-width:min(240px,30svh)}
+  .side-panel .coach{font-size:14px;line-height:1.45}
+  .side-panel .coach~.actions button:disabled small{display:none}
+}
+@media(min-width:900px) and (min-height:540px){
+  .setup-panel{margin:0;padding:14px 22px}
+  .setup-panel h2{margin:0 0 4px}
+  .setup-panel>p{margin:0 0 8px}
+  .setup-panel form{columns:2;column-gap:28px}
+  .setup-panel form>*{break-inside:avoid}
+  .setup-panel .forms{display:grid;gap:8px}
+  .setup-panel .difficulty{margin-top:8px}
+  .setup-panel .callout{margin:0 0 8px;padding:8px 12px}
+  .setup-panel .privacy-option{margin:8px 0 0}
+  .setup-panel #deal{margin-top:10px}
+  .outcome{margin:0;padding:12px 18px}
+  .outcome h2{font-size:30px;margin:4px 0}
+  .outcome p{margin:4px 0}
+  .playing #stage>.coach{margin:0 0 8px;padding:10px 14px;font-size:14px}
+  .lesson{margin:0}
+  .quantum-composer>.coach{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;padding:8px 12px}
+  .quantum-composer>.coach .coach-avatar{width:32px;height:32px;font-size:17px}
+  .quantum-composer>.coach .actions button{min-height:30px;padding:4px 12px;font-size:14px}
+  .rules-guide,.credits-page,.help{margin:0}
+  .rules-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+  .rules-tabs button{min-height:32px;padding:4px 12px;font-size:13px;border-radius:16px}
+  .rules-tabs .current{background:var(--gold);color:#1b1a12}
+}
+.rules-section[hidden]{display:none}
+@media(min-width:900px) and (min-height:540px){
+  .playing .quantum-composer{max-width:none;width:min(1180px,96vw)}
+  .quantum-composer[open]{grid-template-columns:minmax(0,.85fr) minmax(0,1.4fr)}
+  .quantum-composer>h2{display:none}
+  .quantum-composer .composer-layout{grid-template-columns:minmax(260px,1fr) auto}
+  .quantum-composer .circuit-workbench{min-width:260px}
+  .quantum-composer .composer-controls>.sphere-caption{font-size:12px}
+}
+@media(min-width:900px) and (min-height:540px){
+  .quantum-composer .composer-controls>.sphere-caption{order:3}
+  .quantum-composer .composer-controls>details{order:2;margin:0}
+  .quantum-composer .composer-controls>details[open]{flex-basis:100%;order:4;max-height:40svh;overflow:auto}
+  .quantum-composer .composer-controls>.actions{order:1}
+}
+@media(min-width:900px) and (min-height:540px){
+  .side-panel .quantum-status{display:block;padding:8px 12px}
+  .side-panel .quantum-status h3{font-size:16px;margin:0 0 2px}
+  .side-panel .quantum-status p{margin:2px 0;font-size:13px;line-height:1.35}
+  .side-panel .quantum-status .identity-probabilities{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:4px 0}
+  .side-panel .quantum-status .identity-probabilities p{margin:0;padding:4px 8px;font-size:13px;display:flex;flex-direction:column}
+  .side-panel .quantum-status .identity-probabilities span{font-size:18px;font-weight:700}
+  .side-panel .quantum-status .live-state-sphere{margin-top:4px;font-size:13px}
+  .side-panel .quantum-status .live-state-sphere .interactive-bloch{max-width:220px;margin:auto;display:block}
+}
+@media(min-width:900px) and (min-height:540px){
+  .app-shell:not(.landing){display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto auto minmax(0,1fr) auto;column-gap:18px}
+  .app-shell:not(.landing)>.skip{position:absolute}
+  .app-shell:not(.landing)>.brand{grid-column:1;border-bottom:0;padding:0}
+  .app-shell:not(.landing)>.brand .brand-mark{display:none}
+  .app-shell:not(.landing)>nav{grid-column:2;justify-content:flex-end;margin:0}
+  .app-shell:not(.landing)>nav .nav-language{margin-left:0}
+  .app-shell:not(.landing)>.mode,.app-shell:not(.landing)>#notice,.app-shell:not(.landing)>#stage,.app-shell:not(.landing)>footer{grid-column:1/-1}
+  .app-shell:not(.landing)>.mode{margin:6px 0 4px}
+  .game-layout{grid-template-columns:min(calc((100svh - 175px) * 8 / 7),62%) minmax(300px,1fr)}
+  .side-panel>.actions{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .side-panel .quantum-status{padding-bottom:6px}
+  .side-panel .quantum-status>div{margin:0}
+}
+@media(min-width:900px) and (min-height:540px){.side-panel .quantum-status{min-height:0;height:auto;flex:none}}
+.menu-sound{right:auto;left:2.5%}
+.menu-sound[open] .menu-settings{position:fixed;left:50%;right:auto;top:64px;transform:translateX(-50%);z-index:20}

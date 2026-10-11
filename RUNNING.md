@@ -33,7 +33,7 @@ Elegí el tipo de proyecto **JS / Qiskit**. Usá la entrega plana
 Incluye la interfaz, los módulos JavaScript, `qollab_engine.py`, requisitos,
 avisos de licencia y el video histórico. Todos están en la raíz.
 Para actualizar, reemplazá los archivos incluidos y agregá los nuevos módulos.
-No alcanza con cambiar solo `main.js` en 0.2.1. Pasos en
+No alcanza con cambiar solo `main.js` en 0.2.2. Pasos en
 [QOLLAB_UPDATE.md](QOLLAB_UPDATE.md).
 
 `serve.py` es el servidor local, distinto del módulo Python `truco/service.py`.

@@ -1,6 +1,6 @@
-# Qriollo · Quantum Truco 0.2.1
+# Qriollo · Quantum Truco 0.2.2
 
-Learn quantum computing through Argentine Truco. Two people share a device, prepare one quantum card each and play to 15 points. The Bot Q tutorial explains qubits, gates, interference, measurement and noise using examples, interactive experiments and optional technical detail. Choose English for rules and lesson text on the home screen; the game’s calls keep their Spanish names.
+Learn quantum computing by playing Argentine Truco. Two people share a device, turn one card each into a qubit and play to 15 points. The whole interface is available in **English and Spanish** (🌐 on every screen); Truco, Envido, Quiero and the other calls keep their Spanish names, as at any table.
 
 Run locally with Python 3.12:
 
@@ -10,16 +10,25 @@ python -m venv .venv
 .venv/bin/python serve.py
 ```
 
-Use the local port 8000 in your own browser. On Windows, use `.venv\Scripts\python.exe`. No keys or database are needed. For Qollab, unzip `QOLLAB_0.2.1.zip` and upload its root files as JS / Qiskit. Updating only main.js is insufficient for 0.2.1: replace the included JavaScript, CSS, HTML and Python entrypoint and add the new modules. [Upload instructions](../QOLLAB_UPDATE.md).
+Open local port 8000 in your browser. On Windows use `.venv\Scripts\python.exe`. No keys or database are needed. For Qollab, unzip `QOLLAB_0.2.2.zip` and upload its root files as JS / Qiskit; it adds `i18n.js` and `music-data.js`, so replacing only `main.js` is not enough. [Upload instructions](../QOLLAB_UPDATE.md).
 
-Announcements initially wait for **Skip · Continuar**. The timer cycles 1 s, 3 s, 7 s and manual; reduced motion preserves reading time. Turn changes retain scroll. Music and speech have independent mute/volume controls. Speech depends on installed browser voices.
+## What is in 0.2.2
 
-Local educational noise uses Qiskit DensityMatrix and amplitude-damping/dephasing Kraus channels. It changes the same distribution used by actual sampling. Confirmed cards age during their owner’s visible decision time; announcements, privacy, help, menus and hidden tabs pause the clock. Measured identities stay fixed. Times T₁ = 60 s and Tφ = 90 s are deliberately scaled teaching values, not IonQ calibration. [Model and official sources](QUANTUM_NOISE.md).
+- **English and Spanish** everywhere, switchable at any moment, even mid-game. The starting language follows the browser.
+- **Two-part tutorial.** *Truco with Bot Q*: a guided four-hand match (38 steps) explaining every part of the screen, card ranking, bazas (tricks), pardas (ties), Envido, Truco and Retruco; the fourth hand introduces the quantum card. *Gates and the Bloch sphere*: nine lessons with an animated sphere, game analogies and Qiskit-computed odds.
+- **Levels.** Learning: unlimited gate edits. Hard: each player may remove gates only twice per hand (reordering is free).
+- A single **Confirm** button locks the circuit.
+- **Coloured axes**: X coral, Y violet, Z light blue on the sphere, with the same colours on the letters in every explanation.
+- **No scrollbars on desktop** (from 900 × 540 px): table on the left, guidance and calls on the right. Phones keep a vertical page.
+- New looping **music** with its own volume and mute.
+- The educational noise model and the π/67 rotation were removed.
 
-This is a two-player, 15-point, no-Flor Truco variant. Falta Envido is 15 minus the leading score; pairing avoids duplicate cards after a quantum suit change. The app teaches the hierarchy, tied tricks, Envido and Truco separately.
+## The quantum card
 
-[Tests](../TESTING.md) run locally; updated Qollab wrapper startup remains unverified. Complete matches and the educational noise model use explicitly selected local simulation. The IonQ adapter retains the previously observed one-job-per-run limit.
+At the start of each hand each player picks one card. Its “linked” identity keeps the number and switches suit (Swords ↔ Cups, Clubs ↔ Coins). Up to three gate tokens (H, X, Z, RX, RY, RZ at fixed 30°, −30°, 60° and 90°) change the odds of each identity. The card is measured once, when played or when an Envido is accepted, and then stays fixed. Qiskit computes previews, paths and measurements.
 
-The remote `v0.2.0` tag preserves the previous playable release. [Rollback](ROLLBACK.md). Original code is MIT; adapted sphere, artwork, dependencies and AI assistance are disclosed in [notices](../THIRD_PARTY_NOTICES.md).
+This is a two-player, 15-point, no-Flor Truco variant; Falta Envido is 15 minus the leading score. On Qollab the IonQ adapter keeps the observed one-job-per-run limit, so full games use explicit local simulation and the tutorial always measures with local Qiskit.
+
+[Tests](../TESTING.md) · [Rollback](ROLLBACK.md) · Original code is MIT; artwork, music, adapted sphere, dependencies and AI assistance are disclosed in [notices](../THIRD_PARTY_NOTICES.md).
 
 This effort is supported by Qollab & IonQ.

@@ -63,6 +63,7 @@ jobs:
           node tests/browser_animations.cjs
           node tests/browser_0.2.2.cjs
           node tests/browser_tutorial.cjs
+          TRUCO_LANG=en node tests/browser_tutorial.cjs
       - name: Keep browser evidence and server logs
         if: always()
         uses: actions/upload-artifact@v4

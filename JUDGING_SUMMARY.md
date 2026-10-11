@@ -1,13 +1,13 @@
-# Qriollo · resumen técnico 0.2.1
+# Qriollo · resumen técnico 0.2.2
 
-El juego conecta un circuito de un qubit con decisiones concretas de Truco: cambiar el palo altera fuerza y combinaciones de Envido, sin agregar puntos artificiales por usar compuertas. El tutorial presenta ejemplos, orden de operaciones, fase e interferencia, y una experiencia final con ruido educativo.
+El juego conecta un circuito de un qubit con decisiones concretas de Truco: las compuertas cambian la probabilidad de que una carta conserve su palo o pase a su «ligada», lo que altera su fuerza y sus tantos de Envido, sin sumar puntos artificiales por usar compuertas.
 
-Qiskit calcula prefijos ideales, trayectorias, canales de Kraus, matrices de densidad y muestreos reales. La interfaz enseña de forma gradual: explicaciones accesibles, detalle técnico opcional, avisos controlados, tipografía legible y reglas/lecciones en español e inglés.
+Pensado para un público internacional: toda la interfaz está en español e inglés y se cambia en cualquier momento. El tutorial tiene dos partes: una partida guiada de Truco contra Bot Q (cuatro manos, la última con la carta cuántica) y nueve lecciones de compuertas y esfera de Bloch con animaciones, analogías del juego y combinaciones clave. Los ejes de la esfera y las letras X, Y, Z de los textos comparten color. Hay un nivel Difícil que limita los retiros de compuertas.
 
-Las 46 pruebas Python verifican reglas, estado, privacidad, medición única, ruido físico válido, coherencia entre probabilidades vistas y muestreadas, partidas completas y adaptador remoto con dobles. Chromium local verifica interfaz, controles, sonido, scroll y partidas. [Alcance de la evidencia](TESTING.md).
+Qiskit calcula prefijos de circuito, trayectorias en la esfera y mediciones reales. Las 48 pruebas Python verifican reglas, estado, privacidad, medición única, niveles, el tutorial en los dos idiomas, las lecciones y el adaptador remoto con dobles. Chromium verifica interfaz, idiomas, tutorial, controles, sonido y scroll. [Alcance de la evidencia](TESTING.md).
 
-El arranque de 0.2.1 en Qollab y una partida completa nueva IonQ no están verificados. La aplicación no afirma ventaja cuántica ni enseña entrelazamiento; son dos qubits independientes, uno por jugador.
+La aplicación no afirma ventaja cuántica ni usa entrelazamiento: son dos qubits independientes, uno por jugador. En Qollab, el límite observado de un job IonQ por ejecución hace que las partidas completas usen simulación local explícita.
 
-Fuente pública de desarrollo, entrega plana, documentación vigente y tags para recuperación. Esfera de Qollab, arte y asistencia de IA declarados en [avisos](THIRD_PARTY_NOTICES.md).
+Arte, música, esfera de Qollab y asistencia de IA declarados en [avisos](THIRD_PARTY_NOTICES.md).
 
 This effort is supported by Qollab & IonQ.
