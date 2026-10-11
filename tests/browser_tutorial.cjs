@@ -1,5 +1,5 @@
 // Plays the Truco tutorial from the start menu using only the controls Bot Q highlights.
-const {installAutoSkip}=require('./browser_support.cjs');
+const {installAutoSkip,coachStep}=require('./browser_support.cjs');
 const fs=require('node:fs');
 const path=require('node:path');
 const assert=require('node:assert/strict');
@@ -7,8 +7,6 @@ const output=process.env.ARTIFACT_DIR || '/tmp/truco-browser-checks';
 fs.mkdirSync(output,{recursive:true});
 const base=process.env.TRUCO_URL || 'http://127.0.0.1:8000';
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
-// Game controls the coach may enable: cards, calls, tokens, Confirm and the composer opener.
-const CONTROLS=['[data-action]','[data-card]','[data-token]','#lock-circuit','#activate-quantum'].map(s=>s+':not([disabled])').join(',');
 (async()=>{
   const browser=await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE_PATH,headless:true});
   try{
@@ -25,28 +23,21 @@ const CONTROLS=['[data-action]','[data-card]','[data-token]','#lock-circuit','#a
     await page.locator('#hub-truco').click();
     await page.locator('#slide-skip').click();
     await page.locator('.coach').waitFor();
-    const seen=[];
-    for(let i=0;i<60;i++){
+    const seen=[],kinds={};
+    for(let i=0;i<80;i++){
       await idle();
       const step=await page.locator('.coach-step').textContent();
       const title=await page.locator('.coach h2').textContent();
       if(!seen.includes(step)){seen.push(step);await page.screenshot({path:path.join(output,`tutorial-${String(seen.length).padStart(2,'0')}.png`),fullPage:true});}
       if(await page.locator('#coach-play').count())break;
       assert.equal(await page.locator('.coach-target').count(),1,`Sin elemento resaltado en «${title}»`);
-      if(await page.locator('#coach-next').count()){
-        // Explanation steps keep every game control disabled.
-        assert.equal(await page.locator(CONTROLS).count(),0,`Controles activos en «${title}»`);
-        await page.locator('#coach-next').click();
-      }else{
-        // Action steps leave exactly one game control: the highlighted one.
-        const enabled=await page.locator(CONTROLS).evaluateAll(els=>els.map(el=>el.id||el.outerHTML.slice(0,60)));
-        assert.equal(enabled.length,1,`Más de un control activo en «${title}»: ${enabled.join(' | ')}`);
-        await page.locator('.coach-target').click();
-      }
+      const kind=await coachStep(page,idle,assert);
+      kinds[kind]=(kinds[kind]||0)+1;
     }
     assert.match(await page.locator('.coach h2').textContent(),/Terminaste el tutorial|You finished the Truco tutorial/);
     assert.match(await page.locator('.round-meta').textContent(),/(Vos|You): 8 · Bot Q: 0/);
-    assert.equal(seen.length,38);
+    assert.equal(seen.length,33);
+    assert.equal(kinds.challenge,6,'Six challenges');assert.equal(kinds.quiz,6,'Six quick questions');
     await page.locator('#coach-play').click();
     await page.locator('#deal').waitFor();
     assert.deepEqual(errors,[]);
@@ -62,6 +53,6 @@ const CONTROLS=['[data-action]','[data-card]','[data-token]','#lock-circuit','#a
     assert(await page.locator('#lesson-next').isDisabled());
     assert(await page.locator('.lesson .axis-x').count()>0,'Axis letters are coloured in lessons');
     assert.deepEqual(errors,[]);
-    console.log(`PASS tutorial: ${seen.length} pasos, 4 manos (la última cuántica), marcador 8–0 y 9 lecciones de compuertas`);
+    console.log(`PASS tutorial: ${seen.length} pasos (6 desafíos y 6 preguntas), 4 manos (la última cuántica), marcador 8–0 y 9 lecciones de compuertas`);
   }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exit(1);});

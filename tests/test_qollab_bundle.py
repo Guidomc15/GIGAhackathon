@@ -64,7 +64,7 @@ assert not initial['development_mode']
 action('dev_mode', True)
 coach = action('tutorial')['coach']
 while not coach['final']:
-    name, value = coach['expect'] or ('coach_next', None)
+    name, value = coach['expect'] or ('coach_next', coach['quiz']['answer'] if coach['quiz'] else None)
     coach = action(name, value)['coach']
 assert json.loads(engine.poll_json())['done']
 

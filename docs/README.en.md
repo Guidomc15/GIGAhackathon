@@ -15,7 +15,7 @@ Open local port 8000 in your browser. On Windows use `.venv\Scripts\python.exe`.
 ## What is in 0.2.2
 
 - **English and Spanish** everywhere, switchable at any moment, even mid-game. The starting language follows the browser.
-- **Two-part tutorial.** *Truco with Bot Q*: a guided four-hand match (38 steps) explaining every part of the screen, card ranking, bazas (tricks), pardas (ties), Envido, Truco and Retruco; the fourth hand introduces the quantum card. *Gates and the Bloch sphere*: nine lessons with an animated sphere, game analogies and Qiskit-computed odds.
+- **Two-part tutorial.** *Truco with Bot Q*: 15 interactive slides with the rules (cards, ladder, bazas, Truco and Envido) and a four-hand practice (33 steps) with challenges and quick questions: a wrong move is not played and Bot Q gives a hint. The fourth hand introduces the quantum card. *Gates and the Bloch sphere*: nine lessons with an animated sphere, game analogies and Qiskit-computed odds.
 - **Levels.** Learning: unlimited gate edits. Hard: each player may remove gates only twice per hand (reordering is free).
 - A single **Confirm** button locks the circuit.
 - **Coloured axes**: X coral, Y violet, Z light blue on the sphere, with the same colours on the letters in every explanation.

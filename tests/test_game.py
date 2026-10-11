@@ -189,7 +189,8 @@ class SessionTests(unittest.TestCase):
     def play_tutorial(self, session):
         view = session.action({'action':'tutorial'})
         while not view['coach']['final']:
-            name, value = view['coach']['expect'] or ('coach_next', None)
+            coach = view['coach']
+            name, value = coach['expect'] or ('coach_next', coach['quiz']['answer'] if coach['quiz'] else None)
             view = session.action({'action':name, 'value':value})
             self.assertNotEqual(session.game.phase, 'measure')
         return view
@@ -224,18 +225,37 @@ class SessionTests(unittest.TestCase):
             self.assertTrue(all(c['caption_en'] and c['preview']['steps'] for c in lesson['circuits']))
         with self.assertRaises(ValueError): session.action({'action':'lesson','value':99})
 
-    def test_tutorial_only_accepts_the_highlighted_action(self):
+    def test_tutorial_challenges_hint_wrong_moves_without_playing_them(self):
         session = Session(local=True)
         session.action({'action':'tutorial'})
         with self.assertRaises(ValueError): session.action({'action':'play', 'value':0})
-        while not session.output()['coach']['expect']:
-            session.action({'action':'coach_next'})
-        self.assertEqual(session.output()['coach']['expect'], ['play', 0])
-        for action, value in (('coach_next',None), ('play',1), ('truco',None), ('fold',None)):
-            with self.assertRaises(ValueError): session.action({'action':action, 'value':value})
+        coach = session.action({'action':'coach_next'})['coach']
+        self.assertTrue(coach['challenge'])
+        with self.assertRaises(ValueError): session.action({'action':'coach_next'})
+        for action, value, hint in (('play',1,'El 5'), ('truco',None,'cantar'), ('fold',None,'mazo')):
+            feedback = session.action({'action':action, 'value':value})['coach']['feedback']
+            self.assertFalse(feedback['ok'])
+            self.assertIn(hint, feedback['text'])
+            self.assertTrue(feedback['text_en'])
         self.assertEqual(session.game.table, [])
-        session.action({'action':'play', 'value':0})
+        self.assertEqual(session.game.scores, [0, 0])
+        feedback = session.action({'action':'play', 'value':0})['coach']['feedback']
+        self.assertTrue(feedback['ok'])
         self.assertEqual(len(session.game.table), 2)  # Bot Q answered with its scripted card.
+
+    def test_tutorial_quiz_needs_the_right_answer(self):
+        session = Session(local=True)
+        session.action({'action':'tutorial'})
+        session.action({'action':'coach_next'}); session.action({'action':'play', 'value':0})
+        coach = session.action({'action':'coach_next'})['coach']
+        self.assertEqual([o['es'] for o in coach['quiz']['options']], ['1', '2', '3'])
+        step = coach['step']
+        for wrong in (1, 2, None):
+            coach = session.action({'action':'coach_next', 'value':wrong})['coach']
+            self.assertEqual((coach['step'], coach['feedback']['ok']), (step, False))
+        coach = session.action({'action':'coach_next', 'value':0})['coach']
+        self.assertEqual((coach['step'], coach['feedback']['ok']), (step + 1, True))
+        self.assertEqual(session.action({'action':'play', 'value':2})['coach']['feedback'], None)
 
     def test_new_game_leaves_tutorial_and_invalid_new_keeps_it(self):
         session = Session(local=True)

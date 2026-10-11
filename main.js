@@ -258,7 +258,7 @@ const layout=(tableHtml,side)=>`<div class="game-layout"><div class="table-wrap"
 function game(){
   const g=view.game;
   if(!g){screen='setup';setup();return;}
-  stage.innerHTML=`<p class="round-meta">${esc(g.names[0])}: ${g.scores[0]} · ${esc(g.names[1])}: ${g.scores[1]} · ${L('Mano','Hand')} ${g.hand} · ${view.guided?L('Tutorial con Bot Q','Tutorial with Bot Q'):g.difficulty==='hard'?L('Nivel difícil','Hard level'):L('Nivel aprendizaje','Learning level')}</p>`;
+  stage.innerHTML=`<p class="round-meta">${esc(g.names[0])}: ${g.scores[0]} · ${esc(g.names[1])}: ${g.scores[1]} · ${L('Mano','Hand')} ${g.hand} · ${view.guided?L('Práctica con Bot Q','Practice with Bot Q'):g.difficulty==='hard'?L('Nivel difícil','Hard level'):L('Nivel aprendizaje','Learning level')}</p>`;
   if(presentation){
     if(presentation.type==='flip'){
       stage.innerHTML+=layout(table(g,{art:TABLE_ART,cards:view.private?.cards,quantum:view.private?.quantum,prepare:g.phase==='prepare',faceDown:presentation.faceDown,flip:!presentation.faceDown}),`<p class="turn-banner" role="status">${L(`Turno de ${esc(g.names[g.actor])}`,`${esc(g.names[g.actor])}'s turn`)}</p>`);return;
@@ -330,7 +330,7 @@ async function openLesson(index){lessonCircuit=0;screen='lessons';await action('
 // Tutorial hub: the Truco match with Bot Q first, then the gates and the Bloch sphere.
 function learn(){
   const running=view.guided&&view.game&&!view.coach?.final;
-  stage.innerHTML=`<section class="tutorial-hub" aria-label="Tutorial"><article class="panel hub-card"><span class="hub-number">1</span><h2>${L('Truco con Bot Q','Truco with Bot Q')}</h2><p>${L('Una partida guiada de cuatro manos: leer la mesa, la fuerza de las cartas, bazas y pardas, Envido, Truco y Retruco. En la última mano usás la carta cuántica.','A guided four-hand match: reading the table, card strength, bazas and pardas, Envido, Truco and Retruco. In the last hand you use the quantum card.')}</p><p class="hub-meta">${L('4 diapositivas y 38 pasos de juego · unos 12 minutos','4 slides and 38 game steps · about 12 minutes')}</p><div class="actions">${running?`<button id="hub-resume" class="primary">${L('Retomar','Resume')}</button><button id="hub-restart">${L('Empezar de nuevo','Start over')}</button>`:`<button id="hub-truco" class="primary">${L('Empezar','Start')}</button>`}</div></article><article class="panel hub-card"><span class="hub-number">2</span><h2>${L('Compuertas y esfera de Bloch','Gates and the Bloch sphere')}</h2><p>${axes(esc(L('Qué hace cada ficha, sobre qué eje gira ([X], [Y] o [Z]), cuándo cambia la fase y las combinaciones más importantes, con la esfera animada.','What each token does, which axis it turns around ([X], [Y] or [Z]), when it changes the phase and the most important combinations, with an animated sphere.')))}</p><p class="hub-meta">${L('9 lecciones','9 lessons')}</p><div class="actions"><button id="hub-gates" class="primary">${L('Abrir lecciones','Open the lessons')}</button></div></article></section>`;
+  stage.innerHTML=`<section class="tutorial-hub" aria-label="Tutorial"><article class="panel hub-card"><span class="hub-number">1</span><h2>${L('Truco con Bot Q','Truco with Bot Q')}</h2><p>${L('Primero, diapositivas con las reglas: cartas, escala, bazas, Truco y Envido. Después, una práctica de cuatro manos contra Bot Q con desafíos y preguntas rápidas. En la última mano usás la carta cuántica.','First, slides with the rules: cards, ladder, bazas, Truco and Envido. Then a four-hand practice against Bot Q with challenges and quick questions. In the last hand you use the quantum card.')}</p><p class="hub-meta">${L('15 diapositivas y 33 pasos de práctica · unos 15 minutos','15 slides and 33 practice steps · about 15 minutes')}</p><div class="actions">${running?`<button id="hub-resume" class="primary">${L('Retomar','Resume')}</button><button id="hub-restart">${L('Empezar de nuevo','Start over')}</button>`:`<button id="hub-truco" class="primary">${L('Empezar','Start')}</button>`}</div></article><article class="panel hub-card"><span class="hub-number">2</span><h2>${L('Compuertas y esfera de Bloch','Gates and the Bloch sphere')}</h2><p>${axes(esc(L('Qué hace cada ficha, sobre qué eje gira ([X], [Y] o [Z]), cuándo cambia la fase y las combinaciones más importantes, con la esfera animada.','What each token does, which axis it turns around ([X], [Y] or [Z]), when it changes the phase and the most important combinations, with an animated sphere.')))}</p><p class="hub-meta">${L('9 lecciones','9 lessons')}</p><div class="actions"><button id="hub-gates" class="primary">${L('Abrir lecciones','Open the lessons')}</button></div></article></section>`;
   document.getElementById('hub-truco')?.addEventListener('click',openSlides);
   document.getElementById('hub-restart')?.addEventListener('click',openSlides);
   document.getElementById('hub-resume')?.addEventListener('click',()=>{screen='game';action('public');});
@@ -351,8 +351,8 @@ function lessons(){
 }
 // Bot Q's explanation for the current tutorial step. Without 'expect' the player advances with «Siguiente».
 function coachPanel(c){
-  const controls=c.final?`<button id="coach-gates" class="primary">${L('Compuertas y esfera de Bloch','Gates and the Bloch sphere')}</button><button id="coach-play">${L('Jugar una partida','Play a game')}</button><button id="coach-home">${L('Volver al inicio','Back to the menu')}</button>`:`${c.expect?'':`<button id="coach-next" class="primary">${L('Siguiente','Next')}</button>`}<button id="coach-exit">${L('Salir del tutorial','Leave the tutorial')}</button>`;
-  return `<aside class="coach" aria-label="${L('Tutorial con Bot Q','Tutorial with Bot Q')}" aria-live="polite"><span class="coach-avatar" aria-hidden="true">Q</span><div><p class="coach-step">${L(`Tutorial · paso ${c.step} de ${c.total}`,`Tutorial · step ${c.step} of ${c.total}`)}</p><h2>${esc(L(c.title,c.title_en||c.title))}</h2><p>${axes(esc(L(c.text,c.text_en||c.text)))}</p><div class="actions">${controls}</div></div></aside>`;
+  const controls=c.final?`<button id="coach-gates" class="primary">${L('Compuertas y esfera de Bloch','Gates and the Bloch sphere')}</button><button id="coach-play">${L('Jugar una partida','Play a game')}</button><button id="coach-home">${L('Volver al inicio','Back to the menu')}</button>`:`${c.expect||c.quiz?'':`<button id="coach-next" class="primary">${L('Siguiente','Next')}</button>`}<button id="coach-exit">${L('Salir del tutorial','Leave the tutorial')}</button>`;
+  return `<aside class="coach" aria-label="${L('Práctica con Bot Q','Practice with Bot Q')}" aria-live="polite"><span class="coach-avatar" aria-hidden="true">Q</span><div><p class="coach-step">${L(`Práctica · paso ${c.step} de ${c.total}`,`Practice · step ${c.step} of ${c.total}`)}</p>${c.feedback?`<p class="coach-feedback ${c.feedback.ok?'ok':'bad'}" role="status">${c.feedback.ok?'✓':'✗'} ${esc(L(c.feedback.text,c.feedback.text_en))}</p>`:''}<h2>${c.challenge?`<span class="coach-badge">${L('Desafío','Challenge')}</span>`:''}${esc(L(c.title,c.title_en||c.title))}</h2><p>${axes(esc(L(c.text,c.text_en||c.text)))}</p>${c.quiz?`<div class="coach-quiz">${c.quiz.options.map((o,i)=>`<button data-quiz="${i}">${esc(L(o.es,o.en))}</button>`).join('')}</div>`:''}<div class="actions">${controls}</div></div></aside>`;
 }
 // Highlights the explained element and leaves only the expected control enabled.
 function applyCoach(){
@@ -361,8 +361,12 @@ function applyCoach(){
   const target=c.target?stage.querySelector(c.target):null;
   target?.classList.add('coach-target');
   const [expected,value]=c.expect||[];
-  stage.querySelectorAll('[data-action]').forEach(b=>{if(b.dataset.action!==expected)b.disabled=true;});
-  stage.querySelectorAll('[data-card]').forEach(b=>{if(!['play','choose'].includes(expected)||Number(b.dataset.card)!==value){b.disabled=true;b.draggable=false;}});
+  // In a challenge every legal move stays available: the server answers wrong ones with a hint.
+  if(!c.challenge){
+    stage.querySelectorAll('[data-action]').forEach(b=>{if(b.dataset.action!==expected)b.disabled=true;});
+    stage.querySelectorAll('[data-card]').forEach(b=>{if(!['play','choose'].includes(expected)||Number(b.dataset.card)!==value){b.disabled=true;b.draggable=false;}});
+  }
+  stage.querySelectorAll('[data-quiz]').forEach(b=>b.onclick=()=>action('coach_next',Number(b.dataset.quiz)));
   // Quantum hand: only the highlighted token, or Confirm, stays available.
   const composer=document.getElementById('composer-dialog');
   stage.querySelectorAll('[data-token]').forEach(b=>{if(expected!=='edit'||Number(b.dataset.token)!==value.at(-1))b.disabled=true;});

@@ -1,4 +1,4 @@
-const {installAutoSkip}=require('./browser_support.cjs');
+const {installAutoSkip,coachStep}=require('./browser_support.cjs');
 const fs=require('node:fs');
 const path=require('node:path');
 const output=process.env.ARTIFACT_DIR || '/tmp/truco-browser-checks';
@@ -76,13 +76,11 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     await page.getByText('Qué pasó en esta mano',{exact:true}).waitFor();
     assert.match(await page.locator('.hand-summary').innerText(),/Truco no querido/);
     await noOverflow();
-    // Truco tutorial with Bot Q on a phone-sized screen, through the highlighted controls.
+    // Practice with Bot Q on a phone-sized screen: challenges, quizzes and highlighted controls.
     await click('#tutorial');await click('#hub-truco');await click('#slide-skip');
-    for(let step=0;step<60;step++){
-      if(await page.locator('#coach-play').count())break;
-      if(await page.locator('#coach-next').count())await click('#coach-next');
-      else await click('.coach-target');
-      if(step===59)throw Error('Tutorial did not finish');
+    for(let step=0;step<80;step++){
+      if(await coachStep(page,idle,assert)==='final')break;
+      if(step===79)throw Error('Tutorial did not finish');
     }
     assert.match(await page.locator('.coach h2').innerText(),/Terminaste el tutorial/);
     await noOverflow();

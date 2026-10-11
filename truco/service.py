@@ -16,6 +16,7 @@ class Session:
         self.remote = None
         self.guided = False  # True while the scripted tutorial match is active.
         self.coach = 0  # Index of the current tutorial step.
+        self.feedback = None  # Bot Q's answer to the last challenge or quiz.
         self.lesson = None  # Index of the open gates lesson, if any.
         self.error = None
         self.errors = []
@@ -38,6 +39,10 @@ class Session:
         return {'title':step['title'], 'text':step['text'], 'title_en':step.get('title_en', step['title']),
                 'text_en':step.get('text_en', step['text']), 'target':step.get('target'),
                 'expect':step.get('expect'), 'final':step.get('final', False),
+                'challenge':step.get('challenge', False),
+                'quiz':{'options':[{'es':es, 'en':en} for es, en in step['quiz']['options']],
+                        'answer':step['quiz']['answer']} if 'quiz' in step else None,
+                'feedback':self.feedback,
                 'step':explained.index(self.coach)+1, 'total':len(explained)}
     def lesson_view(self):
         lesson = tutorial.GATE_LESSONS[self.lesson]
@@ -60,16 +65,29 @@ class Session:
             self.game.dispatch(action, value)
             self.settle()
             self.coach += 1
+    def coach_feedback(self, ok, text):
+        """Bot Q's answer to a challenge or a quiz, shown in its panel until the next move."""
+        self.feedback = {'ok':ok, 'text':text[0], 'text_en':text[1]} if text else None
     def tutorial_action(self, action, value):
         step = tutorial.STEPS[self.coach]
+        self.feedback = None
         if action == 'coach_next':
-            if step.get('expect') or step.get('final'): raise ValueError('Seguí la indicación de Bot Q para continuar.')
+            if 'quiz' in step:
+                # A wrong answer keeps the question open and gives a hint.
+                if value != step['quiz']['answer']: return self.coach_feedback(False, step['hint'])
+                self.coach_feedback(True, step.get('ok'))
+            elif step.get('expect') or step.get('final'): raise ValueError('Seguí la indicación de Bot Q para continuar.')
             self.advance()
             return
         if step.get('expect') != [action, value]:
+            if step.get('challenge') and action in self.game.legal():
+                # In a challenge every legal move may be tried; a wrong one is not played.
+                hints = step.get('hints', {})
+                return self.coach_feedback(False, hints.get(f'{action}:{value}') or hints.get(action) or step['hint'])
             title = step.get('title_en', step['title']) if self.lang == 'en' else step['title']
             raise ValueError('En el tutorial, seguí la indicación de Bot Q: ' + title + '.')
         self.game.dispatch(action, value)
+        self.coach_feedback(True, step.get('ok'))
         self.advance()
     def action(self, payload):
         self.error = None
@@ -94,6 +112,7 @@ class Session:
             self.game = Game(list(tutorial.NAMES[self.lang]), quantum=False, deals=tutorial.DEALS, mano=tutorial.MANO)
             self.guided = True
             self.coach = -1
+            self.feedback = None
             self.advance()
         elif action == 'lesson':
             if value is not None and (type(value) is not int or not 0 <= value < len(tutorial.GATE_LESSONS)):

@@ -1,6 +1,6 @@
 # Validación de 0.2.2
 
-Entorno local: Python 3.13.16, Qiskit 2.5.2 y Chromium 138. La suite tiene **48 pruebas Python**:
+Entorno local: Python 3.13.16, Qiskit 2.5.2 y Chromium 138. La suite tiene **49 pruebas Python**:
 
 ```sh
 .venv/bin/python -m unittest discover -s tests -v
@@ -26,7 +26,7 @@ Instalá Playwright para ejecutar las pruebas de navegador. `PLAYWRIGHT_MODULE` 
 
 - `browser_0.2.2.cjs`: inglés por defecto en un navegador en inglés, cambio de idioma en cualquier pantalla y en plena partida, error del motor traducido, nivel Difícil desde la interfaz, botón Confirmar, colores de los ejes, música desde el MP3 (bucle, volumen, silencio), temporizadores 1/3/7/manual, posición del scroll y voces.
 - `browser_slides.cjs`: las 15 diapositivas previas (reglas con glosario, palos, escala de 14 niveles con las 40 cartas, duelo de 4 bazas, dos manos de ejemplo, cantar Truco con Siguiente bloqueado, respuestas del rival, puntaje y las 5 de Envido: valores, cálculos 2/29/32/20, duelo 29 contra 31, respuestas y Falta Envido) en español en escritorio e inglés en celular; en escritorio verifica que ninguna diapositiva tenga scroll.
-- `browser_tutorial.cjs`: juega los 38 pasos tocando solo el control que resalta Bot Q, comprueba que el resto quede bloqueado y recorre las 9 lecciones.
+- `browser_tutorial.cjs`: juega los 33 pasos de la práctica: en cada desafío y pregunta prueba primero las respuestas incorrectas y comprueba que dejen una pista sin avanzar; en los pasos guiados comprueba que quede un solo control activo; recorre las 9 lecciones.
 
 `browser_full_match.cjs` termina la partida completa; en Chromium sin aceleración por hardware abrir «Ver resumen» al final puede tardar más de 12 s porque dibuja una esfera por mano jugada.
 

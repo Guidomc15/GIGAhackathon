@@ -23,7 +23,7 @@ Para Qollab, descomprimí **[QOLLAB_0.2.2.zip](QOLLAB_0.2.2.zip)** y cargá sus 
 ## Qué hay en 0.2.2
 
 - **Español e inglés** en toda la app. El idioma inicial sigue al navegador y se cambia en cualquier momento con 🌐, también en mitad de una partida. El motor devuelve pistas y errores en el idioma elegido.
-- **Tutorial en dos partes.** *Truco con Bot Q*: una partida guiada de cuatro manos (38 pasos) que explica cada parte de la pantalla, la jerarquía de cartas, bazas, pardas, Envido, Truco y Retruco; la cuarta mano introduce la carta cuántica. *Compuertas y esfera de Bloch*: nueve lecciones con esfera animada, analogías del juego y porcentajes calculados por Qiskit.
+- **Tutorial en dos partes.** *Truco con Bot Q*: 15 diapositivas interactivas con las reglas (cartas, escala, bazas, Truco y Envido) y una práctica de cuatro manos (33 pasos) con desafíos y preguntas rápidas: si elegís mal, la jugada no se hace y Bot Q da una pista. La cuarta mano introduce la carta cuántica. *Compuertas y esfera de Bloch*: nueve lecciones con esfera animada, analogías del juego y porcentajes calculados por Qiskit.
 - **Niveles.** Aprendizaje: compuertas sin límite. Difícil: cada jugador puede sacar compuertas solo 2 veces por mano (reordenar no cuenta).
 - **Confirmar**: el circuito se cierra con un único botón.
 - **Ejes de colores.** En la esfera X es coral, Y violeta y Z celeste, y las letras X, Y, Z de las explicaciones usan el mismo color.

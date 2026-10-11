@@ -651,3 +651,10 @@ nav .nav-language{margin-left:auto}
 .envido-duel .envido-hand .baza-card span{font-size:11px}
 @media(max-width:820px){.envido-pair{grid-template-columns:1fr}}
 .slide-envidoCalc .suit-tabs button{text-transform:none}
+/* Práctica con Bot Q: desafíos y preguntas rápidas. */
+.coach-badge{display:inline-block;margin-right:8px;padding:1px 8px;border-radius:10px;background:var(--gold);color:#1b1a12;font:800 12px/1.6 system-ui;letter-spacing:.04em;text-transform:uppercase;vertical-align:middle}
+.coach-quiz{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+.coach-quiz button{min-width:56px;font:700 15px system-ui}
+.coach-feedback{margin:0 0 8px;padding:6px 10px;border-radius:6px;font:600 14px/1.4 system-ui}
+.coach-feedback.ok{background:#1f4a2c;color:#bff5c9;border-left:3px solid #77e08b}
+.coach-feedback.bad{background:#4a2420;color:#ffd1c9;border-left:3px solid #ff8585}

@@ -4,7 +4,8 @@
    Truco; hand 4 adds the quantum card. Each step is one of:
      - an explanation ('title'/'text'), advanced with «Siguiente»;
      - an explanation with 'expect': the only game action the player may take;
-     - a 'bot' move, executed automatically by the session.
+     - a 'bot' move, executed automatically by the session;
+     - a 'challenge' or a 'quiz' (hands 1-3 practise what the slides taught).
    'target' is a CSS selector the interface highlights. [X], [Y], [Z] are painted
    with the colour of that Bloch-sphere axis.
 2. Gates and the Bloch sphere: lessons with Qiskit previews of each circuit.
@@ -35,154 +36,123 @@ DEALS = (
      'quantum': True, 'tokens': (('X', 'H', 'Z', 'RY:pi/2'), ('H', 'H', 'Z', 'Z'))},
 )
 
+# Hands 1-3 are a practice of what the slides taught. Besides the step types above:
+#   - 'challenge': every legal game action stays enabled; a wrong one is not played and
+#     the player gets the hint for that action ('hints', keyed 'action:value' or
+#     'action'), or the step's default 'hint'.
+#   - 'quiz': a question answered in Bot Q's panel; 'answer' is the right option.
+# 'ok' is shown after a right answer.
+CALL_HINT = ('Acá no hace falta cantar: el desafío es elegir la carta.',
+             'No call is needed here: the challenge is choosing the card.')
+FOLD_HINT = ('Irse al mazo le regala la mano al rival. Seguí jugando.',
+             'Going to the deck (fold) hands the hand to your opponent. Keep playing.')
+CALLS = {k: CALL_HINT for k in ('envido', 'real', 'falta', 'truco', 'retruco', 'vale4')}
+
 STEPS = (
-    # ---------- Hand 1 ----------
-    {'title': 'Bienvenido: qué es el Truco',
-     'text': 'El Truco es un juego de naipes tradicional del Río de la Plata que se juega con la '
-             'baraja española de 40 cartas (sin 8 ni 9). Combina tres ideas: ganar bazas con cartas '
-             'fuertes, apostar con cantos (Envido y Truco) y leer al rival. Vamos a jugar cuatro '
-             'manos: tres de Truco clásico y una con la carta cuántica. Tocá «Siguiente» para '
-             'avanzar; cuando haya que jugar, te marco qué tocar.',
-     'title_en': 'Welcome: what is Truco?',
-     'text_en': 'Truco is a traditional card game from the Río de la Plata region, played with the '
-                '40-card Spanish deck (no 8s or 9s). It combines three ideas: winning bazas (tricks) '
-                'with strong cards, betting with calls (Envido and Truco) and reading your opponent. '
-                'We will play four hands: three of classic Truco and one with the quantum card. Press '
-                '“Next” to continue; when it is time to play, I will highlight what to touch.',
-     'target': '.table-scene'},
-    {'title': 'El marcador',
-     'text': 'Acá se anotan los puntos. En esta variante para dos jugadores gana quien llega primero '
-             'a 15; en la mesa tradicional se suele jugar a 30, en «malas» y «buenas». Los puntos '
-             'salen de dos fuentes: ganar la mano y ganar los cantos.',
-     'title_en': 'The scoreboard',
-     'text_en': 'Points are recorded here. In this two-player variant the first to 15 wins; at a '
-                'traditional table people often play to 30, split into “malas” and “buenas”. Points '
-                'come from two sources: winning the hand and winning the calls.',
+    # ---------- Hand 1 · strength and bazas ----------
+    {'title': 'Práctica con Bot Q',
+     'text': 'Ya viste las reglas; ahora las ponemos en práctica en cuatro manos: tres de Truco '
+             'clásico y una con la carta cuántica. En los desafíos elegís vos: si te equivocás, la '
+             'jugada no se hace y te doy una pista. El marcador está arriba: gana el primero que '
+             'llega a 15.',
+     'title_en': 'Practice with Bot Q',
+     'text_en': 'You have seen the rules; now let’s practise them over four hands: three of classic '
+                'Truco and one with the quantum card. In the challenges you choose: if you get it '
+                'wrong, the move is not played and I give you a hint. The scoreboard is at the top: '
+                'the first to reach 15 wins.',
      'target': '.scoreboard'},
-    {'title': 'Las cartas del rival',
-     'text': 'Arriba están mis tres cartas boca abajo. Cada vez que juego una, sale de acá y aparece '
-             'en el centro de la mesa.',
-     'title_en': 'Your opponent’s cards',
-     'text_en': 'My three cards are at the top, face down. Each time I play one, it leaves this spot '
-                'and appears in the centre of the table.',
-     'target': '.opponent-hand'},
-    {'title': 'La fuerza de las cartas',
-     'text': 'Tus cartas: 3 de espada, 5 de copa y 12 de basto. En el Truco la fuerza no sigue el '
-             'número. De mayor a menor: 1 de espada, 1 de basto, 7 de espada y 7 de oro (las cuatro '
-             '«bravas»); después todos los 3, todos los 2, el 1 de copa y el de oro, los 12, los 11, '
-             'los 10, el 7 de copa y el de basto, los 6, los 5 y los 4. Por eso tu 3 vale más que tu '
-             '12. El orden completo está en «Valores».',
-     'title_en': 'Card strength',
-     'text_en': 'Your cards: 3 of Swords, 5 of Cups and 12 of Clubs. In Truco strength does not follow '
-                'the number. From strongest to weakest: 1 of Swords, 1 of Clubs, 7 of Swords and 7 of '
-                'Coins (the four “bravas”); then all 3s, all 2s, the 1 of Cups and of Coins, the 12s, '
-                'the 11s, the 10s, the 7 of Cups and of Clubs, the 6s, the 5s and the 4s. That is why '
-                'your 3 beats your 12. The full ranking is under “Card values”.',
-     'target': '.live-hand'},
-    {'title': 'Las bazas',
-     'text': 'Una mano se juega en hasta tres bazas. En cada baza los dos jugadores tiran una carta y '
-             'gana la más fuerte; quien gana dos bazas gana la mano. Si las dos cartas tienen la misma '
-             'fuerza, la baza es «parda» (empate).',
-     'title_en': 'Bazas (tricks)',
-     'text_en': 'A hand is played in up to three bazas. In each baza both players play one card and '
-                'the stronger card wins; whoever wins two bazas wins the hand. If both cards have the '
-                'same strength, the baza is “parda” (a tie).',
-     'target': '.played-bazas'},
-    {'title': 'Quién es mano y cuánto vale',
-     'text': '«Mano» es el jugador que sale primero en la primera baza: rota en cada reparto y gana '
-             'los empates de Envido. «Truco: 1» indica lo que vale ganar la mano mientras nadie cante '
-             'Truco.',
-     'title_en': 'Who is mano and what the hand is worth',
-     'text_en': '“Mano” is the player who leads the first baza: it alternates every deal and wins '
-                'Envido ties. “Truco: 1” is what winning the hand is worth while nobody calls Truco.',
-     'target': '.table-status'},
-    {'title': 'Los cantos',
-     'text': 'Antes de jugar podés cantar. Envido, Real Envido y Falta Envido apuestan sobre los '
-             '«tantos» de tus cartas; Truco apuesta sobre la mano; Irse al mazo es abandonarla. Cada '
-             'botón explica qué ganás y qué arriesgás. En esta mano solo jugamos cartas.',
-     'title_en': 'The calls',
-     'text_en': 'Before playing you may make a call. Envido, Real Envido and Falta Envido bet on the '
-                '“tantos” (envido points) of your cards; Truco bets on the hand; Irse al mazo means '
-                'giving up the hand. Each button shows what you win and what you risk. This hand we '
-                'only play cards.',
-     'target': '.actions'},
-    {'title': 'Jugá tu primera carta',
-     'text': 'Tocá el 3 de espada (fuerza 10 de 14) o arrastralo al centro.',
-     'title_en': 'Play your first card',
-     'text_en': 'Tap the 3 of Swords (strength 10 of 14) or drag it to the centre.',
-     'target': '[data-card="0"]', 'expect': ['play', 0]},
+    {'title': 'Desafío: ganá la primera baza',
+     'text': 'Salís vos. Tenés el 3 de espada, el 5 de copa y el 12 de basto. Abrí con la carta que '
+             'tiene más chances de ganar.',
+     'title_en': 'Challenge: win the first baza',
+     'text_en': 'You lead. You hold the 3 of Swords, the 5 of Cups and the 12 of Clubs. Open with the '
+                'card most likely to win.',
+     'target': '.live-hand', 'expect': ['play', 0], 'challenge': True,
+     'hint': ('Mirá la escala: ¿cuál de tus tres cartas está más arriba?',
+              'Check the ladder: which of your three cards is highest?'),
+     'hints': {**CALLS, 'fold': FOLD_HINT,
+               'play:1': ('El 5 está casi al fondo de la escala: solo le gana a los 4.',
+                          'The 5 is near the bottom of the ladder: it only beats the 4s.'),
+               'play:2': ('El 12 es bueno, pero los 3 están más arriba en la escala.',
+                          'The 12 is decent, but the 3s are higher on the ladder.')},
+     'ok': ('¡Bien! Los 3 están justo debajo de las cuatro bravas.',
+            'Well done! The 3s sit right below the four bravas.')},
     {'bot': ['play', 0]},
     {'title': 'Ganaste la primera baza',
-     'text': 'Tu 3 (fuerza 10) supera a mi 2 de oro (fuerza 9). Después de cada baza aparece un aviso: '
-             'avanzalo con «Continuar» o elegí un tiempo automático con ⏱. Quien gana una baza sale '
-             'primero en la siguiente.',
+     'text': 'Tu 3 le ganó a mi 2 de oro. Después de cada baza aparece un aviso: cerralo con '
+             '«Continuar» o elegí un tiempo automático con ⏱. Quien gana una baza sale primero en la '
+             'siguiente.',
      'title_en': 'You won the first baza',
-     'text_en': 'Your 3 (strength 10) beats my 2 of Coins (strength 9). After each baza a notice '
-                'appears: close it with “Continue” or choose an automatic time with ⏱. Whoever wins a '
-                'baza leads the next one.',
+     'text_en': 'Your 3 beat my 2 of Coins. After each baza a notice appears: close it with “Continue” '
+                'or choose an automatic time with ⏱. Whoever wins a baza leads the next one.',
      'target': '.played-bazas'},
-    {'title': 'Segunda baza',
-     'text': 'Jugá el 12 de basto (fuerza 7). Si ganás, tenés dos bazas y la mano es tuya.',
-     'title_en': 'Second baza',
-     'text_en': 'Play the 12 of Clubs (strength 7). If you win, you have two bazas and the hand.',
-     'target': '[data-card="2"]', 'expect': ['play', 2]},
+    {'title': 'Pregunta rápida',
+     'text': '¿Cuántas bazas más necesitás para ganar esta mano?',
+     'title_en': 'Quick question',
+     'text_en': 'How many more bazas do you need to win this hand?',
+     'target': '.played-bazas',
+     'quiz': {'options': (('1', '1'), ('2', '2'), ('3', '3')), 'answer': 0},
+     'hint': ('La mano se gana con dos de las tres bazas, y ya tenés una.',
+              'The hand is won with two of the three bazas, and you already have one.'),
+     'ok': ('Una más: con dos bazas la mano es tuya.', 'One more: with two bazas the hand is yours.')},
+    {'title': 'Desafío: cerrá la mano',
+     'text': 'Te quedan el 5 de copa y el 12 de basto. Jugá la que tiene más chances de ganar.',
+     'title_en': 'Challenge: close the hand',
+     'text_en': 'You have the 5 of Cups and the 12 of Clubs left. Play the one more likely to win.',
+     'target': '.live-hand', 'expect': ['play', 2], 'challenge': True,
+     'hint': ('Compará las dos en la escala.', 'Compare both on the ladder.'),
+     'hints': {**CALLS, 'fold': FOLD_HINT,
+               'play:1': ('El 5 está casi al fondo de la escala; el 12 está bastante más arriba.',
+                          'The 5 is near the bottom of the ladder; the 12 is well above it.')}},
     {'bot': ['play', 2]},
     {'title': 'Ganaste la mano',
-     'text': 'Tu 12 (7) le ganó a mi 11 (6): dos bazas, mano ganada. Sin cantos vale 1 punto. «Ver '
-             'resumen» explica cada baza. Tocá «Nueva mano»: se reparten tres cartas y la mano pasa '
-             'a mí.',
+     'text': 'Tu 12 le ganó a mi 11: dos bazas, y como nadie cantó, sumás 1 punto. «Ver resumen» '
+             'repasa cada baza. Tocá «Nueva mano»: ahora soy mano yo.',
      'title_en': 'You won the hand',
-     'text_en': 'Your 12 (7) beat my 11 (6): two bazas, hand won. With no calls it is worth 1 point. '
-                '“See summary” explains each baza. Press “Next hand”: three new cards are dealt and I '
-                'become mano.',
+     'text_en': 'Your 12 beat my 11: two bazas, and since nobody called, you score 1 point. “See '
+                'summary” goes over each baza. Press “Next hand”: now I am mano.',
      'target': '[data-action="next"]', 'expect': ['next', None]},
 
-    # ---------- Hand 2 ----------
+    # ---------- Hand 2 · Envido and parda ----------
     {'bot': ['envido', None]},
-    {'title': 'Canté Envido',
-     'text': 'Ahora soy mano y, antes de tirar mi primera carta, canté Envido. El Envido es una '
-             'apuesta paralela a la mano: compara los «tantos» de cada jugador. Solo se puede cantar '
-             'antes de jugar tu primera carta.',
+    {'title': 'Te canté Envido',
+     'text': 'Soy mano y canté Envido antes de tirar. Antes de responder, contá tus tantos: tenés '
+             '7 de oro, 6 de oro y 4 de basto. ¿Cuántos son?',
      'title_en': 'I called Envido',
-     'text_en': 'Now I am mano and, before playing my first card, I called Envido. Envido is a side '
-                'bet next to the hand: it compares each player’s envido points (“tantos”). It can only '
-                'be called before you play your first card.',
-     'target': '.table-status'},
-    {'title': 'Cómo se cuentan los tantos',
-     'text': 'Con dos cartas del mismo palo sumás 20 más sus valores: del 1 al 7 valen su número; el '
-             '10, 11 y 12 valen 0. Sin palo repetido vale tu carta más alta. Tu 7 y 6 de oro suman '
-             '20 + 7 + 6 = 33, el máximo posible.',
-     'title_en': 'How envido points are counted',
-     'text_en': 'With two cards of the same suit you add 20 plus their values: 1 to 7 are worth their '
-                'number; 10, 11 and 12 are worth 0. With no matching suit your highest card counts. '
-                'Your 7 and 6 of Coins make 20 + 7 + 6 = 33, the maximum possible.',
-     'target': '.live-hand'},
-    {'title': 'Respondé al Envido',
-     'text': 'Tocá «Quiero»: se comparan los tantos y el ganador suma 2. Con «No quiero» yo sumaría 1 '
-             'sin comparar. También podrías subir con Envido (4 en total), Real Envido o Falta Envido '
-             '(lo que le falta al que va ganando para llegar a 15).',
-     'title_en': 'Answer the Envido',
-     'text_en': 'Press “Quiero” (I accept): both counts are compared and the winner scores 2. “No quiero” '
-                '(I decline) would give me 1 without comparing. You could also raise with Envido (4 in '
-                'total), Real Envido or Falta Envido (what the leader needs to reach 15).',
+     'text_en': 'I am mano and called Envido before playing. Before you answer, count your tantos: '
+                'you hold the 7 of Coins, the 6 of Coins and the 4 of Clubs. How many are they?',
+     'target': '.live-hand',
+     'quiz': {'options': (('13', '13'), ('17', '17'), ('33', '33')), 'answer': 2},
+     'hint': ('Tenés dos cartas de oro: sumá sus valores y agregá 20.',
+              'You hold two Coins: add their values plus 20.'),
+     'ok': ('¡Bien! 7 + 6 + 20 = 33, el máximo posible.', 'Right! 7 + 6 + 20 = 33, the highest possible.')},
+    {'title': 'Aceptá el Envido',
+     'text': 'Con 33 no podés perder. Podrías subir con Envido, Real Envido o Falta Envido, pero '
+             'esta vez tocá «Quiero»: se comparan los tantos y el ganador suma 2.',
+     'title_en': 'Accept the Envido',
+     'text_en': 'With 33 you cannot lose. You could raise with Envido, Real Envido or Falta Envido, '
+                'but this time press “Quiero”: the counts are compared and the winner scores 2.',
      'target': '[data-action="accept"]', 'expect': ['accept', None]},
     {'bot': ['play', 0]},
     {'title': 'Ganaste el Envido',
-     'text': 'Cantamos los tantos: tus 33 contra mis 30. Sumaste 2 en el marcador. Si hubiéramos '
-             'empatado, ganaba el mano: yo. Los puntos del Envido no deciden la mano, que sigue: ya '
+     'text': 'Tus 33 contra mis 30: sumaste 2. Los puntos del Envido van aparte y la mano sigue: ya '
              'tiré mi 3 de copa.',
      'title_en': 'You won the Envido',
-     'text_en': 'We announced our counts: your 33 against my 30. You scored 2. In a tie the mano — me — '
-                'would have won. Envido points do not decide the hand, which continues: I have already '
-                'played my 3 of Cups.',
+     'text_en': 'Your 33 against my 30: you scored 2. Envido points are separate and the hand goes '
+                'on: I have already played my 3 of Cups.',
      'target': '.scoreboard'},
-    {'title': 'Ganale a mi 3',
-     'text': 'Mi 3 de copa tiene fuerza 10. Tu 7 de oro es una de las cuatro bravas (fuerza 11): '
-             'jugalo.',
-     'title_en': 'Beat my 3',
-     'text_en': 'My 3 of Cups has strength 10. Your 7 of Coins is one of the four bravas (strength 11): '
-                'play it.',
-     'target': '[data-card="0"]', 'expect': ['play', 0]},
+    {'title': 'Desafío: ganale a mi 3',
+     'text': 'Mi 3 de copa está alto en la escala. Solo una de tus cartas le gana.',
+     'title_en': 'Challenge: beat my 3',
+     'text_en': 'My 3 of Cups is high on the ladder. Only one of your cards beats it.',
+     'target': '.live-hand', 'expect': ['play', 0], 'challenge': True,
+     'hint': ('Buscá una de las cuatro bravas.', 'Look for one of the four bravas.'),
+     'hints': {**CALLS, 'fold': FOLD_HINT,
+               'play:1': ('El 6 está por debajo del 3: perderías la baza.',
+                          'The 6 is below the 3: you would lose the baza.'),
+               'play:2': ('El 4 es de las cartas más bajas del juego.',
+                          'The 4 is among the lowest cards in the game.')},
+     'ok': ('¡Eso! El 7 de oro es una brava.', 'That’s it! The 7 of Coins is a brava.')},
     {'title': 'Salís vos',
      'text': 'Ganaste la baza, así que abrís la segunda. Jugá tu 6 de oro.',
      'title_en': 'You lead',
@@ -190,85 +160,118 @@ STEPS = (
      'target': '[data-card="1"]', 'expect': ['play', 1]},
     {'bot': ['play', 1]},
     {'title': 'Baza parda',
-     'text': 'Los dos 6 tienen la misma fuerza: baza parda. Reglas de pardas: si la primera tiene '
-             'ganador y la segunda es parda, gana quien ganó la primera; si la primera es parda, '
-             'decide la segunda; si las tres son pardas, gana el mano. Sumás 1. Tocá «Nueva mano».',
+     'text': 'Mi 6 de espada y tu 6 de oro tienen la misma fuerza: la segunda baza es parda. '
+             '¿Quién gana la mano?',
      'title_en': 'A parda (tied baza)',
-     'text_en': 'Both 6s have the same strength: the baza is parda. Tie rules: if the first baza has a '
-                'winner and the second is parda, the winner of the first takes the hand; if the first '
-                'is parda, the second decides; if all three are parda, the mano wins. You score 1. '
+     'text_en': 'My 6 of Swords and your 6 of Coins have the same strength: the second baza is a '
+                'parda. Who wins the hand?',
+     'target': '.outcome',
+     'quiz': {'options': (('Vos, porque ganaste la primera', 'You, because you won the first one'),
+                          ('Bot Q, porque es mano', 'Bot Q, because it is mano'),
+                          ('Hay que jugar la tercera', 'The third baza must be played')),
+              'answer': 0},
+     'hint': ('Si una baza es parda, decide la otra que ya tiene ganador.',
+              'When a baza is a parda, the other baza that has a winner decides.'),
+     'ok': ('Correcto: si la primera tiene ganador y la segunda es parda, gana quien ganó la primera.',
+            'Correct: if the first baza has a winner and the second is a parda, the winner of the first takes the hand.')},
+    {'title': 'Otro punto',
+     'text': 'Ganaste la mano: 1 punto más. Si las tres bazas fueran pardas, ganaría el mano. Tocá '
+             '«Nueva mano».',
+     'title_en': 'Another point',
+     'text_en': 'You won the hand: 1 more point. If all three bazas were pardas, the mano would win. '
                 'Press “Next hand”.',
      'target': '[data-action="next"]', 'expect': ['next', None]},
 
-    # ---------- Hand 3 ----------
-    {'title': 'El ancho de espada',
-     'text': 'Volvés a ser mano. Tenés el 1 de espada, el «ancho de espada»: la carta más fuerte del '
-             'mazo. Con una mano así conviene cantar Truco.',
-     'title_en': 'The ancho de espada',
-     'text_en': 'You are mano again. You hold the 1 of Swords, the “ancho de espada”: the strongest '
-                'card in the deck. With a hand like this, calling Truco pays off.',
-     'target': '.live-hand'},
-    {'title': 'Cantá Truco',
-     'text': 'Truco sube el valor de la mano a 2 si lo quiero; si no lo quiero, ganás 1 y la mano '
-             'termina. Es la apuesta central del juego y se puede cantar sin tener buenas cartas: '
-             'mentir es parte del Truco.',
-     'title_en': 'Call Truco',
-     'text_en': 'Truco raises the hand to 2 points if I accept; if I decline, you win 1 and the hand '
-                'ends. It is the central bet of the game and you may call it without good cards: '
-                'bluffing is part of Truco.',
-     'target': '[data-action="truco"]', 'expect': ['truco', None]},
+    # ---------- Hand 3 · Truco and Retruco ----------
+    {'title': 'Desafío: es tu momento',
+     'text': 'Sos mano y tenés el ancho de espada, la mejor carta del juego, con el 3 de oro y el '
+             '5 de basto. Hacé la apuesta que sube lo que vale la mano.',
+     'title_en': 'Challenge: your moment',
+     'text_en': 'You are mano and hold the ancho de espada, the best card in the game, with the 3 of '
+                'Coins and the 5 of Clubs. Make the bet that raises what the hand is worth.',
+     'target': '.live-hand', 'expect': ['truco', None], 'challenge': True,
+     'hint': ('La apuesta sobre la mano es el Truco.', 'The bet on the hand is the Truco.'),
+     'hints': {'fold': ('¿Irte al mazo con el ancho de espada? Tenés la mejor carta del juego.',
+                        'Fold with the ancho de espada? You hold the best card in the game.'),
+               'play': ('Antes de tirar, aprovechá tu mano fuerte para apostar.',
+                        'Before playing, use your strong hand to bet.'),
+               **{k: ('Tus tantos son 5: no tenés dos cartas del mismo palo. Tu fuerza está en las cartas, no en el Envido.',
+                      'Your tantos are 5: no two cards share a suit. Your strength is in the cards, not the Envido.')
+                  for k in ('envido', 'real', 'falta')}}},
     {'bot': ['accept', None]},
     {'title': 'Dije «Quiero»',
-     'text': 'La mano vale 2 («Truco: 2»). Quien acepta queda con el derecho a subir: yo puedo cantar '
-             'Retruco (3) y, si lo aceptás, vos Vale Cuatro (4). Una vez aceptado el Truco ya no se '
-             'puede cantar Envido.',
+     'text': 'Acepté el Truco: la mano vale 2. ¿Quién puede cantar Retruco ahora?',
      'title_en': 'I said “Quiero”',
-     'text_en': 'The hand is worth 2 (“Truco: 2”). Whoever accepts gets the right to raise: I may call '
-                'Retruco (3) and, if you accept, you may call Vale Cuatro (4). Once Truco is accepted, '
-                'Envido can no longer be called.',
-     'target': '.table-status'},
-    {'title': 'Guardá las fuertes',
-     'text': 'Empezá con tu carta más baja, el 5 de basto: guardar las fuertes para después es una '
-             'estrategia básica.',
-     'title_en': 'Keep your strong cards',
-     'text_en': 'Lead with your lowest card, the 5 of Clubs: saving strong cards for later is a basic '
-                'strategy.',
-     'target': '[data-card="2"]', 'expect': ['play', 2]},
+     'text_en': 'I accepted the Truco: the hand is worth 2. Who may call Retruco now?',
+     'target': '.table-status',
+     'quiz': {'options': (('Vos, porque cantaste Truco', 'You, because you called Truco'),
+                          ('Bot Q, porque aceptó', 'Bot Q, because it accepted'),
+                          ('Cualquiera de los dos', 'Either player')),
+              'answer': 1},
+     'hint': ('Solo puede subir la apuesta quien acaba de aceptar.', 'Only the player who has just accepted may raise.'),
+     'ok': ('Exacto: subir es derecho de quien aceptó. Y una vez aceptado el Truco, ya no se puede cantar Envido.',
+            'Exactly: raising belongs to whoever accepted. And once Truco is accepted, Envido can no longer be called.')},
+    {'title': 'Desafío: guardá las fuertes',
+     'text': 'La mano vale 2. Abrí sin gastar tus cartas fuertes: las vas a necesitar después.',
+     'title_en': 'Challenge: keep your strong cards',
+     'text_en': 'The hand is worth 2. Lead without spending your strong cards: you will need them later.',
+     'target': '.live-hand', 'expect': ['play', 2], 'challenge': True,
+     'hint': ('Abrí con tu carta más baja.', 'Lead with your lowest card.'),
+     'hints': {**CALLS, 'fold': FOLD_HINT,
+               'play:0': ('Es tu mejor carta: guardala para cuando la necesites.',
+                          'It is your best card: keep it for when you need it.'),
+               'play:1': ('El 3 es fuerte; abrí con la más baja.', 'The 3 is strong; lead with the lowest.')}},
     {'bot': ['play', 2]},
     {'bot': ['retruco', None]},
-    {'title': 'Perdiste una baza y canté Retruco',
-     'text': 'Mi 10 de copa (fuerza 5) le ganó a tu 5 (fuerza 2), así que salgo yo en la segunda. '
-             'Antes de jugar canté Retruco: si querés, la mano vale 3.',
-     'title_en': 'You lost a baza and I called Retruco',
-     'text_en': 'My 10 of Cups (strength 5) beat your 5 (strength 2), so I lead the second baza. Before '
-                'playing I called Retruco: if you accept, the hand is worth 3.',
-     'target': '.played-bazas'},
+    {'title': 'Canté Retruco',
+     'text': 'Mi 10 de copa le ganó a tu 5, y ahora canté Retruco. Si decís «No quiero», ¿cuántos '
+             'puntos me llevo?',
+     'title_en': 'I called Retruco',
+     'text_en': 'My 10 of Cups beat your 5, and now I called Retruco. If you say “No quiero”, how many '
+                'points do I take?',
+     'target': '.table-status',
+     'quiz': {'options': (('1', '1'), ('2', '2'), ('3', '3')), 'answer': 1},
+     'hint': ('Si rechazás, me llevo lo que ya estaba aceptado: el Truco.',
+              'If you decline, I take what was already accepted: the Truco.'),
+     'ok': ('Exacto: 2, los del Truco aceptado.', 'Exactly: 2, from the accepted Truco.')},
     {'title': 'Aceptá el Retruco',
-     'text': 'Tocá «Quiero». Con «No quiero» yo sumaría los 2 puntos del Truco ya aceptado y la mano '
-             'terminaría. Con Vale Cuatro subirías a 4.',
+     'text': 'Te quedan el ancho de espada y el 3 de oro: tocá «Quiero» y la mano pasa a valer 3.',
      'title_en': 'Accept the Retruco',
-     'text_en': 'Press “Quiero”. “No quiero” would give me the 2 points of the accepted Truco and end '
-                'the hand. Vale Cuatro would raise it to 4.',
+     'text_en': 'You still hold the ancho de espada and the 3 of Coins: press “Quiero” and the hand '
+                'becomes worth 3.',
      'target': '[data-action="accept"]', 'expect': ['accept', None]},
     {'bot': ['play', 0]},
-    {'title': 'Jugá el ancho de espada',
-     'text': 'Tiré el ancho de basto (fuerza 13). Solo lo supera tu ancho de espada (14): jugalo.',
-     'title_en': 'Play the ancho de espada',
-     'text_en': 'I played the ancho de basto (strength 13). Only your ancho de espada (14) beats it: '
-                'play it.',
-     'target': '[data-card="0"]', 'expect': ['play', 0]},
+    {'title': 'Desafío: ganale al ancho de basto',
+     'text': 'Tiré el ancho de basto, la segunda carta más fuerte del juego. Solo una carta le gana.',
+     'title_en': 'Challenge: beat the ancho de basto',
+     'text_en': 'I played the ancho de basto, the second strongest card in the game. Only one card beats it.',
+     'target': '.live-hand', 'expect': ['play', 0], 'challenge': True,
+     'hint': ('Solo la carta número 1 de la escala le gana.', 'Only the top card of the ladder beats it.'),
+     'hints': {**CALLS, 'fold': FOLD_HINT,
+               'vale4': ('Podrías subir a Vale Cuatro, pero primero ganá esta baza.',
+                         'You could raise to Vale Cuatro, but win this baza first.'),
+               'play:1': ('El 3 de oro está muy por debajo del ancho de basto.',
+                          'The 3 of Coins is far below the ancho de basto.')}},
     {'title': 'Última baza',
-     'text': 'Vamos una baza cada uno: decide la tercera. Jugá tu 3 de oro (fuerza 10).',
+     'text': 'Una baza cada uno: decide la tercera. Jugá tu 3 de oro.',
      'title_en': 'Last baza',
-     'text_en': 'One baza each: the third decides. Play your 3 of Coins (strength 10).',
+     'text_en': 'One baza each: the third one decides. Play your 3 of Coins.',
      'target': '[data-card="1"]', 'expect': ['play', 1]},
     {'bot': ['play', 1]},
-    {'title': 'Ganaste el Retruco',
-     'text': 'Tu 3 le ganó a mi 12: ganaste la mano con Retruco, 3 puntos. Ya conocés el Truco '
-             'clásico. Tocá «Nueva mano»: ahora llega la parte cuántica.',
-     'title_en': 'You won the Retruco',
-     'text_en': 'Your 3 beat my 12: you won the hand with Retruco, 3 points. You now know classic Truco. '
-                'Press “Next hand”: the quantum part comes next.',
+    {'title': 'Ganaste la mano',
+     'text': 'Tu 3 le ganó a mi 12. ¿Cuántos puntos sumaste?',
+     'title_en': 'You won the hand',
+     'text_en': 'Your 3 beat my 12. How many points did you score?',
+     'target': '.outcome',
+     'quiz': {'options': (('1', '1'), ('2', '2'), ('3', '3')), 'answer': 2},
+     'hint': ('La mano vale lo último que se aceptó: el Retruco.', 'The hand is worth the last accepted call: the Retruco.'),
+     'ok': ('3 puntos: el Retruco aceptado.', '3 points: the accepted Retruco.')},
+    {'title': 'Ahora, la carta cuántica',
+     'text': 'Ya practicaste el Truco clásico. Tocá «Nueva mano»: llega la parte cuántica, que te '
+             'explico paso a paso.',
+     'title_en': 'Now, the quantum card',
+     'text_en': 'You have practised classic Truco. Press “Next hand”: the quantum part comes next, and '
+                'I will explain it step by step.',
      'target': '[data-action="next"]', 'expect': ['next', None]},
 
     # ---------- Hand 4 · the quantum card ----------
