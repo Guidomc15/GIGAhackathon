@@ -14,6 +14,7 @@ import {preferences,savePreference} from './preferences.js';
 import {PresentationPlayer} from './presentation.js';
 import {SoundMixer} from './sound.js';
 import {rulesContent} from './learning.js';
+import {SLIDES,slideHtml,definition,duelAnswer,duelWhy} from './slides.js';
 import {L,lang,cardName,axes} from './i18n.js';
 import {esc,card,sphere,circuitStrip,gateStyle,technical,quantumReport,measurementCard,table,turnGuide,handSummary,gateHelp,gateHelpPlain,quantumOptions,quantumStatus,eventText} from './ui.js';
 const stage=document.getElementById('stage');
@@ -290,14 +291,41 @@ function game(){
   }
 }
 async function openTutorial(){screen='learn';render();focus();}
+let slideIndex=0,slideState={};
+// Slides before the guided match: rules, suits, ladder and a duel to practise.
+function openSlides(){slideIndex=0;slideState={};screen='slides';render();focus();}
+function slides(){
+  stage.innerHTML=slideHtml(slideIndex,slideState);
+  const go=i=>{slideIndex=i;slideState={};render();focus();stage.scrollTo?.(0,0);};
+  document.getElementById('slide-prev').onclick=()=>go(slideIndex-1);
+  document.getElementById('slide-next').onclick=()=>slideIndex<SLIDES.length-1?go(slideIndex+1):startTrucoTutorial();
+  document.getElementById('slide-skip').onclick=startTrucoTutorial;
+  stage.querySelectorAll('[data-suit]').forEach(b=>b.onclick=()=>{slideState.suit=Number(b.dataset.suit);render();});
+  stage.querySelector('[data-quick-help]')?.addEventListener('click',()=>{screen='values';render();focus();});
+  stage.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{
+    const round=slideState.round||0,ok=b.dataset.pick===duelAnswer(round);
+    slideState.feedback={ok,why:duelWhy(round)};render();
+    if(ok)setTimeout(()=>{if(screen==='slides'&&(slideState.round||0)===round){slideState.round=round+1;slideState.feedback=null;render();}},reducedMotion()?600:1600);
+  });
+  const pop=document.getElementById('term-popover');
+  stage.querySelectorAll('[data-term]').forEach(b=>b.onclick=event=>{
+    event.stopPropagation();
+    if(!pop.hidden&&pop.dataset.term===b.dataset.term){pop.hidden=true;return;}
+    const {name,text}=definition(b.dataset.term);
+    pop.innerHTML=`<strong>${esc(name)}</strong><p>${esc(text)}</p>`;pop.dataset.term=b.dataset.term;pop.hidden=false;
+    const box=b.getBoundingClientRect(),host=pop.offsetParent.getBoundingClientRect();
+    pop.style.left=Math.max(8,Math.min(box.left-host.left,host.width-300))+'px';pop.style.top=(box.bottom-host.top+6)+'px';
+  });
+  stage.querySelector('.slide').onclick=event=>{if(!event.target.closest('[data-term],#term-popover'))pop.hidden=true;};
+}
 async function startTrucoTutorial(){screen='game';revealed=false;summaryOpen=false;await action('tutorial');focus();}
 async function openLesson(index){lessonCircuit=0;screen='lessons';await action('lesson',index);focus();}
 // Tutorial hub: the Truco match with Bot Q first, then the gates and the Bloch sphere.
 function learn(){
   const running=view.guided&&view.game&&!view.coach?.final;
-  stage.innerHTML=`<section class="tutorial-hub" aria-label="Tutorial"><article class="panel hub-card"><span class="hub-number">1</span><h2>${L('Truco con Bot Q','Truco with Bot Q')}</h2><p>${L('Una partida guiada de cuatro manos: leer la mesa, la fuerza de las cartas, bazas y pardas, Envido, Truco y Retruco. En la última mano usás la carta cuántica.','A guided four-hand match: reading the table, card strength, bazas and pardas, Envido, Truco and Retruco. In the last hand you use the quantum card.')}</p><p class="hub-meta">${L('38 pasos · unos 10 minutos','38 steps · about 10 minutes')}</p><div class="actions">${running?`<button id="hub-resume" class="primary">${L('Retomar','Resume')}</button><button id="hub-restart">${L('Empezar de nuevo','Start over')}</button>`:`<button id="hub-truco" class="primary">${L('Empezar','Start')}</button>`}</div></article><article class="panel hub-card"><span class="hub-number">2</span><h2>${L('Compuertas y esfera de Bloch','Gates and the Bloch sphere')}</h2><p>${axes(esc(L('Qué hace cada ficha, sobre qué eje gira ([X], [Y] o [Z]), cuándo cambia la fase y las combinaciones más importantes, con la esfera animada.','What each token does, which axis it turns around ([X], [Y] or [Z]), when it changes the phase and the most important combinations, with an animated sphere.')))}</p><p class="hub-meta">${L('9 lecciones','9 lessons')}</p><div class="actions"><button id="hub-gates" class="primary">${L('Abrir lecciones','Open the lessons')}</button></div></article></section>`;
-  document.getElementById('hub-truco')?.addEventListener('click',startTrucoTutorial);
-  document.getElementById('hub-restart')?.addEventListener('click',startTrucoTutorial);
+  stage.innerHTML=`<section class="tutorial-hub" aria-label="Tutorial"><article class="panel hub-card"><span class="hub-number">1</span><h2>${L('Truco con Bot Q','Truco with Bot Q')}</h2><p>${L('Una partida guiada de cuatro manos: leer la mesa, la fuerza de las cartas, bazas y pardas, Envido, Truco y Retruco. En la última mano usás la carta cuántica.','A guided four-hand match: reading the table, card strength, bazas and pardas, Envido, Truco and Retruco. In the last hand you use the quantum card.')}</p><p class="hub-meta">${L('4 diapositivas y 38 pasos de juego · unos 12 minutos','4 slides and 38 game steps · about 12 minutes')}</p><div class="actions">${running?`<button id="hub-resume" class="primary">${L('Retomar','Resume')}</button><button id="hub-restart">${L('Empezar de nuevo','Start over')}</button>`:`<button id="hub-truco" class="primary">${L('Empezar','Start')}</button>`}</div></article><article class="panel hub-card"><span class="hub-number">2</span><h2>${L('Compuertas y esfera de Bloch','Gates and the Bloch sphere')}</h2><p>${axes(esc(L('Qué hace cada ficha, sobre qué eje gira ([X], [Y] o [Z]), cuándo cambia la fase y las combinaciones más importantes, con la esfera animada.','What each token does, which axis it turns around ([X], [Y] or [Z]), when it changes the phase and the most important combinations, with an animated sphere.')))}</p><p class="hub-meta">${L('9 lecciones','9 lessons')}</p><div class="actions"><button id="hub-gates" class="primary">${L('Abrir lecciones','Open the lessons')}</button></div></article></section>`;
+  document.getElementById('hub-truco')?.addEventListener('click',openSlides);
+  document.getElementById('hub-restart')?.addEventListener('click',openSlides);
   document.getElementById('hub-resume')?.addEventListener('click',()=>{screen='game';action('public');});
   document.getElementById('hub-gates').onclick=()=>openLesson(view.lesson?.index??0);
 }
@@ -384,7 +412,7 @@ function render(){
   document.getElementById('notice').innerHTML=(uiError||view.error)?`<p class="error">${esc(uiError||view.error)}</p>`:'';
   document.querySelector('.app-shell').classList.toggle('landing',screen==='home');
   document.querySelector('.app-shell').classList.toggle('playing',screen==='game');
-  ({home,setup,game,rules,credits,values,learn,lessons}[screen]||home)();
+  ({home,setup,game,rules,credits,values,learn,lessons,slides}[screen]||home)();
   applyCoach();
   const composer=document.getElementById('composer-dialog');
   if(composer){composer.showModal();composer.oncancel=e=>{e.preventDefault();quantumOpen=false;render();focus();};}

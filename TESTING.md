@@ -17,6 +17,7 @@ node tests/browser_full_match.cjs
 TRUCO_PRIVACY=1 node tests/browser_full_match.cjs
 node tests/browser_animations.cjs
 node tests/browser_0.2.2.cjs
+node tests/browser_slides.cjs
 node tests/browser_tutorial.cjs
 TRUCO_LANG=en node tests/browser_tutorial.cjs
 ```
@@ -24,6 +25,7 @@ TRUCO_LANG=en node tests/browser_tutorial.cjs
 Instalá Playwright para ejecutar las pruebas de navegador. `PLAYWRIGHT_MODULE` permite una instalación externa; `CHROMIUM_EXECUTABLE_PATH` elige Chromium del sistema. `TRUCO_URL` cambia el destino y `ARTIFACT_DIR` la carpeta de capturas.
 
 - `browser_0.2.2.cjs`: inglés por defecto en un navegador en inglés, cambio de idioma en cualquier pantalla y en plena partida, error del motor traducido, nivel Difícil desde la interfaz, botón Confirmar, colores de los ejes, música desde el MP3 (bucle, volumen, silencio), temporizadores 1/3/7/manual, posición del scroll y voces.
+- `browser_slides.cjs`: las 4 diapositivas previas (reglas con glosario, palos, escala de 14 niveles con las 40 cartas y duelo de 4 bazas) en español en escritorio e inglés en celular.
 - `browser_tutorial.cjs`: juega los 38 pasos tocando solo el control que resalta Bot Q, comprueba que el resto quede bloqueado y recorre las 9 lecciones.
 
 `browser_full_match.cjs` termina la partida completa; en Chromium sin aceleración por hardware abrir «Ver resumen» al final puede tardar más de 12 s porque dibuja una esfera por mano jugada.

@@ -23,6 +23,7 @@ const CONTROLS=['[data-action]','[data-card]','[data-token]','#lock-circuit','#a
     if(process.env.TRUCO_LANG==='en'){await page.locator('#menu-language').selectOption('en');await idle();}
     await page.locator('#learn').click();
     await page.locator('#hub-truco').click();
+    await page.locator('#slide-skip').click();
     await page.locator('.coach').waitFor();
     const seen=[];
     for(let i=0;i<60;i++){

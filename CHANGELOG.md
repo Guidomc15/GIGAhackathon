@@ -4,7 +4,7 @@
 
 Interfaz completa en español e inglés, con selector 🌐 en el inicio y en el encabezado de todas las pantallas; el idioma inicial sigue al navegador. El motor devuelve pistas, etiquetas y errores en el idioma elegido. Los cantos conservan su nombre.
 
-Tutorial en dos partes. Truco con Bot Q: partida guiada de cuatro manos y 38 pasos, con explicaciones de nivel académico (baraja, jerarquía, bazas, mano, Envido y tantos, pardas, Truco y Retruco) y una cuarta mano con la carta cuántica; mide siempre con Qiskit local. Compuertas y esfera de Bloch: nueve lecciones con esfera animada en bucle, analogías del juego y porcentajes de Qiskit. Reglas paginadas por secciones, con introducción y fuentes.
+Tutorial en dos partes. Antes de la partida, cuatro diapositivas (reglas, palos, escala por niveles y un duelo para practicar qué carta gana) con glosario tocable de términos del Truco. Truco con Bot Q: partida guiada de cuatro manos y 38 pasos, con explicaciones de nivel académico (baraja, jerarquía, bazas, mano, Envido y tantos, pardas, Truco y Retruco) y una cuarta mano con la carta cuántica; mide siempre con Qiskit local. Compuertas y esfera de Bloch: nueve lecciones con esfera animada en bucle, analogías del juego y porcentajes de Qiskit. Reglas paginadas por secciones, con introducción y fuentes.
 
 Niveles Aprendizaje y Difícil (2 retiros de compuertas por jugador y por mano). Botón único «Confirmar». Ejes de la esfera con color (X coral, Y violeta, Z celeste) y letras de las explicaciones con el mismo color. Pantallas de escritorio ajustadas a la ventana, sin barra de desplazamiento: mesa a la izquierda, guía y cantos a la derecha. Música nueva aportada por el equipo. Menú en inglés con placas propias.
 
