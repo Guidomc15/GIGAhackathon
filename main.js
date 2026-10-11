@@ -221,7 +221,7 @@ function setup(){
   document.getElementById('names').onsubmit=event=>{event.preventDefault();deal();};
 }
 function handoff(g){
-  stage.innerHTML+=`<section class="panel neutral"><p class="lock" aria-hidden="true">◈</p><h2>${L(`Turno de ${esc(g.names[g.actor])}`,`${esc(g.names[g.actor])}'s turn`)}</h2><p>${L('Pasale el dispositivo y asegurate de que el rival no esté mirando.','Pass the device and make sure your opponent is not looking.')}</p><label><input type="checkbox" id="alone"> ${L('Estoy listo para ver mi información privada','I am ready to see my private information')}</label><div class="actions" style="justify-content:center"><button id="reveal" class="primary" disabled>${L('Revelar mi mano','Reveal my hand')}</button></div></section>`;
+  stage.innerHTML+=`<section class="panel neutral"><p class="lock" aria-hidden="true">◈</p><h2>${isYou(g.names[g.actor])?L('Tu turno','Your turn'):L(`Turno de ${esc(g.names[g.actor])}`,`${esc(g.names[g.actor])}'s turn`)}</h2><p>${L('Pasale el dispositivo y asegurate de que el rival no esté mirando.','Pass the device and make sure your opponent is not looking.')}</p><label><input type="checkbox" id="alone"> ${L('Estoy listo para ver mi información privada','I am ready to see my private information')}</label><div class="actions" style="justify-content:center"><button id="reveal" class="primary" disabled>${L('Revelar mi mano','Reveal my hand')}</button></div></section>`;
   document.getElementById('alone').onchange=e=>document.getElementById('reveal').disabled=!e.target.checked;
   document.getElementById('reveal').onclick=()=>action('reveal');
 }
@@ -252,7 +252,7 @@ function publicSummary(g){
   if(!report)return '';
   return `<section class="panel public-summary"><p class="pill">${L('Resumen público · Mano','Public summary · Hand')} ${g.hand}</p>${handSummary(g)}<div class="player-summaries">${report.quantum.map((q,p)=>{
     const result=q?.result===null?L('Terminó sin medir','Ended unmeasured'):q?cardName(q.result?q.linked:q.original):L('Sin carta cuántica','No quantum card');
-    return `<article class="player-summary"><h3>${esc(g.names[p])}</h3><p>${L('Resultado cuántico','Quantum result')}: <strong>${esc(result)}</strong></p><p>${L('Cartas','Cards')}: ${report.cards?.[p].map(c=>`${esc(cardName(c.effective))}${c.quantum?' (Q)':''}`).join(' · ')||'—'}</p><p>${L('Circuito','Circuit')}: ${q?.preview.gates.map(gateLabel).map(esc).join(' → ')||L('Sin compuertas','No gates')}</p>${g.envido?`<p>Envido: <strong>${g.envido.values[p]} ${L('tantos','points')}</strong></p>`:''}${q?`<details><summary>${L('Ampliar detalles de','More details for')} ${esc(g.names[p])}</summary>${quantumReport(q)}</details>`:''}</article>`;
+    return `<article class="player-summary"><h3>${esc(g.names[p])}</h3><p>${L('Resultado cuántico','Quantum result')}: <strong>${esc(result)}</strong></p><p>${L('Cartas','Cards')}: ${report.cards?.[p].map(c=>`${esc(cardName(c.effective))}${c.quantum?' (Q)':''}`).join(' · ')||'—'}</p><p>${L('Circuito','Circuit')}: ${q?.preview.gates.map(gateLabel).map(esc).join(' → ')||L('Sin compuertas','No gates')}</p>${g.envido?`<p>Envido: <strong>${g.envido.values[p]} ${L('tantos','points')}</strong></p>`:''}${q?`<details><summary>${isYou(g.names[p])?L('Ampliar tus detalles','More details about your card'):`${L('Ampliar detalles de','More details for')} ${esc(g.names[p])}`}</summary>${quantumReport(q)}</details>`:''}</article>`;
   }).join('')}</div>${g.phase==='match_end'?`<details><summary>${L('Manos anteriores','Previous hands')} (${g.history.length})</summary>${g.history.map(h=>`<details><summary>${L('Mano','Hand')} ${h.hand} · ${h.scores.join(' / ')}</summary>${h.quantum.map((q,p)=>`<h3>${esc(g.names[p])}</h3>${quantumReport(q)}`).join('')}</details>`).join('')}</details><button id="download">${L('Descargar informe JSON','Download JSON report')}</button>`:''}<button id="close-summary">${L('Volver al resultado','Back to the result')}</button></section>`;
 }
 function resultScreen(g){
@@ -275,7 +275,7 @@ function game(){
   stage.innerHTML=`<p class="round-meta">${esc(g.names[0])}: ${g.scores[0]} · ${esc(g.names[1])}: ${g.scores[1]} · ${L('Mano','Hand')} ${g.hand} · ${view.guided?L('Práctica con Bot Q','Practice with Bot Q'):g.difficulty==='hard'?L('Nivel difícil','Hard level'):L('Nivel aprendizaje','Learning level')}</p>`;
   if(presentation){
     if(presentation.type==='flip'){
-      stage.innerHTML+=layout(table(g,{art:TABLE_ART,cards:view.private?.cards,quantum:view.private?.quantum,prepare:g.phase==='prepare',faceDown:presentation.faceDown,flip:!presentation.faceDown}),`<p class="turn-banner" role="status">${L(`Turno de ${esc(g.names[g.actor])}`,`${esc(g.names[g.actor])}'s turn`)}</p>`);return;
+      stage.innerHTML+=layout(table(g,{art:TABLE_ART,cards:view.private?.cards,quantum:view.private?.quantum,prepare:g.phase==='prepare',faceDown:presentation.faceDown,flip:!presentation.faceDown}),`<p class="turn-banner" role="status">${isYou(g.names[g.actor])?L('Tu turno','Your turn'):L(`Turno de ${esc(g.names[g.actor])}`,`${esc(g.names[g.actor])}'s turn`)}</p>`);return;
     }
     return;
   }
@@ -290,7 +290,7 @@ function game(){
   if(g.pending)side+=`<section class="panel pending-call"><h2>${isYou(g.names[g.actor])?L('Te toca responder','Your answer'):L(`Respuesta de ${esc(g.names[g.actor])}`,`${esc(g.names[g.actor])} must answer`)}</h2><p>${isYou(g.names[g.pending.proposer])?L('Propusiste','You called'):L(`${esc(g.names[g.pending.proposer])} propone`,`${esc(g.names[g.pending.proposer])} calls`)} ${g.pending.kind==='envido'?g.pending.chain.map(c=>CALLS[c]).join(' → '):({2:'Truco',3:'Retruco',4:'Vale Cuatro'}[g.pending.level])}.</p></section>`;
   if(priv.quantum)side+=quantumStatus(priv.quantum,g.names[g.actor]);
   side+=actionButtons(g);
-  if(g.envido)side+=`<p class="callout envido-result">Envido: ${esc(g.names[0])} ${g.envido.values[0]} · ${esc(g.names[1])} ${g.envido.values[1]}. ${isYou(g.names[g.envido.winner])?L('Ganaste vos','You won'):`${L('Ganó','Won by')} ${esc(g.names[g.envido.winner])}`}: +${g.envido.points}.</p>`;
+  if(g.envido)side+=`<p class="callout envido-result">Envido: ${esc(g.names[0])} ${g.envido.values[0]} · ${esc(g.names[1])} ${g.envido.values[1]}. ${isYou(g.names[g.envido.winner])?L('Ganaste','You won'):`${L('Ganó','Won by')} ${esc(g.names[g.envido.winner])}`}: +${g.envido.points}.</p>`;
   side+=`<details class="timeline-box"><summary>${L('Línea temporal pública','Public timeline')}</summary><div class="timeline">${g.events.map(e=>`<p>${esc(e.kind==='speech'?displayText(e):eventText(e.text))} ${e.player!==undefined?'· '+esc(g.names[e.player]):''} ${e.points?'+ '+e.points+' '+L('puntos','points'):''}</p>`).join('')}</div></details>`;
   stage.innerHTML+=layout(table(g,{art:TABLE_ART,cards:priv.cards,quantum:priv.quantum}),side);
   bindActions();

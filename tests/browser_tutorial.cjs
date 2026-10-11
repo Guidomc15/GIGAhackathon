@@ -31,6 +31,9 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
       await idle();
       const step=await page.locator('.coach-step').textContent();
       const title=await page.locator('.coach h2').textContent();
+      // The player is addressed in the second person: «Tu turno», never «Turno de Vos».
+      const third=(await page.locator('body').innerText()).match(/Turno de (Vos|You)|(Vos|You)'s turn|(de|for) (Vos|You)\b|Ganó( la baza)? (Vos|You)|(Vos|You) (jugó|suma|propone|played|scores|calls|wins|loses)|Victoria de (Vos|You)|Mano: (Vos|You)|\(leads\): You/);
+      assert.equal(third,null,`Texto en tercera persona en «${title}»: ${third?.[0]}`);
       if(!seen.includes(step)){seen.push(step);await page.screenshot({path:path.join(output,`tutorial-${String(seen.length).padStart(2,'0')}.png`),fullPage:true});}
       if(await page.locator('#coach-play').count())break;
       assert.equal(await page.locator('#view-summary').count(),0,`«Ver resumen» se oculta hasta el final, pero aparece en «${title}»`);
