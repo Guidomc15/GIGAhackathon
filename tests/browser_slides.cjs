@@ -125,19 +125,37 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
       }
       await fits('14');await shot('14');
       await page.locator('#slide-next').click();
-      // 15 · Falta Envido from 12–9: worth 3, and winning it ends the game. Next starts the match with Bot Q.
+      // 15 · Falta Envido from 12–9: worth 3, and winning it ends the game.
       await page.locator('.slide-falta').waitFor();
       await page.locator('[data-reply="rival"]').click();
       assert.equal(await page.locator('.falta-board strong').allInnerTexts().then(a=>a.join('-')),'12-12');
       await page.locator('[data-reply="you"]').click();
       assert.equal(await page.locator('.falta-board strong').allInnerTexts().then(a=>a.join('-')),'15-9');
-      assert.match(await page.locator('#slide-next').innerText(),/Bot Q/);
       await fits('15');await shot('15');
+      await page.locator('#slide-next').click();
+      // 16 · The quantum card: original |0⟩ and linked |1⟩; X always gives the linked card.
+      await page.locator('.slide-quantumCard').waitFor();
+      assert.deepEqual(await page.locator('.qc-odds').allInnerTexts(),['100 %','0 %']);
+      await page.locator('[data-gate="1"]').click();
+      assert.deepEqual(await page.locator('.qc-odds').allInnerTexts(),['50 %','50 %']);
+      await page.locator('[data-gate="2"]').click();await page.locator('[data-measure]').click();
+      assert.equal(await page.locator('.qc-side.chosen .qc-ket').innerText(),'|1⟩');
+      assert.match(await page.locator('.quantum-card-demo .callout').innerText(),lang==='es'?/7 de espada/:/7 of Swords/i);
+      await fits('16');await shot('16');
+      await page.locator('#slide-next').click();
+      // 17 · Linked suits: basto ↔ oro and copa ↔ espada; the 7 of cups (row 11) links to the 7 of swords (row 3). Next starts the match.
+      await page.locator('.slide-linkedSuits').waitFor();
+      assert.equal(await page.locator('.ls-pair').count(),2);
+      assert.deepEqual(await page.locator('.ls-pair small').allInnerTexts(),lang==='es'?['fila 11','fila 4','fila 11','fila 3']:['row 11','row 4','row 11','row 3']);
+      await page.locator('[data-number="1"]').click();
+      assert.deepEqual(await page.locator('.ls-pair small').allInnerTexts(),lang==='es'?['fila 2','fila 7','fila 7','fila 1']:['row 2','row 7','row 7','row 1']);
+      assert.match(await page.locator('#slide-next').innerText(),/Bot Q/);
+      await fits('17');await shot('17');
       await page.locator('#slide-next').click();
       await page.locator('.coach').waitFor();
       assert.deepEqual(errors,[]);
       await page.close();
     }
-    console.log('PASS slides: rules + glossary, 4 suits × 10 cards, 14-level ladder with 40 cards, 4-baza duel, 2 example hands, Truco call and answers, scoring, Envido values, 4 counts, Envido duel, answers and Falta, ES desktop and EN mobile');
+    console.log('PASS slides: rules + glossary, 4 suits × 10 cards, 14-level ladder with 40 cards, 4-baza duel, 2 example hands, Truco call and answers, scoring, Envido values, 4 counts, Envido duel, answers and Falta, quantum card and linked suits, ES desktop and EN mobile');
   }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exit(1);});

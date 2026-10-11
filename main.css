@@ -650,7 +650,7 @@ nav .nav-language{margin-left:auto}
 .envido-duel .envido-hand .card,.envido-duel .card-back{width:clamp(36px,min(4.6vw,8vh),70px);aspect-ratio:78/125;height:auto;min-height:0}
 .envido-duel .envido-hand .baza-card span{font-size:11px}
 @media(max-width:820px){.envido-pair{grid-template-columns:1fr}}
-.slide-envidoCalc .suit-tabs button{text-transform:none}
+.slide-envidoCalc .suit-tabs button,.slide-quantumCard .suit-tabs button{text-transform:none}
 /* Práctica con Bot Q: desafíos y preguntas rápidas. */
 .coach-badge{display:inline-block;margin-right:8px;padding:1px 8px;border-radius:10px;background:var(--gold);color:#1b1a12;font:800 12px/1.6 system-ui;letter-spacing:.04em;text-transform:uppercase;vertical-align:middle}
 .coach-quiz{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
@@ -679,3 +679,21 @@ nav .nav-language{margin-left:auto}
   .playing.summary-open .game-layout{height:100%}
   .playing.summary-open .public-summary{margin-top:14px}
 }
+/* Diapositivas 16–17: carta cuántica y palos ligados. */
+.qc-pair,.ls-pair{display:flex;align-items:center;justify-content:center;gap:14px}
+.qc-side{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:120px;padding:5px 12px;border:2px solid #c9b57c55;border-radius:10px;background:#1a1f19;transition:opacity .3s,border-color .3s}
+.qc-side .card,.ls-pair .card{width:clamp(44px,min(6vw,7.5vh),84px);height:auto;aspect-ratio:78/125;min-height:0;transform:none}
+.qc-side strong{font:700 14px system-ui;color:var(--gold)}
+.qc-side span{font:13px system-ui;color:#efe6cf}
+.qc-side .probability-track{width:100%;margin:4px 0 0}
+.qc-ket{font:800 18px ui-monospace,Menlo,monospace!important;color:#f4f1e6!important}
+.qc-odds{font:700 14px system-ui!important}
+.qc-side.chosen{border-color:#77e08b;box-shadow:0 0 14px #77e08b66}
+.qc-side.faded{opacity:.35}
+.qc-link{font:800 28px system-ui;color:var(--gold)}
+.quantum-card-demo{display:flex;flex-direction:column;align-items:center;gap:4px}
+.ls-pairs{display:flex;flex-wrap:wrap;justify-content:center;gap:14px 28px;margin:8px 0}
+.ls-pair figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:3px}
+.ls-pair figcaption{display:flex;flex-direction:column;align-items:center;font:13px system-ui;color:#efe6cf}
+.ls-pair small{color:var(--gold);font-weight:700}
+.number-tabs button{min-width:38px}

@@ -24,9 +24,13 @@ Object.assign(GLOSSARY,{
   tantos:{es:['Tantos','Los puntos de Envido de tu mano: dos cartas del mismo palo suman sus valores más 20; si no, vale la carta más alta.'],en:['Tantos','Your hand’s Envido points: two cards of the same suit add their values plus 20; otherwise your highest card counts.']},
   negras:{es:['Negras','El 10, el 11 y el 12. Para el Envido valen 0.'],en:['Negras (face cards)','The 10, 11 and 12. They are worth 0 for the Envido.']},
   'real envido':{es:['Real Envido','Subida del Envido: suma 3 puntos más a lo que ya estaba en juego.'],en:['Real Envido','An Envido raise: adds 3 more points to what was at stake.']},
+  qubit:{es:['Qubit','Bit cuántico. Puede estar en |0⟩, en |1⟩ o en una combinación de ambos; al medirlo da 0 o 1.'],en:['Qubit','Quantum bit. It can be |0⟩, |1⟩ or a combination of both; measuring it gives 0 or 1.']},
+  original:{es:['Carta original','La carta que te repartieron. Es el estado |0⟩ del qubit.'],en:['Original card','The card you were dealt. It is the qubit state |0⟩.']},
+  ligada:{es:['Carta ligada','Mismo número, palo pareja: basto ↔ oro, copa ↔ espada. Es el estado |1⟩.'],en:['Linked card','Same number, partner suit: clubs ↔ coins, cups ↔ swords. It is the state |1⟩.']},
+  medirla:{es:['Medir','Preguntarle al qubit qué es: colapsa a |0⟩ o |1⟩ según sus probabilidades y ya no cambia.'],en:['Measure','Ask the qubit what it is: it collapses to |0⟩ or |1⟩ by its probabilities and no longer changes.']},
   'falta envido':{es:['Falta Envido','La subida máxima del Envido: vale lo que le falta al que va ganando para llegar a 15.'],en:['Falta Envido','The top Envido raise: worth what the leader still needs to reach 15.']},
 });
-const DEFINITIONS={bazas:'baza',palos:'palo',pardas:'parda',bravas:'brava',anchos:'ancho','anchos falsos':'falso','quiero retruco':'retruco','quiero vale cuatro':'vale cuatro',negra:'negras'};
+const DEFINITIONS={bazas:'baza',palos:'palo',pardas:'parda',bravas:'brava',anchos:'ancho','anchos falsos':'falso','quiero retruco':'retruco','quiero vale cuatro':'vale cuatro',negra:'negras',measured:'medirla',linked:'ligada'};
 
 // Escaped text with **terms**: bold, and clickable when they have a definition.
 export function terms(text){
@@ -138,6 +142,18 @@ export const SLIDES=[
          ['If your opponent says **Quiero** to the **Falta Envido**, whoever has more tantos takes the points the leader still needs to reach 15.',
           'If you win and you were ahead, you have won the game! Tap a result to see it.']],
    kind:'falta'},
+  {title:['La carta cuántica','The quantum card'],
+   body:[['En Truco Cuántico, al empezar cada mano elegís una de tus tres cartas y la convertís en un **qubit**: la unidad de información de una computadora cuántica.',
+          'Esa carta tiene dos identidades posibles: la **original**, que es el estado |0⟩, y la **ligada**, que es el estado |1⟩. Con las fichas (compuertas) cambiás la probabilidad de cada una. Cuál es de verdad se decide recién al **medirla**: cuando la jugás o cuando se acepta un Envido. Ahí el qubit colapsa y la carta queda fija por el resto de la mano.'],
+         ['In Quantum Truco, at the start of each hand you pick one of your three cards and turn it into a **qubit**: the unit of information of a quantum computer.',
+          'That card has two possible identities: the **original**, the state |0⟩, and the **linked** card, the state |1⟩. With the tokens (gates) you change the probability of each one. Which one it really is gets decided only when it is **measured**: when you play it or when an Envido is accepted. Then the qubit collapses and the card stays fixed for the rest of the hand.']],
+   kind:'quantumCard'},
+  {title:['Palos ligados','Linked suits'],
+   body:[['La carta ligada conserva el número y cambia el palo por su pareja: el **basto** se liga con el **oro**, y la **copa** con la **espada**.',
+          'Por eso una carta débil puede volverse brava: el 7 de copa está casi abajo en la escala, pero su ligada, el 7 de espada, es la tercera mejor carta. Elegí un número y mirá cómo cambia la fuerza.'],
+         ['The linked card keeps the number and swaps the suit for its partner: **basto** (clubs) is linked with **oro** (coins), and **copa** (cups) with **espada** (swords).',
+          'That is why a weak card can become a brava: the 7 of cups is near the bottom of the ladder, but its linked card, the 7 of swords, is the third best card. Pick a number and see how the strength changes.']],
+   kind:'linkedSuits'},
 ];
 
 const cardData=([number,suit])=>({number,suit});
@@ -256,8 +272,23 @@ function faltaPart(state){
   return `<div class="slide-visual"><div class="score-goal falta-board"><div class="${pick==='you'?'winner':''}"><strong>${score[0]}</strong><span>${L('Vos','You')}</span></div><div class="${pick==='rival'?'winner':''}"><strong>${score[1]}</strong><span>${L('Rival','Opponent')}</span></div></div><p class="call-note">${L(`Vas ganando ${FALTA_SCORE[0]} a ${FALTA_SCORE[1]}: te faltan ${need} para 15, así que la Falta Envido vale ${need}.`,`You lead ${FALTA_SCORE[0]} to ${FALTA_SCORE[1]}: you need ${need} to reach 15, so the Falta Envido is worth ${need}.`)}</p><div class="pov-calls"><button type="button" data-reply="you" class="${pick==='you'?'called':''}">${L('Ganás vos el Envido','You win the Envido')}</button><button type="button" data-reply="rival" class="${pick==='rival'?'called':''}">${L('Gana el rival','Your opponent wins')}</button></div>${pick?`<p class="callout" role="status">${text}</p>`:''}</div>`;
 }
 
+// The quantum card: original |0⟩ and linked |1⟩, with odds for no gate, H and X.
+const LINK={basto:'oro',oro:'basto',copa:'espada',espada:'copa'};
+const QUANTUM_DEMO=[['Sin fichas','No tokens',1],['H',  'H',.5],['X','X',0]];
+function quantumCardPart(state){
+  const k=state.gate??0,[es,en,p0]=QUANTUM_DEMO[k],orig=[7,'copa'],link=[7,LINK.copa],m=state.measured;
+  const side=(c,ket,p,label)=>`<div class="qc-side ${m!==undefined?(m===ket?'chosen':'faded'):''}"><span class="qc-ket">|${ket}⟩</span>${card(cardData(c))}<strong>${esc(label)}</strong><span>${esc(cardName(cardData(c)))}</span><div class="probability-track"><span style="width:${Math.round(p*100)}%"></span></div><span class="qc-odds">${Math.round(p*100)} %</span></div>`;
+  return `<div class="slide-visual quantum-card-demo"><div class="suit-tabs" role="tablist">${QUANTUM_DEMO.map((g,i)=>`<button role="tab" data-gate="${i}" aria-selected="${i===k}" class="${i===k?'current':''}">${esc(L(g[0],g[1]))}</button>`).join('')}</div><div class="qc-pair">${side(orig,0,p0,L('Original','Original'))}<span class="qc-link" aria-hidden="true">⇄</span>${side(link,1,1-p0,L('Ligada','Linked'))}</div><div class="baza-actions">${m!==undefined?`<p class="callout" role="status">${L(`Colapsó a |${m}⟩: la carta es el ${cardName(cardData(m?link:orig))} hasta el final de la mano.`,`It collapsed to |${m}⟩: the card is the ${cardName(cardData(m?link:orig))} until the end of the hand.`)}</p><button type="button" data-measure-reset>${L('Volver a probar','Try again')}</button>`:`<button type="button" class="primary" data-measure>${L('Medir','Measure')}</button>`}</div><p class="call-note">${L('Vista previa en tu navegador. En la partida, la medición la hace Qiskit (o IonQ en Qollab).','Preview in your browser. In the game, Qiskit (or IonQ on Qollab) does the measurement.')}</p></div>`;
+}
+export const quantumOdds=k=>QUANTUM_DEMO[k][2];
+function linkedSuitsPart(state){
+  const n=state.number??7,rank=c=>15-strength(...c);
+  const pair=(a,b)=>`<div class="ls-pair"><figure>${card(cardData([n,a]))}<figcaption>${esc(cardName(cardData([n,a])))}<small>${L('fila','row')} ${rank([n,a])}</small></figcaption></figure><span class="qc-link" aria-hidden="true">⇄</span><figure>${card(cardData([n,b]))}<figcaption>${esc(cardName(cardData([n,b])))}<small>${L('fila','row')} ${rank([n,b])}</small></figcaption></figure></div>`;
+  return `<div class="slide-visual linked-suits"><div class="suit-tabs number-tabs" role="tablist">${NUMBERS.map(x=>`<button role="tab" data-number="${x}" aria-selected="${x===n}" class="${x===n?'current':''}">${x}</button>`).join('')}</div><div class="ls-pairs">${pair('basto','oro')}${pair('copa','espada')}</div><p class="call-note">${L('Fila 1 es la más fuerte y fila 14 la más débil.','Row 1 is the strongest and row 14 the weakest.')}</p></div>`;
+}
+
 export function slideHtml(index,state={}){
-  const s=SLIDES[index],lang=L(0,1),parts={rules:rulesPart,suits:suitsPart,ladder:ladderPart,duel:duelPart,bazas:bazasPart,calls:callsPart,callTruco:callTrucoPart,rivalTruco:rivalTrucoPart,scoring:scoringPart,envidoValues:envidoValuesPart,envidoCalc:envidoCalcPart,envidoDuel:envidoDuelPart,envidoAnswers:envidoAnswersPart,falta:faltaPart};
+  const s=SLIDES[index],lang=L(0,1),parts={rules:rulesPart,suits:suitsPart,ladder:ladderPart,duel:duelPart,bazas:bazasPart,calls:callsPart,callTruco:callTrucoPart,rivalTruco:rivalTrucoPart,scoring:scoringPart,envidoValues:envidoValuesPart,envidoCalc:envidoCalcPart,envidoDuel:envidoDuelPart,envidoAnswers:envidoAnswersPart,falta:faltaPart,quantumCard:quantumCardPart,linkedSuits:linkedSuitsPart};
   const last=index===SLIDES.length-1,locked=(s.kind==='duel'&&(state.round||0)<DUEL.length)||(s.kind==='callTruco'&&!state.called)||(s.kind==='envidoDuel'&&!state.called);
   return `<article class="panel slide slide-${s.kind}" aria-label="Tutorial"><header class="slide-head"><p class="coach-step">${L(`Antes de jugar · ${index+1} de ${SLIDES.length}`,`Before playing · ${index+1} of ${SLIDES.length}`)}</p><div class="slide-progress" aria-hidden="true">${SLIDES.map((_,i)=>`<span class="${i<=index?'done':''}"></span>`).join('')}</div><h2>${esc(s.title[lang])}</h2></header><div class="slide-body"><div class="slide-text">${s.body[lang].map(p=>`<p>${terms(p)}</p>`).join('')}</div>${parts[s.kind]?.(state,s)||''}</div><footer class="actions slide-nav"><button id="slide-prev" ${index===0?'disabled':''}>${L('← Anterior','← Previous')}</button><button id="slide-skip">${L('Saltar a la partida','Skip to the game')}</button><button id="slide-next" class="primary" ${locked?'disabled':''}>${last?L('Jugar con Bot Q →','Play with Bot Q →'):L('Siguiente →','Next →')}</button></footer><div id="term-popover" role="dialog" aria-live="polite" hidden></div></article>`;
 }

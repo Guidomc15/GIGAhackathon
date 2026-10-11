@@ -278,15 +278,13 @@ STEPS = (
     {'bot': ['choose', 0]},
     {'bot': ['confirm', None]},
     {'title': 'La carta cuántica',
-     'text': 'En Truco Cuántico, al empezar cada mano, cada jugador convierte una de sus cartas en un '
-             'qubit. Esa carta tiene dos identidades posibles: la original |0⟩ y la «ligada» |1⟩, con '
-             'el mismo número y el palo cambiado (espada ↔ copa, basto ↔ oro). Cuál de las dos es se '
-             'decide recién al medirla. Yo ya preparé la mía.',
+     'text': 'Ahora jugamos con la carta cuántica que viste en las diapositivas: elegí una carta, '
+             'armá su circuito y al jugarla se mide. Recordá los palos ligados: basto ↔ oro y copa ↔ '
+             'espada. Yo ya preparé la mía.',
      'title_en': 'The quantum card',
-     'text_en': 'In Quantum Truco, at the start of each hand, each player turns one card into a qubit. '
-                'That card has two possible identities: the original |0⟩ and the “linked” |1⟩, with the '
-                'same number and the other suit of its pair (Swords ↔ Cups, Clubs ↔ Coins). Which one '
-                'it is gets decided only when it is measured. I have already prepared mine.',
+     'text_en': 'Now we play with the quantum card you saw in the slides: pick a card, build its circuit '
+                'and it is measured when played. Remember the linked suits: clubs ↔ coins and cups ↔ '
+                'swords. I have already prepared mine.',
      'target': '.live-hand'},
     {'title': 'Elegí tu carta cuántica',
      'text': 'Tu 7 de copa es débil (fuerza 4), pero su ligada es el 7 de espada, una brava (fuerza '
