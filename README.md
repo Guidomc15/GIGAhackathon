@@ -6,6 +6,9 @@
 
 This effort is supported by Qollab & IonQ.
 
+- **Demo video (2:44):** https://www.youtube.com/watch?v=RtFtEx-7exg
+- **Source code (MIT):** https://github.com/Guidomc15/GIGAhackathon
+
 ## What is it?
 
 Qriollo is **Truco**, the most popular card game in Argentina, with one extra card: a **quantum card**. At the start of every hand, each player turns one of their three cards into a **qubit**, transforms it with quantum gates and measures it when the card is played. The measurement decides which card it really is, and that changes who wins the trick and the hand.
@@ -130,6 +133,9 @@ Full notices are in `THIRD_PARTY_NOTICES.md`.
 # Qriollo · Truco Cuántico 0.2.5 (español)
 
 **Una forma bien argenta de aprender computación cuántica.**
+
+- **Video de demostración (2:44, en inglés):** https://www.youtube.com/watch?v=RtFtEx-7exg
+- **Código fuente (MIT):** https://github.com/Guidomc15/GIGAhackathon
 
 ## ¿Qué es?
 
