@@ -1,43 +1,43 @@
 # Autoría, dependencias y recursos
 
-## Código y recursos propios
+## Código propio
 
-El código original del juego, reglas, compositor, música procedural, explicaciones y pruebas se distribuyen bajo MIT; ver [LICENSE](LICENSE). La música se genera con osciladores del navegador: no incorpora una grabación, una canción externa ni descargas de audio.
+El código original del juego, las reglas, el compositor de circuitos, los tutoriales, las explicaciones y las pruebas se distribuyen bajo MIT; ver [LICENSE](LICENSE).
 
-El autor aportó los diseños del menú, mesa y cartas, incluidos en `menu-art.js`, `table-data-*.js` y `cards-art.js`. Sus derechos están separados del código MIT. El fondo de mesa fue preparado con la herramienta de imágenes de OpenAI a partir del diseño aportado. No se atribuye al proyecto propiedad sobre todo recurso visual aportado.
+## Recursos aportados por el equipo
+
+Los derechos de estos recursos están separados del código MIT:
+
+- **Mesa y cartas:** el equipo aportó los diseños que están en `table-data-*.js` y `cards-art.js`. El fondo de la mesa se preparó con la herramienta de imágenes de OpenAI a partir del diseño aportado.
+- **Inicio:** `home-art.js` contiene el logo de Qriollo (WebP con fondo transparente) y la carta Q, recortada del arte de menú aportado.
+- **Música:** `music-data.js` contiene un tema de 66 segundos aportado por el equipo de Qriollo, recodificado a MP3 de 112 kbps y embebido en base64 para la entrega plana de Qollab.
 
 ## Esfera interactiva de Qollab
 
-`bloch.js` adapta la visualización de [Interactive Bloch Sphere, de qollab](https://qollab.xyz/u/qollab/interactive-bloch-sphere), a partir de un export aportado anteriormente por el autor.
+`bloch.js` adapta la visualización de [Interactive Bloch Sphere, de Qollab](https://qollab.xyz/u/qollab/interactive-bloch-sphere), a partir de un export aportado por el equipo.
 
-Se reutilizaron proyección de cámara, anillos/ejes con profundidad, flecha, guía al ecuador, giro y arrastre. Se agregaron integración con estados Qiskit, trayectorias unitarias por compuerta, marcadores, teclado, reducción de movimiento, gestión del canvas, colores por eje y animación en bucle para las lecciones. No se reutilizó su selección de compuertas ni muestreo. La atribución permanece visible en la aplicación y el código.
+- **Reutilizado:** la proyección de cámara, los anillos y ejes con profundidad, la flecha, la guía al ecuador, el giro y el arrastre.
+- **Agregado:** integración con estados de Qiskit, trayectorias por compuerta, marcadores, teclado, reducción de movimiento, colores por eje, los seis polos rotulados y la animación en bucle de las lecciones.
+- **No reutilizado:** su selección de compuertas ni su muestreo.
 
-El export original y sus directorios de procedencia no están incluidos en este checkout. El registro anterior no incluía licencia explícita del ejemplo. El MIT del código propio no se aplica automáticamente a esas partes adaptadas.
+La atribución está visible en la aplicación y en el código. El ejemplo original no incluía una licencia explícita, así que el MIT del código propio no se aplica automáticamente a las partes adaptadas.
 
 ## Dependencias
 
-- Qiskit 2.5.2: Apache-2.0. Usado para circuitos, Statevector y mediciones.
-- NumPy: BSD-3-Clause, con los avisos de sus distribuciones. Qiskit incorpora otras dependencias con sus propias licencias.
-- Python y su biblioteca estándar: licencia de Python Software Foundation; no se redistribuye el intérprete.
-- Playwright 1.57.0: Apache-2.0, utilizado para pruebas; Chromium conserva sus licencias. No forman parte del juego subido a Qollab.
-- Las voces son proporcionadas por el navegador o sistema operativo bajo sus condiciones. No se incluye un modelo de voz ni se solicita una clave de un servicio de voz.
+- Qiskit 2.5.2: Apache-2.0. Se usa para los circuitos, Statevector y las mediciones.
+- NumPy: BSD-3-Clause. Qiskit incorpora otras dependencias con sus propias licencias.
+- Python y su biblioteca estándar: licencia de la Python Software Foundation. No se redistribuye el intérprete.
+- Playwright 1.57.0: Apache-2.0. Solo se usa en las pruebas; Chromium conserva sus licencias. Ninguno de los dos forma parte del juego subido a Qollab.
+- Las voces de los cantos las proporciona el navegador o el sistema operativo, bajo sus propias condiciones. No se incluye un modelo de voz ni se pide una clave de un servicio de voz.
 
-Los binarios de estas dependencias no se redistribuyen en el ZIP del juego. Deben conservarse los avisos de cada distribución al generar otro tipo de paquete.
+Los binarios de estas dependencias no se redistribuyen en el ZIP del juego.
 
-Qollab e IonQ proporcionan su runtime y backend según sus términos. El proyecto no incluye credenciales; el modo local no utiliza IonQ.
+Qollab e IonQ proporcionan su runtime y su backend según sus propios términos. El proyecto no incluye credenciales, y el modo local no usa IonQ.
 
-## Asistencia y evidencias
+## Asistencia de IA y video
 
-OpenAI Codex asistió en código, documentación, pruebas y revisión hasta 0.2.1. En 0.2.2, Claude (Anthropic) asistió en el código, las traducciones, los tutoriales, las pruebas y la documentación. La herramienta de imágenes de OpenAI preparó el fondo mencionado. El video bajo `artifacts/` y su transcripción documentan una versión anterior; no representan una ejecución de 0.2.1.
+OpenAI Codex asistió en el código, la documentación, las pruebas y la revisión hasta 0.2.1. Desde 0.2.2, Claude (Anthropic) asistió en el código, las traducciones, los tutoriales, las pruebas y la documentación.
 
-Los avisos anteriores se conservan como [registro histórico](docs/history/THIRD_PARTY_NOTICES_0.2.0.md); no implican que los archivos o herramientas que citan estén presentes aquí.
+El video de `artifacts/` y su transcripción documentan una versión anterior del juego.
 
 This effort is supported by Qollab & IonQ.
-
-## Música (0.2.2)
-
-`music-data.js` contiene un tema de 66 segundos aportado por el equipo de Qriollo (archivo MP3 recodificado a 112 kbps y embebido en base64 para la entrega plana de Qollab). El origen y la licencia del tema los declara el equipo; reemplazá esta línea con el autor y la licencia antes de publicar.
-
-## Inicio (0.2.2)
-
-`home-art.js` contiene el logo de Qriollo aportado por el equipo (fondo transparente recortado, WebP) y la carta Q recortada del arte de menú aportado anteriormente. `menu-art.js` dejó de usarse y se eliminó.

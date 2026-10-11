@@ -2,11 +2,14 @@
 
 The included 56-second video records an earlier version. The script below is for recording the current game.
 
-1. **0–10 s — Introduction.** “Qriollo teaches quantum computing through Argentine Truco, in English or Spanish.” Show the menu, then switch 🌐 between languages.
-2. **10–30 s — Learn Truco.** Open Tutorial → Truco with Bot Q. Show one highlighted step, an Envido answer and the Truco call. “Bot Q explains every part of the screen; only the highlighted control is active.”
-3. **30–45 s — Gates.** Open Gates and the Bloch sphere → Z lesson → H·Z·H. “The axis letters share the sphere’s colours. Z changes the phase without changing today’s odds; a later H turns that phase into a result.”
-4. **45–65 s — Play.** Start a Hard game. Build a circuit, remove a gate twice and show the removal limit, then press Confirm. Make a call and answer it.
-5. **65–80 s — Measurement.** Play the quantum card, show its fixed identity and who wins the baza.
-6. **80–90 s — Credits.** “Built with Qiskit, with an interactive Bloch sphere adapted from Qollab and assistance from Codex and Claude. This effort is supported by Qollab & IonQ.”
+1. **0–10 s · Introduction.** Show the home screen and switch 🌐 between languages. “Qriollo teaches quantum computing through Argentine Truco, in English or Spanish.”
+2. **10–30 s · Slides.** Tutorial → Truco with Bot Q.
+   - Show the strength ladder and the Envido count.
+   - Open the quantum card slide, press H and then Measure.
+   - Open the linked suits slide and pick 7: the 7 of cups (row 11) becomes the 7 of swords (row 3).
+3. **30–45 s · Practice.** In the first challenge, play a wrong card: it is not played and Bot Q gives a hint. Then answer a quick question. “Bot Q checks what you learned instead of repeating it.”
+4. **45–60 s · Gates.** Gates and the Bloch sphere → Z lesson → H·Z·H. “The sphere labels its six poles. Z changes the phase without changing today’s odds; a later H turns that phase into a result.”
+5. **60–80 s · Play and measure.** Start a Hard game, build a circuit and press Confirm. Play the quantum card. Then show the measurement record in the hand summary and the `[Qriollo] Medición` line in the console.
+6. **80–90 s · Credits.** “Built with Qiskit, with an interactive Bloch sphere adapted from Qollab and assistance from Codex and Claude. This effort is supported by Qollab & IonQ.”
 
-If demonstrating IonQ, label the backend and show only the returned result; the observed Qollab limit is one job per execution.
+If you demonstrate IonQ, label the backend and show only the returned result. The observed Qollab limit is one job per run.

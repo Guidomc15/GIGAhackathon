@@ -29,12 +29,11 @@ class QuantumTests(unittest.TestCase):
         families=Counter(g.split(':')[0] for g in GATES)
         self.assertEqual(families,{'H':8,'Z':8,'RX':8,'RY':8,'RZ':8,'X':1})
         self.assertEqual(GATES.count('X'),1)
-        for gate in ROTATIONS:
-            if ':' in gate: self.assertEqual(GATES.count(gate),2)
+        for gate in ROTATIONS: self.assertEqual(GATES.count(gate),2)
 
     def test_gate_probabilities_and_path_endpoints(self):
         for gates, probabilities in ((['X'], [0,1]), (['H'], [.5,.5]), (['H','H'], [1,0]),
-                                     (['H','Z','H'], [0,1]), (['H','RY+'], [.25,.75]), (['H','RY-'], [.75,.25])):
+                                     (['H','Z','H'], [0,1]), (['H','RY:pi/6'], [.25,.75]), (['H','RY:-pi/6'], [.75,.25])):
             with self.subTest(gates=gates):
                 result = preview(gates)
                 for actual, expected in zip(result['probabilities'], probabilities):
@@ -45,7 +44,7 @@ class QuantumTests(unittest.TestCase):
                 self.assertTrue(all(math.isclose(sum(v*v for v in point),1,abs_tol=1e-8) for point in result['trajectory']))
 
     def test_edit_validation_and_locked_collapse(self):
-        card = QuantumCard(0, ['H','X','Z','RY+'])
+        card = QuantumCard(0, ['H','X','Z','RY:pi/6'])
         for indices in (None, [{}], [True], [-1], [4], [0,0], [0,1,2,3]):
             with self.assertRaises(ValueError): card.edit(indices)
             self.assertEqual(card.sequence, [])

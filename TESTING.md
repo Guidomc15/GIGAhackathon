@@ -1,33 +1,55 @@
-# Validación de 0.2.3
+# Pruebas de 0.2.3
 
-Entorno local: Python 3.13.16, Qiskit 2.5.2 y Chromium 138. La suite tiene **49 pruebas Python**:
+Entorno verificado: Python 3.13 con Qiskit 2.5.2 y Chromium 138. GitHub Actions corre lo mismo con Python 3.12 en cada push a `main`.
+
+## Python (49 pruebas)
 
 ```sh
 .venv/bin/python -m unittest discover -s tests -v
 python build_qollab.py --check --verify-zip QOLLAB_0.2.3.zip
 ```
 
-Verifican reglas, jerarquía, pardas, cadenas de cantos, conservación del mazo, privacidad, medición única y atómica, niveles Aprendizaje y Difícil (2 retiros por jugador y por mano, reordenar no cuenta, cambiar de carta con compuertas sí), partidas completas en los dos niveles, el tutorial completo en español e inglés (también con sesión IonQ, que igual mide en local), las 9 lecciones de compuertas, sesiones HTTP, recuperación de errores remotos con dobles de prueba y el motor de Qollab aislado sin carpeta `truco/`.
+| Archivo | Qué verifica |
+| --- | --- |
+| `test_game.py` | Reglas, jerarquía, pardas, cadenas de cantos, Envido sin flor, conservación del mazo, privacidad y la práctica con Bot Q en español e inglés (desafíos que no juegan una jugada incorrecta, preguntas que piden la respuesta correcta, marcador final 8–0) |
+| `test_quantum.py` | Mazo de 41 fichas (8 H, 8 Z, 8 RX, 8 RY, 8 RZ y 1 X), probabilidades y trayectorias de cada compuerta con Qiskit |
+| `test_modes.py` | Niveles Aprendizaje y Difícil (2 retiros por jugador y por mano; reordenar no cuenta), Falta Envido a 15, Envido después del Truco y partidas completas en los dos niveles |
+| `test_remote.py` | Adaptador IonQ con dobles de prueba: nunca duplica un envío incierto, retoma el mismo job tras un timeout, reutiliza el resultado, rechaza hardware real y bloquea el cambio de modo con un job pendiente |
+| `test_local_server.py` | Servidor local: sesiones HTTP, orígenes y pedidos inválidos |
+| `test_qollab_bundle.py` | `qollab_engine.py` actualizado y ejecutable sin la carpeta `truco/`; el ZIP tiene exactamente los archivos que importa la interfaz |
 
-Con `serve.py` ejecutándose:
+## Navegador (Playwright)
+
+Con `serve.py` en marcha:
 
 ```sh
 node tests/browser_interface.cjs
 node tests/browser_full_match.cjs
 TRUCO_PRIVACY=1 node tests/browser_full_match.cjs
 node tests/browser_animations.cjs
-node tests/browser_0.2.2.cjs
+node tests/browser_settings.cjs
 node tests/browser_slides.cjs
 node tests/browser_tutorial.cjs
 TRUCO_LANG=en node tests/browser_tutorial.cjs
 ```
 
-Instalá Playwright para ejecutar las pruebas de navegador. `PLAYWRIGHT_MODULE` permite una instalación externa; `CHROMIUM_EXECUTABLE_PATH` elige Chromium del sistema. `TRUCO_URL` cambia el destino y `ARTIFACT_DIR` la carpeta de capturas.
+Variables de entorno:
+- `PLAYWRIGHT_MODULE` usa una instalación externa de Playwright;
+- `CHROMIUM_EXECUTABLE_PATH` elige el Chromium del sistema;
+- `TRUCO_URL` cambia el servidor;
+- `ARTIFACT_DIR` es la carpeta de capturas.
 
-- `browser_0.2.2.cjs`: inglés por defecto en un navegador en inglés, cambio de idioma en cualquier pantalla y en plena partida, error del motor traducido, nivel Difícil desde la interfaz, botón Confirmar, colores de los ejes, música desde el MP3 (bucle, volumen, silencio), temporizadores 1/3/7/manual, posición del scroll y voces.
-- `browser_slides.cjs`: las 17 diapositivas previas (reglas con glosario, palos, escala de 14 niveles con las 40 cartas, duelo de 4 bazas, dos manos de ejemplo, cantar Truco con Siguiente bloqueado, respuestas del rival, puntaje y las 5 de Envido: valores, cálculos 2/29/32/20, duelo 29 contra 31, respuestas y Falta Envido, y la carta cuántica: 100/0, 50/50 y 0/100 con medición, y palos ligados con su fila en la escala) en español en escritorio e inglés en celular; en escritorio verifica que ninguna diapositiva tenga scroll.
-- `browser_tutorial.cjs`: juega los 33 pasos de la práctica: en cada desafío y pregunta prueba primero las respuestas incorrectas y comprueba que dejen una pista sin avanzar; en los pasos guiados comprueba que quede un solo control activo; recorre las 9 lecciones.
+| Archivo | Qué verifica |
+| --- | --- |
+| `browser_interface.cjs` | Celular y escritorio sin desbordes, Ayuda rápida con la escala de 40 cartas, compositor, teclado, modo con privacidad, recuperación de errores, pistas de cantos, resumen y la práctica completa en celular |
+| `browser_full_match.cjs` | Una partida completa hasta 15 puntos, con y sin privacidad, sin errores en el navegador |
+| `browser_animations.cjs` | Cantos, tantos de Envido, puntos, giro de cartas y medición pública antes del turno siguiente |
+| `browser_settings.cjs` | Inglés por defecto en un navegador en inglés, cambio de idioma en cualquier pantalla, nivel Difícil, botón Confirmar, colores de los ejes, música, temporizadores, scroll y voces |
+| `browser_slides.cjs` | Las 17 diapositivas en español (escritorio) e inglés (celular): glosario, palos, escala, duelo, ejemplos de bazas, Truco bloqueado hasta cantarlo, respuestas del rival, Envido (valores, cálculos 2/29/32/20, duelo 29 contra 31, respuestas, Falta Envido), carta cuántica (100/0, 50/50, 0/100 y medición) y palos ligados. En escritorio, ninguna diapositiva tiene scroll |
+| `browser_tutorial.cjs` | Los 33 pasos de la práctica. En cada desafío y pregunta prueba primero las respuestas incorrectas: tienen que dejar una pista sin avanzar. En los pasos guiados queda un solo control activo. También verifica: textos en segunda persona, «Ver resumen» solo al final, las dos mediciones en la consola con su registro de Qiskit, el resumen desplazable hasta el registro y las 9 lecciones de compuertas |
 
-`browser_full_match.cjs` termina la partida completa; en Chromium sin aceleración por hardware abrir «Ver resumen» al final puede tardar más de 12 s porque dibuja una esfera por mano jugada.
+## Lo que no cubren
 
-Estas pruebas no ejecutan el wrapper de Qollab ni una partida IonQ nueva, ni comprueban voces instaladas en cada sistema. [Registros anteriores](docs/history/TESTING_0.2.0.md).
+- No ejecutan el wrapper de Qollab ni un job IonQ real.
+- No comprueban las voces instaladas en cada sistema.
+- `browser_full_match.cjs` puede tardar más de 12 s en abrir «Ver resumen» en Chromium sin aceleración por hardware, porque dibuja una esfera por mano.

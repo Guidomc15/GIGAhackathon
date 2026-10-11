@@ -1,8 +1,50 @@
 # Qriollo · Quantum Truco 0.2.3
 
-Learn quantum computing by playing Argentine Truco. Two people share a device, turn one card each into a qubit and play to 15 points. The whole interface is available in **English and Spanish** (🌐 on every screen); Truco, Envido, Quiero and the other calls keep their Spanish names, as at any table.
+**A truly Argentine way to learn quantum computing.** Qriollo is Argentine Truco with a quantum card: each player turns one of their cards into a qubit, transforms it with gates and measures it when it is played. Qiskit computes the states, the Bloch-sphere paths and the measurements.
 
-Run locally with Python 3.12:
+The whole interface is in **English and Spanish** (🌐 on every screen). Truco, Envido, Quiero and the other calls keep their Spanish names.
+
+[Spanish README](../README.md) · [Upload to Qollab](../QOLLAB_UPDATE.md) · [Tests](../TESTING.md) · [Changelog](../CHANGELOG.md) · [Notices and licences](../THIRD_PARTY_NOTICES.md)
+
+This effort is supported by Qollab & IonQ.
+
+## What you can do
+
+- **Tutorial**: 17 interactive slides on the rules and the quantum card, a four-hand practice against Bot Q and nine lessons on gates and the Bloch sphere.
+- **Quick game**: two people on one device, default names, Learning level and local Qiskit simulation.
+- **Custom game**: names, level (Learning or Hard) and privacy mode, which hides your hand when the device is passed.
+- **Quick help**: the illustrated ladder of all 40 cards, envido points and how the quantum card counts.
+
+## The game
+
+The game is a two-player variant played to 15 points, without Flor, using the 40-card Spanish deck.
+
+- **Winning a hand:** two of three bazas (tricks) win a hand.
+- **Truco:** a hand is worth 1 point, or 2, 3 or 4 with Truco, Retruco and Vale Cuatro.
+- **Envido:** a separate bet on your envido points:
+  - Envido is worth 2;
+  - Real Envido is worth 3;
+  - Falta Envido is worth what the leader needs to reach 15.
+
+### The quantum card
+
+1. At the start of each hand each player picks one card: it becomes a **qubit**.
+2. It has two identities, the **original** (|0⟩) and the **linked** card (|1⟩). The linked card keeps the number and takes the partner suit: **clubs ↔ coins** and **cups ↔ swords**. A weak 7 of cups can become the 7 of swords, a brava.
+3. Up to **three gate tokens**, in any order, change the odds. On Hard you may remove gates only twice per hand.
+4. **Confirm** locks the circuit. The card is **measured once**, when it is played or when an Envido is accepted, and its identity, strength and envido points stay fixed after that.
+
+Each player gets 4 tokens per hand from a 41-token deck.
+- **H, Z, RX, RY and RZ:** 8 each, about 20 % per family. Rotations use fixed angles of 30°, −30°, 60° and 90°.
+- **X:** a single token (2.4 %).
+
+The two qubits are independent, so there is no entanglement and no claim of quantum advantage.
+
+### Checking the measurement
+
+- **In the summary:** the hand summary → “More details about your card” → “Measurement record” shows the backend, the gates, the result and the method. Locally this is `Qiskit Statevector.sample_memory(1)`; on IonQ the record also includes the `job_id` and the returned distribution.
+- **In the console:** the browser console logs every measurement as `[Qriollo] Medición …` with the same record. It also logs the version at start-up.
+
+## Run locally
 
 ```sh
 python -m venv .venv
@@ -10,28 +52,23 @@ python -m venv .venv
 .venv/bin/python serve.py
 ```
 
-Open local port 8000 in your browser. On Windows use `.venv\Scripts\python.exe`. No keys or database are needed. For Qollab, unzip `QOLLAB_0.2.3.zip` and upload its root files as JS / Qiskit; it adds `slides.js`, `home-art.js`, `i18n.js` and `music-data.js`, so replacing only `main.js` is not enough. The footer shows the version (v0.2.3) to confirm which files Qollab loaded. [Upload instructions](../QOLLAB_UPDATE.md).
+Open `http://127.0.0.1:8000`. No keys or database are needed. Games live in memory until the server stops.
 
-## What is in 0.2.3
+## Qollab
 
-- **English and Spanish** everywhere, switchable at any moment, even mid-game. The starting language follows the browser.
-- **Two-part tutorial.** *Truco with Bot Q*: 17 interactive slides with the rules (cards, ladder, bazas, Truco and Envido) and the quantum card (qubit, original and linked card, linked suits) and a four-hand practice (33 steps) with challenges and quick questions: a wrong move is not played and Bot Q gives a hint. The fourth hand introduces the quantum card. *Gates and the Bloch sphere*: nine lessons with an animated sphere, game analogies and Qiskit-computed odds.
-- **Levels.** Learning: unlimited gate edits. Hard: each player may remove gates only twice per hand (reordering is free).
-- A single **Confirm** button locks the circuit.
-- **Coloured axes**: X coral, Y violet, Z light blue on the sphere, with the same colours on the letters in every explanation.
-- **No scrollbars on desktop** (from 900 × 540 px): table on the left, guidance and calls on the right. Phones keep a vertical page.
-- **New home screen** from the team's sketch: the Qriollo logo, the tagline “A truly Argentine way to learn quantum computing”, Tutorial · Quick game · Quick help · Credits plaques and the Q card with the Bloch sphere. Quick game starts at once (default names, Learning level, local simulation); “Custom game” opens the full setup.
-- New looping **music** with its own volume and mute.
-- **Quick help** shows the illustrated ladder of all 40 cards; the hand **summary** scrolls down to each measurement record, and every measurement is logged to the **console** (“[Qriollo] Medición”).
-- **Token deck**: H, Z, RX, RY and RZ about 20 % each; X is rare (2.4 %).
-- The educational noise model and the π/67 rotation were removed.
+Unzip `QOLLAB_0.2.3.zip` and upload **all its files** to a **JS / Qiskit** project, replacing files with the same name. The footer must read **v0.2.3**. The full steps are in [QOLLAB_UPDATE.md](../QOLLAB_UPDATE.md). On Qollab the IonQ adapter allows one job per run, so full games use explicit local simulation and the tutorial always measures with local Qiskit.
 
-## The quantum card
+## Tests
 
-At the start of each hand each player picks one card. Its “linked” identity keeps the number and switches suit (Swords ↔ Cups, Clubs ↔ Coins). Up to three gate tokens (H, X, Z, RX, RY, RZ at fixed 30°, −30°, 60° and 90°) change the odds of each identity. The card is measured once, when played or when an Envido is accepted, and then stays fixed. Qiskit computes previews, paths and measurements.
+The suite has 49 Python tests and six Playwright browser suites, which also run in GitHub Actions. See [TESTING.md](../TESTING.md).
 
-This is a two-player, 15-point, no-Flor Truco variant; Falta Envido is 15 minus the leading score. On Qollab the IonQ adapter keeps the observed one-job-per-run limit, so full games use explicit local simulation and the tutorial always measures with local Qiskit.
+## Credits
 
-[Tests](../TESTING.md) · [Rollback](ROLLBACK.md) · Original code is MIT; artwork, music, adapted sphere, dependencies and AI assistance are disclosed in [notices](../THIRD_PARTY_NOTICES.md).
+Guido Miniero Cocco, Alejo Dellape and Gaspar Osterrieth.
 
-This effort is supported by Qollab & IonQ.
+- **Licence:** the original code is MIT.
+- **Contributed assets:** the art, logo and music were contributed by the team.
+- **Bloch sphere:** adapted from Qollab's Interactive Bloch Sphere.
+- **AI assistance:** OpenAI Codex and Claude (Anthropic).
+
+See [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md).

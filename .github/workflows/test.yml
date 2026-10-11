@@ -2,7 +2,7 @@ name: Test game and Qollab delivery
 
 on:
   push:
-    branches: [main, 'codex/**']
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -37,7 +37,7 @@ jobs:
         run: |
           npm install --no-save --package-lock=false playwright@1.57.0
           npx playwright install --with-deps chromium
-      - name: Exercise interface, privacy, audio, noise and animations
+      - name: Exercise interface, slides, practice, privacy, audio and animations
         env:
           ARTIFACT_DIR: /tmp/qriollo-browser-tests
         run: |
@@ -61,7 +61,7 @@ jobs:
           node tests/browser_full_match.cjs
           TRUCO_PRIVACY=1 node tests/browser_full_match.cjs
           node tests/browser_animations.cjs
-          node tests/browser_0.2.2.cjs
+          node tests/browser_settings.cjs
           node tests/browser_slides.cjs
           node tests/browser_tutorial.cjs
           TRUCO_LANG=en node tests/browser_tutorial.cjs

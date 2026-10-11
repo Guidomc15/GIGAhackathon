@@ -1,10 +1,10 @@
-// 0.2.2: English/Spanish interface, hard level, Confirm, axis colours, music track, timers and scroll.
+// Language switch, Hard level, Confirm, axis colours, music track, timers and scroll.
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 const base=process.env.TRUCO_URL||'http://127.0.0.1:8000';
-const output=process.env.ARTIFACT_DIR||'/tmp/truco-0.2.2';
+const output=process.env.ARTIFACT_DIR||'/tmp/truco-settings';
 fs.mkdirSync(output,{recursive:true});
 (async()=>{
  const browser=await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE_PATH,headless:true});

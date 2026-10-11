@@ -4,7 +4,6 @@ export const ANGLES=['pi/2','pi/6','-pi/6','pi/3'];
 export const ROTATION_GATES=['RX','RY','RZ'].flatMap(axis=>ANGLES.map(angle=>`${axis}:${angle}`));
 const DEGREES={'pi/2':'90°','pi/6':'30°','-pi/6':'−30°','pi/3':'60°'};
 export function rotation(gate){
-  if(gate==='RY+'||gate==='RY-')return {axis:'RY',angle:gate==='RY+'?'pi/6':'-pi/6'};
   const [axis,angle]=gate.split(':');return ANGLES.includes(angle)&&['RX','RY','RZ'].includes(axis)?{axis,angle}:null;
 }
 export function gateLabel(gate){const r=rotation(gate);return r?`${r.axis} ${r.angle.replace('pi','π').replace('-', '−')}`:gate;}

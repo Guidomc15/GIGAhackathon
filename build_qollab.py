@@ -70,6 +70,7 @@ def upload_files():
              ROOT / 'QOLLAB_UPDATE.md', ROOT / 'THIRD_PARTY_NOTICES.md', ROOT / 'DEMO_SCRIPT.md',
              ROOT / 'artifacts' / 'truco-cuantico-demo.mp4',
              ROOT / 'artifacts' / 'DEMO_TRANSCRIPT.txt']
+    # The HTTP bridge is only for local development, never part of Qollab.
     return [file for file in files if file.name != 'local-engine.js']
 
 
@@ -85,8 +86,6 @@ def build(output=None, check=False, verify_zip=None):
         output = Path(output)
         output.parent.mkdir(parents=True, exist_ok=True)
         files = upload_files()
-        # The HTTP bridge is only for local development, never part of Qollab.
-        files = [file for file in files if file.name != 'local-engine.js']
         with zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED) as archive:
             for file in files:
                 archive.write(file, file.name)

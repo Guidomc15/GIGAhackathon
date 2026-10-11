@@ -12,6 +12,8 @@ Ayuda rápida: «Valores de las cartas» muestra la escala ilustrada de las diap
 
 La esfera de Bloch rotula los seis polos: |0⟩ y |1⟩ en Z, |+⟩ y |−⟩ en X, |+i⟩ y |−i⟩ en Y, con el color de cada eje. Mazo de fichas rebalanceado a 41: H, Z, RX, RY y RZ con 8 fichas cada una (cerca de 20 % cada familia) y una sola X (2,4 %). Entrega plana `QOLLAB_0.2.3.zip`; los módulos nuevos son `slides.js` y `home-art.js`, y `menu-art.js` ya no se usa.
 
+Entrega final ordenada: README nuevo en español e inglés; se quitaron archivos de versiones anteriores (`main.py` y `qollab_smoke/`, la prueba de backend de 0.1.9; `docs/history/`, `docs/ROLLBACK.md`, `STATUS.md` y `RUNNING.md`, cuyo contenido vigente pasó al README), estilos de pantallas que ya no existen (menú anterior, galería de cartas, tablas de rangos, animaciones de medición en desuso) y los alias de compuertas `RY+`/`RY-`. `browser_0.2.2.cjs` pasa a llamarse `browser_settings.cjs`. Las versiones anteriores siguen disponibles en sus tags.
+
 ## 0.2.2
 
 Interfaz completa en español e inglés, con selector 🌐 en el inicio y en el encabezado de todas las pantallas; el idioma inicial sigue al navegador. El motor devuelve pistas, etiquetas y errores en el idioma elegido. Los cantos conservan su nombre.
@@ -34,10 +36,10 @@ Ruido educativo mediante Qiskit DensityMatrix y operadores de Kraus de relajaci�
 
 Reglas y lecciones en español e inglés, con ejemplos y detalle técnico opcional. Envido solo se propone antes de jugar la primera carta propia; Falta Envido usa la distancia del líder a 15 en esta variante. Las partidas conservan las reglas de pardas y la prioridad del Envido ante un Truco pendiente.
 
-README y guía Qollab actuales; documentos anteriores en `docs/history/`. Generador con verificación del ZIP, pruebas de ruido y navegador, y workflow de CI. Entrega plana `QOLLAB_0.2.1.zip`. Respaldo anterior en tag `v0.2.0`.
+README y guía Qollab actuales. Generador con verificación del ZIP, pruebas de ruido y navegador, y workflow de CI. Entrega plana `QOLLAB_0.2.1.zip`. Respaldo anterior en tag `v0.2.0`.
 
 ## 0.2.0
 
 Compositor con dos identidades del mismo tamaño, privacidad opcional, giro de cartas, cantos/Envido automáticos, premios para ambos jugadores y medición antes del resultado y resumen público. Mazo con pocas X y rotaciones fijas. Servidor local y motor plano para Qollab.
 
-[Registro completo anterior](docs/history/RELEASE_0.2.0.md).
+El registro completo de 0.2.0 y anteriores está en el tag `v0.2.0`.
