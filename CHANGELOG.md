@@ -2,6 +2,8 @@
 
 ## 0.2.4
 
+Al terminar una mano, la mesa queda a la vista con las cartas de cada baza: la ganadora de cada baza se marca en dorado, la perdedora se atenúa y la última carta jugada cae sobre la mesa con una animación. El compositor de circuitos es más ancho en escritorio y las compuertas del circuito se ven más grandes (nombre y ángulo en dos líneas). En el inicio, la placa grande es «Partida personalizada» y «Partida rápida» pasa al enlace de abajo. Cartas retocadas: el 2 de espada tiene dos espadas y el rey del 12 de espada sostiene una espada en lugar del cetro. El botón «Repositorio» lleva al repositorio público.
+
 README bilingüe pensado como Project Card de Qollab: primero en inglés y después en español, responde qué es, por qué importa y para quién, cómo funciona la parte cuántica, cómo ejecutarlo y qué resultados esperar. El README se incluye en `QOLLAB_0.2.4.zip`. Reemplaza a `docs/README.en.md`, `QOLLAB_SUBMISSION.md` y `JUDGING_SUMMARY.md`.
 
 El juego no tiene música: se quitó el tema de 0.2.2 (`music-data.js`) porque no tenía licencia para redistribuirse. El menú 🔊 Voces conserva las voces de los cantos con su volumen.

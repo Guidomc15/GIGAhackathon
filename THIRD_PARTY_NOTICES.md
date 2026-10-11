@@ -8,7 +8,7 @@ El código original del juego, las reglas, el compositor de circuitos, los tutor
 
 Los derechos de estos recursos están separados del código MIT:
 
-- **Mesa y cartas:** el equipo aportó los diseños que están en `table-data-*.js` y `cards-art.js`. El fondo de la mesa se preparó con la herramienta de imágenes de OpenAI a partir del diseño aportado.
+- **Mesa y cartas:** el equipo aportó los diseños que están en `table-data-*.js` y `cards-art.js`. En el 2 de espada se agregó la segunda espada y en el 12 de espada el rey sostiene una espada en lugar del cetro. El fondo de la mesa se preparó con la herramienta de imágenes de OpenAI a partir del diseño aportado.
 - **Inicio:** `home-art.js` contiene el logo de Qriollo (WebP con fondo transparente) y la carta Q, recortada del arte de menú aportado.
 
 ## Esfera interactiva de Qollab
