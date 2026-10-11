@@ -302,6 +302,10 @@ function slides(){
   document.getElementById('slide-skip').onclick=startTrucoTutorial;
   stage.querySelectorAll('[data-suit]').forEach(b=>b.onclick=()=>{slideState.suit=Number(b.dataset.suit);render();});
   stage.querySelector('[data-quick-help]')?.addEventListener('click',()=>{screen='values';render();focus();});
+  stage.querySelector('[data-baza-next]')?.addEventListener('click',()=>{slideState.step=(slideState.step||0)+1;render();});
+  stage.querySelector('[data-baza-reset]')?.addEventListener('click',()=>{slideState.step=0;render();});
+  stage.querySelector('[data-call-truco]')?.addEventListener('click',()=>{slideState.called=true;sound.speak('¡Truco!');render();});
+  stage.querySelectorAll('[data-reply]').forEach(b=>b.onclick=()=>{slideState.answer=b.dataset.reply;render();});
   stage.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{
     const round=slideState.round||0,ok=b.dataset.pick===duelAnswer(round);
     slideState.feedback={ok,why:duelWhy(round)};render();

@@ -1,4 +1,4 @@
-// Tutorial slides before the guided match: rules, suits, ladder and the duel, in ES and EN.
+// Tutorial slides before the guided match: rules, suits, ladder, duel, scoring and Truco calls, in ES and EN.
 const fs=require('node:fs');
 const path=require('node:path');
 const assert=require('node:assert/strict');
@@ -53,12 +53,52 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
       }
       await page.locator('.duel-done').waitFor();
       assert(!(await page.locator('#slide-next').isDisabled()));
-      if(width>=900)assert.equal(await page.evaluate(()=>document.documentElement.scrollHeight-innerHeight),0,'Slides fit the window');
+      const fits=async name=>{if(width>=900){assert.equal(await page.evaluate(()=>document.documentElement.scrollHeight-innerHeight),0,`Slide ${name} fits the window`);assert(await page.evaluate(()=>{const b=document.querySelector('.slide-body');return b.scrollHeight<=b.clientHeight+1;}),`Slide ${name} has no inner scroll`);}};
+      await fits('4');
+      await page.locator('#slide-next').click();
+      // 5 and 6 · Example hands played baza by baza: 3 bazas (2–1) and 2 bazas (2–0, no third).
+      for(const [n,bazas,wins] of [['5',3,2],['6',2,2]]){
+        await page.locator('.slide-bazas').waitFor();
+        assert.equal(await page.locator('.baza-col').count(),bazas);
+        for(let i=0;i<bazas;i++)await page.locator('[data-baza-next]').click();
+        assert.equal(await page.locator('.baza-col.open').count(),bazas);
+        assert.equal(await page.locator('.baza-card.wins').count(),bazas);
+        assert.equal(await page.locator('.baza-col .baza-card:first-of-type.wins').count(),wins,'You win two bazas');
+        assert.match(await page.locator('.bazas-example .callout').innerText(),lang==='es'?/la mano es tuya/:/the hand is yours/);
+        await fits(n);await shot(n);
+        await page.locator('#slide-next').click();
+      }
+      // 7 · Calls: 1, 2, 3 and 4 points.
+      await page.locator('.slide-calls').waitFor();
+      assert.deepEqual(await page.locator('.call-steps li:not(.call-arrow) strong').allInnerTexts(),['1','2','3','4']);
+      await fits('7');await shot('7');
+      await page.locator('#slide-next').click();
+      // 8 · Calling Truco: Next stays locked and Retruco / Vale Cuatro stay disabled until Truco is called.
+      await page.locator('.slide-callTruco').waitFor();
+      assert(await page.locator('#slide-next').isDisabled());
+      assert.equal(await page.locator('.pov-calls button:disabled').count(),2);
+      await page.locator('[data-call-truco]').click();
+      await page.locator('.pov-bubble').waitFor();
+      assert(!(await page.locator('#slide-next').isDisabled()));
+      await fits('8');await shot('8');
+      await page.locator('#slide-next').click();
+      // 9 · Opponent's side: each answer explains its outcome.
+      await page.locator('.slide-rivalTruco').waitFor();
+      for(const [id,re] of [['quiero',/2/],['noquiero',/1/],['retruco',/3[\s\S]*4/]]){
+        await page.locator(`[data-reply="${id}"]`).click();
+        assert.match(await page.locator('.rival-pov .callout').innerText(),re);
+      }
+      await fits('9');await shot('9');
+      await page.locator('#slide-next').click();
+      // 10 · Scoring and the 15-point goal; Next starts the match with Bot Q.
+      await page.locator('.slide-scoring').waitFor();
+      assert.match(await page.locator('#slide-next').innerText(),/Bot Q/);
+      await fits('10');await shot('10');
       await page.locator('#slide-next').click();
       await page.locator('.coach').waitFor();
       assert.deepEqual(errors,[]);
       await page.close();
     }
-    console.log('PASS slides: rules + glossary, 4 suits × 10 cards, 14-level ladder with 40 cards, 4-baza duel, ES desktop and EN mobile');
+    console.log('PASS slides: rules + glossary, 4 suits × 10 cards, 14-level ladder with 40 cards, 4-baza duel, 2 example hands, Truco call and answers, scoring, ES desktop and EN mobile');
   }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exit(1);});

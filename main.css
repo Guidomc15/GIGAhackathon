@@ -564,13 +564,13 @@ nav .nav-language{margin-left:auto}
 .suit-row figure{margin:0;text-align:center}
 .suit-row .card{width:100%}
 .suit-row figcaption{font:700 14px system-ui;color:#d8ccb0;margin-top:2px}
-.ladder{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:4px 14px}
-.ladder li{display:grid;grid-template-columns:28px auto 1fr;align-items:center;gap:8px;padding:3px 6px;border-radius:6px;background:#1a1f19}
+.ladder{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:3px 14px}
+.ladder li{display:grid;grid-template-columns:28px auto 1fr;align-items:center;gap:8px;padding:2px 6px;border-radius:6px;background:#1a1f19}
 .ladder li.brava{background:#2b3a22;box-shadow:inset 3px 0 0 var(--gold)}
 .ladder li.falso{box-shadow:inset 3px 0 0 #ff8585}
 .ladder-rank{font:800 16px Georgia,serif;color:var(--gold);text-align:center}
 .ladder-cards{display:flex}
-.ladder .card{width:30px}
+.ladder .card{width:clamp(18px,3vh,30px)}
 .ladder .card+.card{margin-left:-12px}
 .ladder-name{font:13px/1.25 system-ui;color:#efe6cf}
 .slide-help{margin-top:8px;font-size:14px}
@@ -591,3 +591,42 @@ nav .nav-language{margin-left:auto}
 @media(min-width:900px) and (min-height:540px){.slide-body{min-height:0;overflow:auto}.slide-nav{flex:none}}
 @media(min-width:821px){.ladder{grid-auto-flow:column;grid-template-rows:repeat(7,auto)}}
 .slide-help{display:block;margin:8px 0 0 auto}
+/* Diapositivas 5–10: ejemplos de bazas, cantos y puntaje. */
+.bazas-example{display:grid;grid-template-columns:1fr;gap:8px}
+.baza-legend{margin:0;font:700 13px system-ui;color:var(--gold);text-align:center}
+.baza-cols{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:12px}
+.baza-col{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;border-radius:10px;background:#1a1f19;opacity:.45;transition:opacity .3s}
+.baza-col.open{opacity:1}
+.baza-title{margin:0;font:700 13px system-ui;color:#d8ccb0}
+.baza-card{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;border-radius:8px;border:2px solid transparent;font:13px system-ui;color:#efe6cf}
+.baza-card .card{width:clamp(40px,min(6.5vw,6.2vh),86px);height:auto;aspect-ratio:78/125;min-height:0;transform:none}
+.baza-card.wins{border-color:#77e08b;box-shadow:0 0 14px #77e08b66}
+.baza-card.loses{opacity:.5}
+.baza-verdict{margin:0;min-height:20px;font:800 14px Georgia,serif;color:#77e08b}
+.baza-actions{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px 12px}
+.baza-actions .callout{margin:0;text-align:center}
+.call-steps{list-style:none;margin:0;padding:0;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px}
+.call-steps li:not(.call-arrow){display:flex;flex-direction:column;align-items:center;min-width:96px;padding:12px 10px;border:3px ridge #b9a06a;border-radius:8px;background:linear-gradient(#4a3826,#2b1f13);box-shadow:inset 0 0 12px #000a,0 0 calc(6px + var(--step)*6px) #77e08b55}
+.call-steps strong{font:800 34px/1 Georgia,serif;color:var(--gold)}
+.call-steps span{font:700 15px Georgia,serif;color:#f2e2b5;margin-top:4px}
+.call-steps small{font:12px system-ui;color:#d8ccb0}
+.call-arrow{font:700 22px Georgia,serif;color:var(--gold)}
+.call-note{text-align:center;font:15px system-ui;color:#d8ccb0}
+.pov{display:flex;flex-direction:column;align-items:center;gap:12px}
+.pov-hand{display:flex;gap:10px;justify-content:center}
+.pov-hand .card{width:clamp(70px,8vw,110px);height:auto;aspect-ratio:78/125;min-height:0;transform:none}
+.pov-hand .card:first-child{box-shadow:0 0 18px #f6d57a88}
+.rival-pov .pov-hand .card:first-child{box-shadow:none}
+.pov-calls{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.pov-calls button{min-width:120px;font:700 16px Georgia,serif}
+.pov-calls .called{background:var(--gold);color:#1b1a12}
+.pov-bubble{position:relative;max-width:420px;padding:10px 14px;border-radius:14px;background:#f2e2b5;color:#1b1a12;font:15px/1.4 system-ui;box-shadow:0 6px 18px #000a}
+.pov-bubble strong{font:800 22px Georgia,serif}
+.pov-bubble p{margin:4px 0 0}
+.pov-bubble.incoming{align-self:center}
+.score-goal{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.score-goal div{display:flex;flex-direction:column;align-items:center;padding:18px 10px;border:1px solid #c9b57c66;border-radius:10px;background:#1c231c;text-align:center}
+.score-goal strong{font:800 clamp(24px,4vw,44px)/1.1 Georgia,serif;color:var(--gold);white-space:nowrap}
+.score-goal span{font:14px system-ui;color:#d8ccb0;margin-top:6px}
+@media(max-width:820px){.baza-card .card{width:60px}.call-arrow{display:none}}
+.nowrap{white-space:nowrap}
