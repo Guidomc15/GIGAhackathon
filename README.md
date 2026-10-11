@@ -1,4 +1,4 @@
-# Qriollo · Truco Cuántico 0.2.2
+# Qriollo · Truco Cuántico 0.2.3
 
 Un juego para aprender computación cuántica jugando al Truco argentino. Dos personas comparten un dispositivo, convierten una carta en un qubit y compiten hasta 15 puntos. La interfaz completa está en **español e inglés** (🌐 en cualquier pantalla); Truco, Envido, Quiero y los demás cantos conservan su nombre.
 
@@ -18,9 +18,9 @@ python -m venv .venv
 
 Abrí el puerto 8000 en el navegador. En Windows usá `.venv\Scripts\python.exe`. No se necesitan claves ni base de datos. [Más detalles](RUNNING.md).
 
-Para Qollab, descomprimí **[QOLLAB_0.2.2.zip](QOLLAB_0.2.2.zip)** y cargá sus archivos como **JS / Qiskit**. Es una entrega sin carpetas. **Incluye módulos nuevos (`i18n.js`, `music-data.js`): cambiar solamente `main.js` no alcanza.** [Instrucciones](QOLLAB_UPDATE.md).
+Para Qollab, descomprimí **[QOLLAB_0.2.3.zip](QOLLAB_0.2.3.zip)** y cargá sus archivos como **JS / Qiskit**. Es una entrega sin carpetas. **Incluye módulos nuevos (`slides.js`, `home-art.js`, `i18n.js`, `music-data.js`): cambiar solamente `main.js` no alcanza.** El pie de página muestra la versión (v0.2.3) para confirmar qué archivos cargó Qollab. [Instrucciones](QOLLAB_UPDATE.md).
 
-## Qué hay en 0.2.2
+## Qué hay en 0.2.3
 
 - **Español e inglés** en toda la app. El idioma inicial sigue al navegador y se cambia en cualquier momento con 🌐, también en mitad de una partida. El motor devuelve pistas y errores en el idioma elegido.
 - **Tutorial en dos partes.** *Truco con Bot Q*: 15 diapositivas interactivas con las reglas (cartas, escala, bazas, Truco y Envido) y una práctica de cuatro manos (33 pasos) con desafíos y preguntas rápidas: si elegís mal, la jugada no se hace y Bot Q da una pista. La cuarta mano introduce la carta cuántica. *Compuertas y esfera de Bloch*: nueve lecciones con esfera animada, analogías del juego y porcentajes calculados por Qiskit.
@@ -30,6 +30,8 @@ Para Qollab, descomprimí **[QOLLAB_0.2.2.zip](QOLLAB_0.2.2.zip)** y cargá sus 
 - **Pantallas sin barra de desplazamiento** en escritorio (desde 900 × 540 px): mesa a la izquierda, guía y cantos a la derecha. En celulares la página sigue siendo vertical.
 - **Inicio nuevo** según el boceto del equipo: logo de Qriollo, lema «Una forma bien argenta de aprender computación cuántica», placas Tutorial · Partida rápida · Ayuda rápida · Créditos y la carta Q con la esfera de Bloch. Partida rápida empieza directo (nombres por defecto, nivel Aprendizaje, simulación local); «Partida personalizada» abre la configuración completa.
 - **Música** nueva en bucle, con volumen y silencio propios.
+- **Ayuda rápida** con la escala ilustrada de las 40 cartas, **resumen** desplazable hasta el registro de cada medición y **consola** con cada medición («[Qriollo] Medición»).
+- **Mazo de fichas**: H, Z, RX, RY y RZ con cerca de 20 % cada una; X es rara (2,4 %).
 - Se quitaron el ruido cuántico educativo y la rotación π/67.
 
 ## Cómo funciona la carta cuántica
@@ -57,8 +59,8 @@ Dos jugadores, a 15 puntos y sin Flor. Falta Envido vale **15 menos el puntaje d
 Tras modificar `truco/*.py` o archivos de la entrega:
 
 ```sh
-python build_qollab.py --zip QOLLAB_0.2.2.zip
-python build_qollab.py --check --verify-zip QOLLAB_0.2.2.zip
+python build_qollab.py --zip QOLLAB_0.2.3.zip
+python build_qollab.py --check --verify-zip QOLLAB_0.2.3.zip
 .venv/bin/python -m unittest discover -s tests -v
 ```
 

@@ -1,4 +1,4 @@
-# Qriollo · resumen técnico 0.2.2
+# Qriollo · resumen técnico 0.2.3
 
 El juego conecta un circuito de un qubit con decisiones concretas de Truco: las compuertas cambian la probabilidad de que una carta conserve su palo o pase a su «ligada», lo que altera su fuerza y sus tantos de Envido, sin sumar puntos artificiales por usar compuertas.
 

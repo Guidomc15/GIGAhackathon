@@ -17,6 +17,8 @@ import {rulesContent} from './learning.js';
 import {SLIDES,slideHtml,definition,duelAnswer,duelWhy,ladderHtml} from './slides.js';
 import {L,lang,cardName,axes,isYou} from './i18n.js';
 import {esc,card,sphere,circuitStrip,gateStyle,technical,quantumReport,measurementCard,table,turnGuide,handSummary,gateHelp,gateHelpPlain,quantumOptions,quantumStatus,eventText} from './ui.js';
+// The running version is visible in the footer and the console, to check which files Qollab loaded.
+console.info(`[Qriollo] versión ${VERSION}`);
 const stage=document.getElementById('stage');
 let view=null, screen='home', revealed=false, busy=false, quantumOpen=false;
 let presentation=null, summaryOpen=false, lessonCircuit=0;
@@ -423,7 +425,7 @@ function chrome(){
   for(const [selector,value] of Object.entries(text)){const el=document.querySelector(selector);if(el)el.textContent=value;}
   const title=document.querySelector('.brand h1');if(title)title.innerHTML=L('Truco <em>Cuántico</em>','Quantum <em>Truco</em>');
   const repo=document.getElementById('repo');if(repo&&REPOSITORY_URL)repo.innerHTML=`<a href="${REPOSITORY_URL}" target="_blank" rel="noopener">${L('Repositorio','Repository')}</a>`;
-  const footer=document.getElementById('footer-license');if(footer)footer.textContent=L('MIT (código propio) · Circuitos de un qubit · ','MIT (original code) · One-qubit circuits · ');
+  const footer=document.getElementById('footer-license');if(footer)footer.textContent=`v${VERSION} · `+L('MIT (código propio) · Circuitos de un qubit · ','MIT (original code) · One-qubit circuits · ');
   const select=document.getElementById('language');if(select)select.value=lang();
 }
 function setLanguage(value){

@@ -1,4 +1,4 @@
-# Live demonstration of 0.2.2 (English, 60–90 seconds)
+# Live demonstration of 0.2.3 (English, 60–90 seconds)
 
 The included 56-second video records an earlier version. The script below is for recording the current game.
 

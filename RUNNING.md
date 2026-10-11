@@ -29,11 +29,11 @@ Para verificar reglas, partidas, Qiskit, sesiones HTTP y recuperación de errore
 ## Ejecutar en Qollab
 
 Elegí el tipo de proyecto **JS / Qiskit**. Usá la entrega plana
-`QOLLAB_0.2.2.zip`: descomprimila y cargá sus archivos en la lista Code.
+`QOLLAB_0.2.3.zip`: descomprimila y cargá sus archivos en la lista Code.
 Incluye la interfaz, los módulos JavaScript, `qollab_engine.py`, requisitos,
 avisos de licencia y el video histórico. Todos están en la raíz.
 Para actualizar, reemplazá los archivos incluidos y agregá los nuevos módulos.
-No alcanza con cambiar solo `main.js` en 0.2.2. Pasos en
+No alcanza con cambiar solo `main.js` en 0.2.3. Pasos en
 [QOLLAB_UPDATE.md](QOLLAB_UPDATE.md).
 
 `serve.py` es el servidor local, distinto del módulo Python `truco/service.py`.
@@ -61,6 +61,6 @@ queda por confirmar en la plataforma.
 Después de editar el motor en `truco/*.py`, regenerá la entrega:
 
 ```sh
-python build_qollab.py --zip QOLLAB_0.2.2.zip
-python build_qollab.py --check --verify-zip QOLLAB_0.2.2.zip
+python build_qollab.py --zip QOLLAB_0.2.3.zip
+python build_qollab.py --check --verify-zip QOLLAB_0.2.3.zip
 ```

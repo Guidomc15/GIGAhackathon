@@ -1,10 +1,10 @@
-# Validación de 0.2.2
+# Validación de 0.2.3
 
 Entorno local: Python 3.13.16, Qiskit 2.5.2 y Chromium 138. La suite tiene **49 pruebas Python**:
 
 ```sh
 .venv/bin/python -m unittest discover -s tests -v
-python build_qollab.py --check --verify-zip QOLLAB_0.2.2.zip
+python build_qollab.py --check --verify-zip QOLLAB_0.2.3.zip
 ```
 
 Verifican reglas, jerarquía, pardas, cadenas de cantos, conservación del mazo, privacidad, medición única y atómica, niveles Aprendizaje y Difícil (2 retiros por jugador y por mano, reordenar no cuenta, cambiar de carta con compuertas sí), partidas completas en los dos niveles, el tutorial completo en español e inglés (también con sesión IonQ, que igual mide en local), las 9 lecciones de compuertas, sesiones HTTP, recuperación de errores remotos con dobles de prueba y el motor de Qollab aislado sin carpeta `truco/`.
