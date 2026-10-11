@@ -1,14 +1,14 @@
-# Cargar Qriollo 0.2.4 en Qollab
+# Cargar Qriollo 0.2.5 en Qollab
 
-`QOLLAB_0.2.4.zip` es una entrega plana: todos los archivos están en la raíz, sin carpetas. El proyecto de Qollab tiene que ser de tipo **JS / Qiskit**.
+`QOLLAB_0.2.5.zip` es una entrega plana: todos los archivos están en la raíz, sin carpetas. El proyecto de Qollab tiene que ser de tipo **JS / Qiskit**.
 
 1. Detené la ejecución en Qollab.
-2. Descargá `QOLLAB_0.2.4.zip` desde GitHub. Abrí el archivo y usá **Download raw file**, con tu sesión iniciada; el «Code → Download ZIP» general trae también las carpetas de desarrollo.
+2. Descargá `QOLLAB_0.2.5.zip` desde GitHub. Abrí el archivo y usá **Download raw file**, con tu sesión iniciada; el «Code → Download ZIP» general trae también las carpetas de desarrollo.
 3. Descomprimilo en tu computadora. Qollab necesita los archivos sueltos, no el ZIP.
 4. En **Code → Files**, cargá todos los archivos y reemplazá los que tengan el mismo nombre. Si alguno no se reemplaza al cargarlo, pegá su contenido desde el editor. Conservá un solo archivo de cada nombre.
 5. Ejecutá el proyecto.
 6. Comprobá la versión:
-   - el pie de página dice **v0.2.4** y la consola del navegador muestra `[Qriollo] versión 0.2.4`;
+   - el pie de página dice **v0.2.5** y la consola del navegador muestra `[Qriollo] versión 0.2.5`;
    - en Files están `slides.js` y `home-art.js`, y `main.js` tiene unas 470 líneas.
 
    Si ves `menu-art.js` y un `main.js` de 406 líneas, Qollab sigue con archivos de una versión anterior. `menu-art.js`, `music-data.js` y `main.py` ya no se usan: borralos (`music-data.js` tenía una música sin licencia para redistribuir).

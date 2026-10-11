@@ -1,4 +1,4 @@
-# Pruebas de 0.2.4
+# Pruebas de 0.2.5
 
 Entorno verificado: Python 3.13 con Qiskit 2.5.2 y Chromium 138. GitHub Actions corre lo mismo con Python 3.12 en cada push a `main`.
 
@@ -6,7 +6,7 @@ Entorno verificado: Python 3.13 con Qiskit 2.5.2 y Chromium 138. GitHub Actions 
 
 ```sh
 .venv/bin/python -m unittest discover -s tests -v
-python build_qollab.py --check --verify-zip QOLLAB_0.2.4.zip
+python build_qollab.py --check --verify-zip QOLLAB_0.2.5.zip
 ```
 
 | Archivo | Qué verifica |
