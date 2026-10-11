@@ -1,4 +1,4 @@
-// Language switch, Hard level, Confirm, axis colours, music track, timers and scroll.
+// Language switch, Hard level, Confirm, axis colours, voices, timers and scroll; the game has no music.
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
@@ -12,7 +12,7 @@ fs.mkdirSync(output,{recursive:true});
   // No saved language: an English browser must open the English interface.
   const page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce',locale:'en-US'});
   await page.addInitScript(()=>{
-   localStorage.setItem('qriollo.preferences.v1',JSON.stringify({music:false,voices:true,timer:0,voiceVolume:.45}));
+   localStorage.setItem('qriollo.preferences.v1',JSON.stringify({voices:true,timer:0,voiceVolume:.45}));
    window.spoken=[];window.voiceCancels=0;window.played=[];
    speechSynthesis.speak=utterance=>window.spoken.push({text:utterance.text,volume:utterance.volume});
    speechSynthesis.cancel=()=>window.voiceCancels++;
@@ -39,16 +39,9 @@ fs.mkdirSync(output,{recursive:true});
   assert.match(await page.locator('.home-tagline').innerText(),/Argentine way to learn quantum computing/);
   assert.equal(await page.locator('.home-logo img').evaluate(img=>img.complete&&img.naturalWidth>0),true);
   assert.equal(await page.evaluate(()=>document.documentElement.lang),'en');
-  // Music: the supplied MP3 loops, follows the volume slider and stops when muted.
+  // No music: the sound menu only has the voices, and nothing ever plays an audio track.
   await page.locator('.menu-sound summary').click();
-  assert(await page.locator('#disable-music').isChecked());
-  await page.locator('#disable-music').uncheck();
-  await page.waitForFunction(()=>window.played.length>0);
-  const music=(await page.evaluate(()=>window.played))[0];
-  assert.equal(music.src,'data:audio/mpeg;base64');assert(music.loop);
-  await page.locator('#music-volume').evaluate(el=>{el.value='25';el.dispatchEvent(new Event('input',{bubbles:true}));});
-  await page.locator('#disable-music').check();
-  assert((await page.evaluate(()=>window.paused))>0);
+  assert.equal(await page.locator('#disable-music,#music-volume').count(),0);
   await page.locator('#disable-voices').check();
   assert((await page.evaluate(()=>window.voiceCancels))>0);
   await page.locator('#disable-voices').uncheck();
@@ -135,6 +128,7 @@ fs.mkdirSync(output,{recursive:true});
   assert.match(await page.locator('.hand-summary').innerText(),/What happened this hand/);
   await noOverflow();
   assert.deepEqual(errors,[]);
-  console.log('PASS EN default/ES switch, music track, hard level, Confirm, axis colours, timers, scroll and voices');
+  assert.equal((await page.evaluate(()=>window.played)).length,0,'No audio track is played');
+  console.log('PASS EN default/ES switch, no music, hard level, Confirm, axis colours, timers, scroll and voices');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

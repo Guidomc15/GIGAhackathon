@@ -13,11 +13,11 @@ La esfera rotula sus seis polos, y los ejes y las letras X, Y, Z de los textos c
 
 **Evidencia:**
 - 49 pruebas Python verifican reglas, estado, privacidad, medición única, niveles, el tutorial en los dos idiomas, las lecciones y el adaptador remoto con dobles de prueba.
-- Seis pruebas de Chromium recorren la interfaz, las diapositivas, la práctica completa, los idiomas, el sonido y el scroll.
+- Seis pruebas de Chromium recorren la interfaz, las diapositivas, la práctica completa, los idiomas, las voces y el scroll.
 - [Alcance de las pruebas](TESTING.md).
 
 **Lo que no afirma:** no hay ventaja cuántica ni entrelazamiento; son dos qubits independientes, uno por jugador. En Qollab, el límite observado de un job IonQ por ejecución hace que las partidas completas usen simulación local explícita.
 
-Arte, música, esfera de Qollab y asistencia de IA están declarados en los [avisos](THIRD_PARTY_NOTICES.md).
+Arte, esfera de Qollab y asistencia de IA están declarados en los [avisos](THIRD_PARTY_NOTICES.md).
 
 This effort is supported by Qollab & IonQ.

@@ -15,6 +15,6 @@ Fuente: https://github.com/Guidomc15/GIGAhackaton
 
 Equipo: Guido Miniero Cocco, Alejo Dellape y Gaspar Osterrieth.
 
-Código original MIT. Los recursos visuales y la música los aportó el equipo, y la esfera adapta el ejemplo Interactive Bloch Sphere de Qollab. La asistencia de OpenAI Codex y Claude (Anthropic) está declarada en los avisos.
+Código original MIT. Los recursos visuales los aportó el equipo, y la esfera adapta el ejemplo Interactive Bloch Sphere de Qollab. La asistencia de OpenAI Codex y Claude (Anthropic) está declarada en los avisos.
 
 This effort is supported by Qollab & IonQ.

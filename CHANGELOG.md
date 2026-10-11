@@ -2,7 +2,7 @@
 
 ## 0.2.3
 
-Inicio nuevo según el boceto del equipo: logo de Qriollo, lema bilingüe, placas Tutorial, Partida rápida, Ayuda rápida y Créditos, y la carta Q con la esfera de Bloch; ocupa toda la ventana y en celulares se apila. La música se carga al primer uso y no demora el arranque.
+Inicio nuevo según el boceto del equipo: logo de Qriollo, lema bilingüe, placas Tutorial, Partida rápida, Ayuda rápida y Créditos, y la carta Q con la esfera de Bloch; ocupa toda la ventana y en celulares se apila. El juego no tiene música: se quitó el tema de 0.2.2 (`music-data.js`) porque no tenía licencia para redistribuirse; el menú 🔊 Voces conserva las voces de los cantos con su volumen.
 
 Diecisiete diapositivas antes de la partida, con glosario tocable: reglas, palos, escala por niveles, un duelo para practicar qué carta gana, dos manos de ejemplo jugadas baza por baza, cantos Truco/Retruco/Vale Cuatro, cantar Truco, responder como rival, cómo termina la mano y cinco de Envido (valores, cuatro ejemplos de cálculo con tres cartas del mismo palo sin flor, Envido del rival, respuestas con Real y Falta Envido, y Falta Envido desde un marcador 12–9) y dos de la carta cuántica: qué es (un qubit con la carta original |0⟩ y la ligada |1⟩, con probabilidades para sin fichas, H y X y un botón para medir) y los palos ligados (basto ↔ oro, copa ↔ espada) con la fila de la escala de cada carta.
 

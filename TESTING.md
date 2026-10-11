@@ -44,7 +44,7 @@ Variables de entorno:
 | `browser_interface.cjs` | Celular y escritorio sin desbordes, Ayuda rápida con la escala de 40 cartas, compositor, teclado, modo con privacidad, recuperación de errores, pistas de cantos, resumen y la práctica completa en celular |
 | `browser_full_match.cjs` | Una partida completa hasta 15 puntos, con y sin privacidad, sin errores en el navegador |
 | `browser_animations.cjs` | Cantos, tantos de Envido, puntos, giro de cartas y medición pública antes del turno siguiente |
-| `browser_settings.cjs` | Inglés por defecto en un navegador en inglés, cambio de idioma en cualquier pantalla, nivel Difícil, botón Confirmar, colores de los ejes, música, temporizadores, scroll y voces |
+| `browser_settings.cjs` | Inglés por defecto en un navegador en inglés, cambio de idioma en cualquier pantalla, nivel Difícil, botón Confirmar, colores de los ejes, sin música, temporizadores, scroll y voces |
 | `browser_slides.cjs` | Las 17 diapositivas en español (escritorio) e inglés (celular): glosario, palos, escala, duelo, ejemplos de bazas, Truco bloqueado hasta cantarlo, respuestas del rival, Envido (valores, cálculos 2/29/32/20, duelo 29 contra 31, respuestas, Falta Envido), carta cuántica (100/0, 50/50, 0/100 y medición) y palos ligados. En escritorio, ninguna diapositiva tiene scroll |
 | `browser_tutorial.cjs` | Los 33 pasos de la práctica. En cada desafío y pregunta prueba primero las respuestas incorrectas: tienen que dejar una pista sin avanzar. En los pasos guiados queda un solo control activo. También verifica: textos en segunda persona, «Ver resumen» solo al final, las dos mediciones en la consola con su registro de Qiskit, el resumen desplazable hasta el registro y las 9 lecciones de compuertas |
 

@@ -85,9 +85,9 @@ Los pasos completos y cómo detectar archivos viejos están en [QOLLAB_UPDATE.md
 | `slides.js` | Diapositivas del tutorial y escala de la Ayuda rápida |
 | `learning.js`, `i18n.js`, `phrases.js` | Reglas bilingües, idioma, colores de los ejes y cantos |
 | `bloch.js`, `card-effects.js`, `gates.js`, `gate-colors.js` | Esfera de Bloch, efectos de cartas y fichas |
-| `presentation.js`, `preferences.js`, `sound.js` | Avisos animados, ajustes y sonido |
+| `presentation.js`, `preferences.js`, `sound.js` | Avisos animados, ajustes y voces de los cantos |
 | `config.js` | Versión y enlace al repositorio |
-| `*-art.js`, `table-data-*.js`, `music-data.js` | Arte, mesa, cartas y música embebidos |
+| `*-art.js`, `table-data-*.js` | Arte, mesa y cartas embebidos |
 | `serve.py`, `local-engine.js` | Servidor y puente HTTP de desarrollo local |
 | `qollab_engine.py` | Motor generado en un solo archivo para Qollab; no se edita a mano |
 | `build_qollab.py` | Regenera `qollab_engine.py` y el ZIP, y verifica que coincidan con las fuentes |
@@ -137,7 +137,7 @@ git switch --detach v0.2.1
 Guido Miniero Cocco, Alejo Dellape y Gaspar Osterrieth.
 
 - **Licencia:** el código original es MIT ([LICENSE](LICENSE)).
-- **Recursos aportados:** el arte, el logo y la música los aportó el equipo.
+- **Recursos aportados:** el arte y el logo los aportó el equipo. El juego no tiene música; los cantos se leen con las voces del navegador.
 - **Esfera de Bloch:** adapta [Interactive Bloch Sphere](https://qollab.xyz/u/qollab/interactive-bloch-sphere) de Qollab.
 - **Asistencia de IA:** el código y la documentación tuvieron asistencia de OpenAI Codex y Claude (Anthropic).
 

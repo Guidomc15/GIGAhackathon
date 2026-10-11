@@ -11,7 +11,7 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   try{
     for(const [lang,width,height] of [['es',1366,768],['en',390,844]]){
       const page=await browser.newPage({viewport:{width,height},reducedMotion:'reduce'});
-      await page.addInitScript(l=>localStorage.setItem('qriollo.preferences.v1',JSON.stringify({music:false,voices:false,timer:0,language:l})),lang);
+      await page.addInitScript(l=>localStorage.setItem('qriollo.preferences.v1',JSON.stringify({voices:false,timer:0,language:l})),lang);
       const errors=[];page.on('pageerror',e=>errors.push(e.message));
       page.setDefaultTimeout(12000);
       const shot=name=>page.screenshot({path:path.join(output,`slide-${lang}-${name}.png`),fullPage:true});

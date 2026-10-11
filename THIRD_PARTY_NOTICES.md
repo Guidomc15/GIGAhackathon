@@ -10,7 +10,6 @@ Los derechos de estos recursos están separados del código MIT:
 
 - **Mesa y cartas:** el equipo aportó los diseños que están en `table-data-*.js` y `cards-art.js`. El fondo de la mesa se preparó con la herramienta de imágenes de OpenAI a partir del diseño aportado.
 - **Inicio:** `home-art.js` contiene el logo de Qriollo (WebP con fondo transparente) y la carta Q, recortada del arte de menú aportado.
-- **Música:** `music-data.js` contiene un tema de 66 segundos aportado por el equipo de Qriollo, recodificado a MP3 de 112 kbps y embebido en base64 para la entrega plana de Qollab.
 
 ## Esfera interactiva de Qollab
 

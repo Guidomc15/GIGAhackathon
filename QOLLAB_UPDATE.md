@@ -11,14 +11,14 @@
    - el pie de página dice **v0.2.3** y la consola del navegador muestra `[Qriollo] versión 0.2.3`;
    - en Files están `slides.js` y `home-art.js`, y `main.js` tiene unas 470 líneas.
 
-   Si ves `menu-art.js` y un `main.js` de 406 líneas, Qollab sigue con archivos de una versión anterior. `menu-art.js` y `main.py` ya no se usan y se pueden borrar.
+   Si ves `menu-art.js` y un `main.js` de 406 líneas, Qollab sigue con archivos de una versión anterior. `menu-art.js`, `music-data.js` y `main.py` ya no se usan: borralos (`music-data.js` tenía una música sin licencia para redistribuir).
 
 ## Qué contiene
 
 | Archivos | Para qué |
 | --- | --- |
 | `index.html`, `main.js`, `main.css` | Punto de entrada. `index.html` es solo el cuerpo: Qollab carga `main.js` y `main.css` con su wrapper |
-| Los demás `.js` | Módulos de la interfaz, el arte, la mesa, las cartas y la música |
+| Los demás `.js` | Módulos de la interfaz, el arte, la mesa y las cartas |
 | `qollab_engine.py` | El motor Python completo en un solo archivo. `main.js` lo importa con `import {dispatch_json,start_json,poll_json,demo_json} from 'qollab_engine';` |
 | `requirements.txt` | Qiskit |
 | `LICENSE`, `THIRD_PARTY_NOTICES.md`, `DEMO_SCRIPT.md`, este archivo | Licencia, avisos y guion de demostración |

@@ -67,7 +67,7 @@ The suite has 49 Python tests and six Playwright browser suites, which also run 
 Guido Miniero Cocco, Alejo Dellape and Gaspar Osterrieth.
 
 - **Licence:** the original code is MIT.
-- **Contributed assets:** the art, logo and music were contributed by the team.
+- **Contributed assets:** the art and logo were contributed by the team. The game has no music; calls are read by the browser's voices.
 - **Bloch sphere:** adapted from Qollab's Interactive Bloch Sphere.
 - **AI assistance:** OpenAI Codex and Claude (Anthropic).
 
