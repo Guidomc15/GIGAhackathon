@@ -37,3 +37,7 @@ This effort is supported by Qollab & IonQ.
 ## Música (0.2.2)
 
 `music-data.js` contiene un tema de 66 segundos aportado por el equipo de Qriollo (archivo MP3 recodificado a 112 kbps y embebido en base64 para la entrega plana de Qollab). El origen y la licencia del tema los declara el equipo; reemplazá esta línea con el autor y la licencia antes de publicar.
+
+## Inicio (0.2.2)
+
+`home-art.js` contiene el logo de Qriollo aportado por el equipo (fondo transparente recortado, WebP) y la carta Q recortada del arte de menú aportado anteriormente. `menu-art.js` dejó de usarse y se eliminó.

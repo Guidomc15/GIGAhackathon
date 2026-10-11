@@ -34,7 +34,10 @@ fs.mkdirSync(output,{recursive:true});
   const state=async action=>await (await page.request.post(base+'/api',{data:{method:'dispatch_json',arg:JSON.stringify({action})}})).json();
   const noOverflow=async()=>assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
   await page.goto(base);await page.locator('#start').waitFor();
-  assert.equal(await page.locator('#start .menu-label').innerText(),'Start game');
+  // Home from the team sketch: logo, tagline and four plaques, all in the chosen language.
+  assert.deepEqual(await page.locator('.home-menu .plaque').allInnerTexts(),['Tutorial','Quick game','Quick help','Credits']);
+  assert.match(await page.locator('.home-tagline').innerText(),/Argentine way to learn quantum computing/);
+  assert.equal(await page.locator('.home-logo img').evaluate(img=>img.complete&&img.naturalWidth>0),true);
   assert.equal(await page.evaluate(()=>document.documentElement.lang),'en');
   // Music: the supplied MP3 loops, follows the volume slider and stops when muted.
   await page.locator('.menu-sound summary').click();
@@ -63,6 +66,9 @@ fs.mkdirSync(output,{recursive:true});
   assert.equal(await page.locator('#home').innerText(),'Inicio');
   await page.locator('#language').selectOption('en');
   await click('#home');await click('#menu-credits');assert.match(await page.locator('.credits-page').innerText(),/Gaspar Osterrieth/);
+  // Quick game goes straight to the first hand with default names; then back to the custom setup.
+  await click('#home');await click('#quick');
+  assert.match(await page.locator('.round-meta').innerText(),/Player 1: 0 · Player 2: 0/);
   await click('#home');await click('#start');
   assert.equal(await page.locator('#noise-mode').count(),0,'Noise was removed');
   await page.locator('[name="difficulty"][value="hard"]').check();

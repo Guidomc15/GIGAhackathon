@@ -28,6 +28,7 @@ Para Qollab, descomprimí **[QOLLAB_0.2.2.zip](QOLLAB_0.2.2.zip)** y cargá sus 
 - **Confirmar**: el circuito se cierra con un único botón.
 - **Ejes de colores.** En la esfera X es coral, Y violeta y Z celeste, y las letras X, Y, Z de las explicaciones usan el mismo color.
 - **Pantallas sin barra de desplazamiento** en escritorio (desde 900 × 540 px): mesa a la izquierda, guía y cantos a la derecha. En celulares la página sigue siendo vertical.
+- **Inicio nuevo** según el boceto del equipo: logo de Qriollo, lema «Una forma bien argenta de aprender computación cuántica», placas Tutorial · Partida rápida · Ayuda rápida · Créditos y la carta Q con la esfera de Bloch. Partida rápida empieza directo (nombres por defecto, nivel Aprendizaje, simulación local); «Partida personalizada» abre la configuración completa.
 - **Música** nueva en bucle, con volumen y silencio propios.
 - Se quitaron el ruido cuántico educativo y la rotación π/67.
 

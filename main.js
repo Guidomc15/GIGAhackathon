@@ -6,7 +6,7 @@ import {dispatch_json,start_json,poll_json,demo_json} from 'qollab_engine';
 const engine={dispatch_json,start_json,poll_json,demo_json};
 import {TABLE_ART} from './table-art.js';
 import {CARDS_ART} from './cards-art.js';
-import {MENU_ART} from './menu-art.js';
+import {LOGO_ART,CARD_ART} from './home-art.js';
 import {REPOSITORY_URL,VERSION} from './config.js';
 import {gateLabel} from './gates.js';
 import {speechText,displayText} from './phrases.js';
@@ -174,15 +174,24 @@ function languageSelect(id){
 }
 function home(){
   const settings=`<div class="menu-settings"><div class="mixer-controls"><label><input id="disable-voices" type="checkbox" ${preferences.voices?'':'checked'}> ${L('Desactivar voces','Turn voices off')}</label><label>${L('Volumen de voces','Voice volume')}<input id="voice-volume" type="range" min="0" max="100" value="${Math.round(preferences.voiceVolume*100)}"></label><label><input id="disable-music" type="checkbox" ${preferences.music?'':'checked'}> ${L('Desactivar música','Turn music off')}</label><label>${L('Volumen de música','Music volume')}<input id="music-volume" type="range" min="0" max="100" value="${Math.round(preferences.musicVolume*100)}"></label></div><p id="audio-status">${esc(sound.status())}</p><p>${L('El sonido empieza al tocar un control. Las voces leen los cantos en español, como se dicen en la mesa.','Sound starts when you touch a control. Voices read the calls in Spanish, as they are said at the table.')}</p><p>${L('Los avisos esperan tu «Continuar». El botón ⏱ elige 1 s, 3 s, 7 s o avance manual.','Notices wait for your “Continue”. The ⏱ button picks 1 s, 3 s, 7 s or manual.')}</p></div>`;
-  stage.innerHTML=`<section class="start-menu ${lang()==='en'?'english-menu':''}" aria-label="${L('Menú principal de Truco Cuántico','Quantum Truco main menu')}"><img class="menu-art" src="${MENU_ART}" alt="" draggable="false">${languageSelect('menu-language')}<h1 class="visually-hidden">${L('Truco Cuántico','Quantum Truco')}</h1><details class="menu-sound"><summary>🔊 ${L('Sonido','Sound')}</summary>${settings}</details><div class="menu-controls"><button class="menu-hit menu-start" id="start"><span class="menu-label">${L('Empezar partida','Start game')}</span></button><button class="menu-hit menu-tutorial" id="learn"><span class="menu-label">Tutorial</span></button><button class="menu-hit menu-values" id="values"><span class="menu-label">${L('Valores','Card values')}</span></button><button class="menu-hit menu-credits" id="menu-credits"><span class="menu-label">${L('Créditos','Credits')}</span></button></div>${view.game?`<button class="resume-menu" id="resume">${L('Retomar partida','Resume game')}</button>`:''}</section>`;
+  // Home (sketch by the team): logo, tagline and four plaques on the left; the Q card with its Bloch sphere on the right.
+  stage.innerHTML=`<section class="home" aria-label="${L('Menú principal de Qriollo','Qriollo main menu')}"><img class="home-bg" src="${TABLE_ART}" alt="" draggable="false"><div class="home-tools">${languageSelect('menu-language')}<details class="menu-sound"><summary>🔊 ${L('Sonido','Sound')}</summary>${settings}</details></div><div class="home-left"><h1 class="home-logo"><img src="${LOGO_ART}" alt="Qriollo" draggable="false"></h1><p class="home-tagline">${L('Una forma bien argenta de aprender computación cuántica','A truly Argentine way to learn quantum computing')}</p><nav class="home-menu" aria-label="${L('Opciones','Options')}"><button class="plaque" id="learn"><span>Tutorial</span></button><button class="plaque" id="quick"><span>${L('Partida rápida','Quick game')}</span></button><button class="plaque" id="values"><span>${L('Ayuda rápida','Quick help')}</span></button><button class="plaque" id="menu-credits"><span>${L('Créditos','Credits')}</span></button></nav><p class="home-links">${view.game?`<button class="home-link" id="resume">${L('Retomar partida','Resume game')}</button> · `:''}<button class="home-link" id="start">${L('Partida personalizada: nombres, nivel y privacidad','Custom game: names, level and privacy')}</button></p></div><figure class="home-card"><img src="${CARD_ART}" alt="${L('Carta Q con la esfera de Bloch: |0⟩ arriba, |1⟩ abajo y los ejes X, Y, Z','Q card with the Bloch sphere: |0⟩ on top, |1⟩ below and the X, Y, Z axes')}" draggable="false"><figcaption>${L('Esfera de Bloch','Bloch sphere')}</figcaption></figure></section>`;
   for(const [id,key] of [['disable-voices','voices'],['disable-music','music']])document.getElementById(id).onchange=e=>{savePreference(key,!e.target.checked);sound.apply();if(key==='music'&&preferences.music)sound.unlock();};
   for(const [id,key] of [['voice-volume','voiceVolume'],['music-volume','musicVolume']])document.getElementById(id).oninput=e=>{savePreference(key,Number(e.target.value)/100);sound.apply();};
   document.getElementById('start').onclick=()=>{screen='setup';render();focus();};
+  document.getElementById('quick').onclick=quickGame;
   document.getElementById('learn').onclick=()=>openTutorial();
   document.getElementById('values').onclick=()=>{screen='values';render();focus();};
   document.getElementById('menu-credits').onclick=()=>{screen='credits';render();focus();};
   document.getElementById('resume')?.addEventListener('click',()=>{screen='game';action('public');});
 }
+// Quick game: default names, learning level and local Qiskit simulation, straight to the first hand.
+async function quickGame(){
+  if(busy)return;
+  await action('dev_mode',true);if(view.error)return;
+  screen='game';await action('new',{names:[L('Jugador 1','Player 1'),L('Jugador 2','Player 2')],privacy:false,difficulty:'normal'});focus();
+}
+
 function values(){
   const c=(number,suit)=>cardName({number,suit});
   const ranks=[c(1,'espada'),c(1,'basto'),c(7,'espada'),c(7,'oro'),L('Todos los 3','All 3s'),L('Todos los 2','All 2s'),`${c(1,'copa')} ${L('y','and')} ${c(1,'oro')}`,L('Todos los 12','All 12s'),L('Todos los 11','All 11s'),L('Todos los 10','All 10s'),`${c(7,'copa')} ${L('y','and')} ${c(7,'basto')}`,L('Todos los 6','All 6s'),L('Todos los 5','All 5s'),L('Todos los 4','All 4s')];

@@ -8,6 +8,8 @@ Tutorial en dos partes. Truco con Bot Q: partida guiada de cuatro manos y 38 pas
 
 Niveles Aprendizaje y Difícil (2 retiros de compuertas por jugador y por mano). Botón único «Confirmar». Ejes de la esfera con color (X coral, Y violeta, Z celeste) y letras de las explicaciones con el mismo color. Pantallas de escritorio ajustadas a la ventana, sin barra de desplazamiento: mesa a la izquierda, guía y cantos a la derecha. Música nueva aportada por el equipo. Menú en inglés con placas propias.
 
+Inicio nuevo según el boceto del equipo: logo de Qriollo, lema bilingüe, placas Tutorial, Partida rápida, Ayuda rápida y Créditos, y la carta Q con la esfera de Bloch; ocupa toda la ventana y en celulares se apila.
+
 Se quitaron el ruido cuántico educativo, su lección y su documento, y la rotación π/67 (el mazo de fichas pasa de 40 a 34). Pruebas nuevas: `test_modes.py`, `browser_0.2.2.cjs` y `browser_tutorial.cjs`. Entrega plana `QOLLAB_0.2.2.zip`.
 
 ## 0.2.1

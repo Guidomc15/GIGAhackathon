@@ -20,6 +20,7 @@ Open local port 8000 in your browser. On Windows use `.venv\Scripts\python.exe`.
 - A single **Confirm** button locks the circuit.
 - **Coloured axes**: X coral, Y violet, Z light blue on the sphere, with the same colours on the letters in every explanation.
 - **No scrollbars on desktop** (from 900 × 540 px): table on the left, guidance and calls on the right. Phones keep a vertical page.
+- **New home screen** from the team's sketch: the Qriollo logo, the tagline “A truly Argentine way to learn quantum computing”, Tutorial · Quick game · Quick help · Credits plaques and the Q card with the Bloch sphere. Quick game starts at once (default names, Learning level, local simulation); “Custom game” opens the full setup.
 - New looping **music** with its own volume and mute.
 - The educational noise model and the π/67 rotation were removed.
 
