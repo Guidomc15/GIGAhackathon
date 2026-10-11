@@ -218,16 +218,21 @@ cv.addEventListener('pointercancel', function () { dragging = false; });
       else el=Math.max(-1.35,Math.min(1.35,el+(e.key==='ArrowDown'?.12:-.12)));
       draw();
     });
-    const replay=cv.closest('.lesson-sphere')?.querySelector('[data-replay-step]');
-    if(replay)replay.onclick=()=>{state.frame=data.segments[data.activeStep].start;state.lastTime=null;shown=[...state.frames[Math.floor(state.frame)]];draw();};
+    // Lessons can slow the path down (data.speed, ms per frame) and repeat it (data.loop).
+    const speed=data.speed||22;
+    const replay=cv.closest('.lesson-sphere,.gate-demo')?.querySelector('[data-replay-step],[data-replay]');
+    if(replay)replay.onclick=()=>{state.frame=data.activeStep===null||data.activeStep===undefined?0:data.segments[data.activeStep].start;state.lastTime=null;state.hold=null;shown=[...state.frames[Math.floor(state.frame)]];draw();};
     let raf=0, stopped=false;
     function tick(time){
       if(stopped||!cv.isConnected)return;
       if(reduced()){shown=[...data.vector];}
       else {
-        if(state.lastTime!==null)state.frame=Math.min(state.frames.length-1,state.frame+(time-state.lastTime)/22);
+        if(state.lastTime!==null)state.frame=Math.min(state.frames.length-1,state.frame+(time-state.lastTime)/speed);
         shown=[...state.frames[Math.floor(state.frame)]];
-        if(state.frame===state.frames.length-1)shown=[...data.vector];
+        if(state.frame===state.frames.length-1){
+          shown=[...data.vector];
+          if(data.loop&&state.frames.length>1){state.hold??=time+1600;if(time>=state.hold){state.frame=0;state.hold=null;}}
+        }
         if(autoSpin)az+=.0015;
       }
       state.lastTime=time;

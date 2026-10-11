@@ -194,16 +194,35 @@ class SessionTests(unittest.TestCase):
             self.assertNotEqual(session.game.phase, 'measure')
         return view
 
-    def test_tutorial_script_plays_three_classic_hands(self):
+    def test_tutorial_plays_three_classic_hands_then_a_quantum_hand(self):
+        for lang, names in (('es', ['Vos', 'Bot Q']), ('en', ['You', 'Bot Q'])):
+            # Qollab sessions measure on IonQ, but the tutorial always samples locally.
+            session = Session(local=False)
+            session.lang = lang
+            view = self.play_tutorial(session)
+            game = session.game
+            self.assertEqual(game.names, names)
+            self.assertEqual(game.hand_number, 4)
+            self.assertEqual(game.scores, [8, 0])
+            self.assertEqual(game.phase, 'hand_end')
+            self.assertEqual(view['coach']['step'], view['coach']['total'])
+            self.assertTrue(all(q is None for h in game.history[:3] for q in h['quantum']))
+            mine, bot = game.history[3]['quantum']
+            self.assertEqual((mine['sequence'], mine['result']), ([0], 1))  # X: 7 of cups -> 7 of swords
+            self.assertEqual((bot['sequence'], bot['result']), ([], 0))
+            self.assertIn('LOCAL DEVELOPMENT', mine['record']['backend'])
+            self.assertIsNone(session.remote)
+
+    def test_every_tutorial_step_is_bilingual_and_gate_lessons_load(self):
+        from truco import tutorial
+        for step in tutorial.STEPS:
+            if 'bot' not in step: self.assertTrue(step['title_en'] and step['text_en'])
         session = Session(local=True)
-        view = self.play_tutorial(session)
-        game = session.game
-        self.assertFalse(game.quantum)
-        self.assertEqual(game.hand_number, 3)
-        self.assertEqual(game.scores, [7, 0])
-        self.assertEqual(game.phase, 'hand_end')
-        self.assertEqual(view['coach']['step'], view['coach']['total'])
-        self.assertTrue(all(q is None for h in game.history for q in h['quantum']))
+        for i in range(len(tutorial.GATE_LESSONS)):
+            lesson = session.action({'action':'lesson','value':i})['lesson']
+            self.assertTrue(lesson['text_en'] and lesson['analogy_en'])
+            self.assertTrue(all(c['caption_en'] and c['preview']['steps'] for c in lesson['circuits']))
+        with self.assertRaises(ValueError): session.action({'action':'lesson','value':99})
 
     def test_tutorial_only_accepts_the_highlighted_action(self):
         session = Session(local=True)

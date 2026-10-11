@@ -7,6 +7,8 @@ const output=process.env.ARTIFACT_DIR || '/tmp/truco-browser-checks';
 fs.mkdirSync(output,{recursive:true});
 const base=process.env.TRUCO_URL || 'http://127.0.0.1:8000';
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
+// Game controls the coach may enable: cards, calls, tokens, Confirm and the composer opener.
+const CONTROLS=['[data-action]','[data-card]','[data-token]','#lock-circuit','#activate-quantum'].map(s=>s+':not([disabled])').join(',');
 (async()=>{
   const browser=await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE_PATH,headless:true});
   try{
@@ -18,6 +20,7 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     const idle=()=>page.waitForFunction(()=>document.querySelector('#stage')?.getAttribute('aria-busy')==='false'&&!document.querySelector('#presentation-layer'));
     await page.goto(base);
     await page.locator('#learn').click();
+    await page.locator('#hub-truco').click();
     await page.locator('.coach').waitFor();
     const seen=[];
     for(let i=0;i<60;i++){
@@ -29,20 +32,33 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
       assert.equal(await page.locator('.coach-target').count(),1,`Sin elemento resaltado en «${title}»`);
       if(await page.locator('#coach-next').count()){
         // Explanation steps keep every game control disabled.
-        assert.equal(await page.locator('[data-action]:not([disabled]),[data-card]:not([disabled])').count(),0,`Controles activos en «${title}»`);
+        assert.equal(await page.locator(CONTROLS).count(),0,`Controles activos en «${title}»`);
         await page.locator('#coach-next').click();
       }else{
         // Action steps leave exactly one game control: the highlighted one.
-        assert.equal(await page.locator('[data-action]:not([disabled]),[data-card]:not([disabled])').count(),1,`Más de un control activo en «${title}»`);
+        const enabled=await page.locator(CONTROLS).evaluateAll(els=>els.map(el=>el.id||el.outerHTML.slice(0,60)));
+        assert.equal(enabled.length,1,`Más de un control activo en «${title}»: ${enabled.join(' | ')}`);
         await page.locator('.coach-target').click();
       }
     }
     assert.match(await page.locator('.coach h2').textContent(),/Terminaste el tutorial/);
-    assert.match(await page.locator('.round-meta').textContent(),/Vos: 7 · Bot Q: 0/);
-    assert.equal(seen.length,27);
+    assert.match(await page.locator('.round-meta').textContent(),/Vos: 8 · Bot Q: 0/);
+    assert.equal(seen.length,38);
     await page.locator('#coach-play').click();
     await page.locator('#deal').waitFor();
     assert.deepEqual(errors,[]);
-    console.log(`PASS tutorial: ${seen.length} pasos, 3 manos, marcador final 7–0`);
+    // Gate lessons: every lesson renders an animated sphere and its odds.
+    await page.locator('#tutorial').click();await page.locator('#hub-gates').click();
+    for(let i=0;i<9;i++){
+      await idle();
+      assert.equal(await page.locator('.gate-demo canvas').count(),1);
+      for(const tab of await page.locator('[data-circuit]').all()){await tab.click();await idle();assert.equal(await page.locator('.odds-row').count(),2);}
+      if(i===3)await page.screenshot({path:path.join(output,'lesson-z.png')});
+      if(i<8)await page.locator('#lesson-next').click();
+    }
+    assert(await page.locator('#lesson-next').isDisabled());
+    assert(await page.locator('.lesson .axis-x').count()>0,'Axis letters are coloured in lessons');
+    assert.deepEqual(errors,[]);
+    console.log(`PASS tutorial: ${seen.length} pasos, 4 manos (la última cuántica), marcador 8–0 y 9 lecciones de compuertas`);
   }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exit(1);});

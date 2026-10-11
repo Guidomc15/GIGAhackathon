@@ -3,6 +3,7 @@ import random
 from datetime import datetime, timezone
 from .classic import Card, deal, strength, envido, hand_winner, ENVIDO_CHAINS, envido_value, refusal_value, GateDeck
 from .quantum import QuantumCard
+from .gates import VALID
 
 # None means unlimited gate removals.
 DIFFICULTIES = {'normal': None, 'hard': 2}
@@ -28,7 +29,7 @@ class Game:
         self.difficulty = difficulty
         # quantum=False plays classic Truco: no preparation phase and no measurements.
         if type(quantum) is not bool: raise ValueError('Modo cuántico inválido')
-        self.quantum = quantum
+        self.quantum = self.default_quantum = quantum
         self.deals = [self.validate_deal(d) for d in deals or []]
         self.rng = rng or random.SystemRandom()
         self.scores = [0,0]
@@ -41,8 +42,11 @@ class Game:
     def new_hand(self):
         self.hand_number += 1
         # Scripted deals (tutorial) are used first; afterwards the deal is random.
-        self.cards = self.deals.pop(0) if self.deals else deal(self.rng)
-        self.tokens = self.gate_deck.draw_hand() if self.quantum else [[],[]]
+        scripted = self.deals.pop(0) if self.deals else None
+        self.quantum = scripted['quantum'] if scripted and scripted['quantum'] is not None else self.default_quantum
+        self.cards = scripted['cards'] if scripted else deal(self.rng)
+        if scripted and scripted['tokens']: self.tokens = [list(t) for t in scripted['tokens']]
+        else: self.tokens = self.gate_deck.draw_hand() if self.quantum else [[],[]]
         self.q = [None, None]
         self.removals_left = [DIFFICULTIES[self.difficulty]]*2
         self.played = [set(), set()]
@@ -64,12 +68,19 @@ class Game:
         self.winner = None
         self.event('Reparto de mano', mano=self.mano)
     @staticmethod
-    def validate_deal(hands):
+    def validate_deal(entry):
+        """A scripted deal: two hands of three cards, or a dict with 'cards',
+        optional 'quantum' (use the quantum card this hand) and 'tokens' (4 gates each)."""
+        entry = entry if isinstance(entry, dict) else {'cards': entry}
+        hands = entry.get('cards')
         if not isinstance(hands,(list,tuple)) or len(hands) != 2 or any(not isinstance(h,(list,tuple)) or len(h) != 3 for h in hands):
             raise ValueError('Reparto inválido: tres cartas por jugador')
         cards = [[c if isinstance(c,Card) else Card(*c) for c in hand] for hand in hands]
         if len({c for hand in cards for c in hand}) != 6: raise ValueError('Reparto inválido: cartas repetidas')
-        return cards
+        tokens = entry.get('tokens')
+        if tokens is not None and (len(tokens) != 2 or any(len(t) != 4 or any(g not in VALID for g in t) for t in tokens)):
+            raise ValueError('Reparto inválido: fichas')
+        return {'cards': cards, 'quantum': entry.get('quantum'), 'tokens': tokens}
     def event(self, text, **data):
         self.events.append({'text':text, 'time':datetime.now(timezone.utc).isoformat(), **data})
     def effective_card(self, player, index):

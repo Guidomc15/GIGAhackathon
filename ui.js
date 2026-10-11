@@ -18,9 +18,9 @@ export function card(c, label='', selected=false, action=null) {
   const tag=action?'button':'div';
   return `<${tag} class="card ${selected?'selected':''} ${c.quantum?'quantum-card':''} ${c.played?'played':''}" ${action?`data-card="${c.index}"`:''} aria-label="${esc((action? action+' ':'')+cardName(c)+(label?' · '+label:''))}"><span class="card-face" style="${faceStyle(c)}" aria-hidden="true"></span>${label?`<small class="card-note">${esc(label)}</small>`:''}</${tag}>`;
 }
-export function sphere(p, collapse=null, key='preview', activeStep=null, compact=false) {
+export function sphere(p, collapse=null, key='preview', activeStep=null, compact=false, options={}) {
   const vector=collapse===null?p.bloch:[0,0,collapse?-1:1];
-  const data={vector,gates:p.gates,trajectory:p.trajectory||p.steps.map(s=>s.bloch),steps:p.steps.map(s=>s.bloch),segments:p.segments,collapse,activeStep};
+  const data={vector,gates:p.gates,trajectory:p.trajectory||p.steps.map(s=>s.bloch),steps:p.steps.map(s=>s.bloch),segments:p.segments,collapse,activeStep,...options};
   const canvas=`<canvas class="interactive-bloch" width="760" height="760" tabindex="0" data-bloch-key="${esc(key)}" data-bloch="${esc(JSON.stringify(data))}" role="img" aria-label="${L('Esfera de Bloch interactiva','Interactive Bloch sphere')}: (${vector.map(v=>v.toFixed(3)).join(', ')}). ${L('Arrastrá para girar la vista o usá las flechas; Inicio restablece la cámara.','Drag to rotate the view or use the arrow keys; Home resets the camera.')}">${L('Vector de Bloch','Bloch vector')}: ${vector.map(v=>v.toFixed(3)).join(', ')}.</canvas>`;
   if(compact)return canvas;
   const legend=p.gates.length?`<ol class="trajectory-legend" aria-label="${L('Compuertas y colores de la trayectoria','Gates and path colours')}">${p.gates.map((gate,i)=>`<li style="${gateStyle(gate)}" aria-label="${L('Paso','Step')} ${i+1}: ${esc(gateLabel(gate))}, ${gateColorName(gate)}"><span aria-hidden="true"></span>${i+1} · ${esc(gateLabel(gate))}</li>`).join('')}</ol>`:'';

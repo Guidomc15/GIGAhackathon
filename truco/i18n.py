@@ -7,6 +7,8 @@ ERRORS = {
     'Resultado inválido': 'Invalid result',
     'Reparto inválido: tres cartas por jugador': 'Invalid deal: three cards per player',
     'Reparto inválido: cartas repetidas': 'Invalid deal: repeated cards',
+    'Reparto inválido: fichas': 'Invalid deal: tokens',
+    'Lección inválida': 'Invalid lesson',
     'Qollab permite un solo job IonQ por ejecución. No se inventará una segunda medición': 'Qollab allows one IonQ job per run. A second measurement will not be invented',
     'Orden/formato de bits no reconocido: se esperaba un bit': 'Unrecognised bit order/format: one bit was expected',
     'No se verificó que el backend sea simulador. No se enviará a hardware': 'The backend was not verified as a simulator. Nothing will be sent to hardware',

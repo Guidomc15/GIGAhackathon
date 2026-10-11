@@ -3,7 +3,7 @@ import json
 import platform
 import qiskit
 from .game import Game
-from .quantum import LocalSampler
+from .quantum import LocalSampler, preview
 from .remote import RemoteMeasurement
 from . import tutorial
 from .i18n import error_text
@@ -16,6 +16,7 @@ class Session:
         self.remote = None
         self.guided = False  # True while the scripted tutorial match is active.
         self.coach = 0  # Index of the current tutorial step.
+        self.lesson = None  # Index of the open gates lesson, if any.
         self.error = None
         self.errors = []
         self.lang = 'es'  # Language of engine messages; the interface sends it with each action.
@@ -29,6 +30,7 @@ class Session:
             result['game'] = self.game.public_view()
             if private: result['private'] = self.game.private_view()
         if self.guided: result['coach'] = self.coach_view()
+        if self.lesson is not None: result['lesson'] = self.lesson_view()
         return result
     def coach_view(self):
         explained = [i for i, s in enumerate(tutorial.STEPS) if 'bot' not in s]
@@ -37,13 +39,26 @@ class Session:
                 'text_en':step.get('text_en', step['text']), 'target':step.get('target'),
                 'expect':step.get('expect'), 'final':step.get('final', False),
                 'step':explained.index(self.coach)+1, 'total':len(explained)}
+    def lesson_view(self):
+        lesson = tutorial.GATE_LESSONS[self.lesson]
+        return {**{k: v for k, v in lesson.items() if k != 'circuits'}, 'index': self.lesson,
+                'total': len(tutorial.GATE_LESSONS),
+                'circuits': [{'preview': preview(list(gates)), 'caption': es, 'caption_en': en}
+                             for gates, es, en in lesson['circuits']]}
+    def settle(self):
+        """Tutorial measurements are sampled at once with local Qiskit, never sent to IonQ."""
+        while self.game.phase == 'measure':
+            sampler = LocalSampler()
+            self.game.complete_measure([sampler.sample(gates) for gates in self.sequences()])
     def advance(self):
         """Move past the current step and play Bot Q's scripted moves."""
+        self.settle()
         self.coach += 1
         while self.coach < len(tutorial.STEPS) and 'bot' in tutorial.STEPS[self.coach]:
             action, value = tutorial.STEPS[self.coach]['bot']
             if self.game.actor != 1: raise RuntimeError('Guion del tutorial desincronizado')
             self.game.dispatch(action, value)
+            self.settle()
             self.coach += 1
     def tutorial_action(self, action, value):
         step = tutorial.STEPS[self.coach]
@@ -76,10 +91,14 @@ class Session:
             self.game = game
         elif action == 'tutorial':
             # Classic Truco against scripted Bot Q; the quantum card is not used yet.
-            self.game = Game(list(tutorial.NAMES), quantum=False, deals=tutorial.DEALS, mano=tutorial.MANO)
+            self.game = Game(list(tutorial.NAMES[self.lang]), quantum=False, deals=tutorial.DEALS, mano=tutorial.MANO)
             self.guided = True
             self.coach = -1
             self.advance()
+        elif action == 'lesson':
+            if value is not None and (type(value) is not int or not 0 <= value < len(tutorial.GATE_LESSONS)):
+                raise ValueError('Lección inválida')
+            self.lesson = value
         elif action == 'reveal': return self.output(private=True)
         elif action == 'public': return self.output()
         else:

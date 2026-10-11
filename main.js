@@ -18,7 +18,7 @@ import {L,lang,cardName,axes} from './i18n.js';
 import {esc,card,sphere,circuitStrip,gateStyle,technical,quantumReport,measurementCard,table,turnGuide,handSummary,gateHelp,gateHelpPlain,quantumOptions,quantumStatus,eventText} from './ui.js';
 const stage=document.getElementById('stage');
 let view=null, screen='home', revealed=false, busy=false, quantumOpen=false;
-let presentation=null, summaryOpen=false;
+let presentation=null, summaryOpen=false, lessonCircuit=0;
 let uiError=null;
 const player=new PresentationPlayer(),sound=new SoundMixer();
 const reducedMotion=()=>document.querySelector('.app-shell').classList.contains('reduced')||matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -131,6 +131,7 @@ async function action(action,value=null){
     if(['new','tutorial','next'].includes(action))summaryOpen=false;
     if(action==='reveal')revealed=true;
     if(screen==='game'&&view.game?.phase==='measure')await measure();
+    if(action==='lesson')lessonCircuit=Math.min(lessonCircuit,(view.lesson?.circuits.length||1)-1);
     if(view.error)return;
     if(screen==='game'){
       if(!keep)await presentEvents(before);
@@ -202,7 +203,9 @@ function handoff(g){
 }
 function editor(g,priv){
   const q=priv.quantum,left=priv.removals_left,limited=left!==null&&left!==undefined,blocked=limited&&left===0;
-  stage.innerHTML+=(view.coach?coachPanel(view.coach):turnGuide(g,priv));
+  const composing=!!q&&quantumOpen;
+  // With the composer open, Bot Q speaks inside the dialog only (the page behind is inert).
+  stage.innerHTML+=view.coach?(composing?'':coachPanel(view.coach)):turnGuide(g,priv);
   stage.innerHTML+=table(g,{art:TABLE_ART,cards:priv.cards,quantum:q,prepare:true});
   stage.querySelectorAll('[data-card]').forEach(b=>b.onclick=()=>action('choose',Number(b.dataset.card)));
   const activate=document.getElementById('activate-quantum');
@@ -274,10 +277,34 @@ function game(){
     drop.ondrop=e=>{e.preventDefault();const raw=e.dataTransfer.getData('application/x-truco-card');if(/^[0-2]$/.test(raw))action('play',Number(raw));};
   }
 }
-async function openTutorial(){screen='game';revealed=false;summaryOpen=false;await action('tutorial');focus();}
+async function openTutorial(){screen='learn';render();focus();}
+async function startTrucoTutorial(){screen='game';revealed=false;summaryOpen=false;await action('tutorial');focus();}
+async function openLesson(index){lessonCircuit=0;screen='lessons';await action('lesson',index);focus();}
+// Tutorial hub: the Truco match with Bot Q first, then the gates and the Bloch sphere.
+function learn(){
+  const running=view.guided&&view.game&&!view.coach?.final;
+  stage.innerHTML=`<section class="tutorial-hub" aria-label="Tutorial"><article class="panel hub-card"><span class="hub-number">1</span><h2>${L('Truco con Bot Q','Truco with Bot Q')}</h2><p>${L('Una partida guiada de cuatro manos: leer la mesa, la fuerza de las cartas, bazas y pardas, Envido, Truco y Retruco. En la última mano usás la carta cuántica.','A guided four-hand match: reading the table, card strength, bazas and pardas, Envido, Truco and Retruco. In the last hand you use the quantum card.')}</p><p class="hub-meta">${L('38 pasos · unos 10 minutos','38 steps · about 10 minutes')}</p><div class="actions">${running?`<button id="hub-resume" class="primary">${L('Retomar','Resume')}</button><button id="hub-restart">${L('Empezar de nuevo','Start over')}</button>`:`<button id="hub-truco" class="primary">${L('Empezar','Start')}</button>`}</div></article><article class="panel hub-card"><span class="hub-number">2</span><h2>${L('Compuertas y esfera de Bloch','Gates and the Bloch sphere')}</h2><p>${axes(esc(L('Qué hace cada ficha, sobre qué eje gira ([X], [Y] o [Z]), cuándo cambia la fase y las combinaciones más importantes, con la esfera animada.','What each token does, which axis it turns around ([X], [Y] or [Z]), when it changes the phase and the most important combinations, with an animated sphere.')))}</p><p class="hub-meta">${L('9 lecciones','9 lessons')}</p><div class="actions"><button id="hub-gates" class="primary">${L('Abrir lecciones','Open the lessons')}</button></div></article></section>`;
+  document.getElementById('hub-truco')?.addEventListener('click',startTrucoTutorial);
+  document.getElementById('hub-restart')?.addEventListener('click',startTrucoTutorial);
+  document.getElementById('hub-resume')?.addEventListener('click',()=>{screen='game';action('public');});
+  document.getElementById('hub-gates').onclick=()=>openLesson(view.lesson?.index??0);
+}
+const percentText=v=>L((100*v).toFixed(1).replace('.',',')+' %',(100*v).toFixed(1)+'%');
+function lessons(){
+  const t=view.lesson;
+  if(!t){openLesson(0);return;}
+  const index=Math.min(lessonCircuit,t.circuits.length-1),c=t.circuits[index],p=c.preview;
+  const gates=[...new Set(p.gates)];
+  stage.innerHTML=`<article class="panel lesson" aria-label="${L('Lección de compuertas','Gates lesson')}"><header class="lesson-head"><p class="coach-step">${L(`Lección ${t.index+1} de ${t.total}`,`Lesson ${t.index+1} of ${t.total}`)}</p><h2>${esc(L(t.title,t.title_en))}</h2><nav class="lesson-dots" aria-label="${L('Lecciones','Lessons')}">${Array.from({length:t.total},(_,i)=>`<button data-lesson="${i}" class="${i===t.index?'current':''}" aria-label="${L('Lección','Lesson')} ${i+1}" ${i===t.index?'aria-current="step"':''}>${i+1}</button>`).join('')}</nav></header><div class="lesson-body"><section class="lesson-text"><p>${axes(esc(L(t.text,t.text_en)))}</p><p class="callout analogy"><strong>${L('En el juego','In the game')}:</strong> ${axes(esc(L(t.analogy,t.analogy_en)))}</p><div class="circuit-tabs" role="tablist" aria-label="${L('Ejemplos','Examples')}">${t.circuits.map((item,i)=>`<button role="tab" data-circuit="${i}" aria-selected="${i===index}" class="${i===index?'current':''}">${item.preview.gates.length?item.preview.gates.map(gateLabel).map(esc).join(' · '):'|0⟩'}</button>`).join('')}</div>${gates.length?`<ul class="lesson-gates">${gates.map(g=>`<li style="${gateStyle(g)}">${gateHelp(g)}</li>`).join('')}</ul>`:''}</section><section class="gate-demo" aria-label="${L('Ejemplo animado','Animated example')}">${circuitStrip(p.gates)}<div class="demo-sphere">${sphere(p,null,`lesson-${t.index}-${index}`,null,true,{speed:70,loop:true})}</div><p class="demo-caption">${axes(esc(L(c.caption,c.caption_en)))}</p><div class="demo-odds">${[0,1].map(bit=>`<div class="odds-row"><span>${bit?L('Ligada |1⟩','Linked |1⟩'):L('Original |0⟩','Original |0⟩')}</span><div class="probability-track"><span style="width:${100*p.probabilities[bit]}%"></span></div><strong>${percentText(p.probabilities[bit])}</strong></div>`).join('')}</div><p class="sphere-caption">${axes(`[X]=${p.bloch[0].toFixed(2)} · [Y]=${p.bloch[1].toFixed(2)} · [Z]=${p.bloch[2].toFixed(2)}`)}</p><button data-replay>${L('Repetir animación','Replay animation')}</button></section></div><footer class="actions lesson-nav"><button id="lesson-prev" ${t.index===0?'disabled':''}>${L('← Anterior','← Previous')}</button><button id="lesson-hub">${L('Volver a tutoriales','Back to tutorials')}</button><button id="lesson-next" class="primary" ${t.index===t.total-1?'disabled':''}>${L('Siguiente →','Next →')}</button></footer></article>`;
+  stage.querySelectorAll('[data-lesson]').forEach(b=>b.onclick=()=>openLesson(Number(b.dataset.lesson)));
+  stage.querySelectorAll('[data-circuit]').forEach(b=>b.onclick=()=>{lessonCircuit=Number(b.dataset.circuit);render();});
+  document.getElementById('lesson-prev').onclick=()=>openLesson(t.index-1);
+  document.getElementById('lesson-next').onclick=()=>openLesson(t.index+1);
+  document.getElementById('lesson-hub').onclick=()=>{screen='learn';render();focus();};
+}
 // Bot Q's explanation for the current tutorial step. Without 'expect' the player advances with «Siguiente».
 function coachPanel(c){
-  const controls=c.final?`<button id="coach-play" class="primary">${L('Jugar una partida','Play a game')}</button><button id="coach-home">${L('Volver al inicio','Back to the menu')}</button>`:`${c.expect?'':`<button id="coach-next" class="primary">${L('Siguiente','Next')}</button>`}<button id="coach-exit">${L('Salir del tutorial','Leave the tutorial')}</button>`;
+  const controls=c.final?`<button id="coach-gates" class="primary">${L('Compuertas y esfera de Bloch','Gates and the Bloch sphere')}</button><button id="coach-play">${L('Jugar una partida','Play a game')}</button><button id="coach-home">${L('Volver al inicio','Back to the menu')}</button>`:`${c.expect?'':`<button id="coach-next" class="primary">${L('Siguiente','Next')}</button>`}<button id="coach-exit">${L('Salir del tutorial','Leave the tutorial')}</button>`;
   return `<aside class="coach" aria-label="${L('Tutorial con Bot Q','Tutorial with Bot Q')}" aria-live="polite"><span class="coach-avatar" aria-hidden="true">Q</span><div><p class="coach-step">${L(`Tutorial · paso ${c.step} de ${c.total}`,`Tutorial · step ${c.step} of ${c.total}`)}</p><h2>${esc(L(c.title,c.title_en||c.title))}</h2><p>${axes(esc(L(c.text,c.text_en||c.text)))}</p><div class="actions">${controls}</div></div></aside>`;
 }
 // Highlights the explained element and leaves only the expected control enabled.
@@ -289,10 +316,19 @@ function applyCoach(){
   const [expected,value]=c.expect||[];
   stage.querySelectorAll('[data-action]').forEach(b=>{if(b.dataset.action!==expected)b.disabled=true;});
   stage.querySelectorAll('[data-card]').forEach(b=>{if(!['play','choose'].includes(expected)||Number(b.dataset.card)!==value){b.disabled=true;b.draggable=false;}});
+  // Quantum hand: only the highlighted token, or Confirm, stays available.
+  const composer=document.getElementById('composer-dialog');
+  stage.querySelectorAll('[data-token]').forEach(b=>{if(expected!=='edit'||Number(b.dataset.token)!==value.at(-1))b.disabled=true;});
+  stage.querySelectorAll('#undo,#reset,[data-remove],[data-left],[data-right]').forEach(b=>b.disabled=true);
+  const lock=document.getElementById('lock-circuit');if(lock&&expected!=='confirm')lock.disabled=true;
+  const activate=document.getElementById('activate-quantum');
+  if(activate){activate.disabled=!!composer||!['edit','confirm'].includes(expected);if(!activate.disabled)activate.classList.add('coach-target');}
+  document.getElementById('close-composer')?.toggleAttribute('disabled',['edit','confirm'].includes(expected));
   document.getElementById('coach-next')?.addEventListener('click',()=>action('coach_next'));
   document.getElementById('coach-exit')?.addEventListener('click',()=>{screen='home';render();focus();});
   document.getElementById('coach-home')?.addEventListener('click',()=>{screen='home';render();focus();});
   document.getElementById('coach-play')?.addEventListener('click',()=>{screen='setup';render();focus();});
+  document.getElementById('coach-gates')?.addEventListener('click',()=>openLesson(0));
   if(target){const box=target.getBoundingClientRect();if(box.top<0||box.bottom>innerHeight)target.scrollIntoView({block:'center',behavior:reducedMotion()?'instant':'smooth'});}
 }
 function rules(){
@@ -323,7 +359,7 @@ function render(){
   document.getElementById('notice').innerHTML=(uiError||view.error)?`<p class="error">${esc(uiError||view.error)}</p>`:'';
   document.querySelector('.app-shell').classList.toggle('landing',screen==='home');
   document.querySelector('.app-shell').classList.toggle('playing',screen==='game');
-  ({home,setup,game,rules,credits,values}[screen]||home)();
+  ({home,setup,game,rules,credits,values,learn,lessons}[screen]||home)();
   applyCoach();
   const composer=document.getElementById('composer-dialog');
   if(composer){composer.showModal();composer.oncancel=e=>{e.preventDefault();quantumOpen=false;render();focus();};}

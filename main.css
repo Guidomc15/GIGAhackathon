@@ -285,3 +285,38 @@ nav .nav-language{margin-left:auto}
 .difficulty .setting-help{grid-column:2;font-size:14px;color:var(--muted)}
 .removals{margin:8px 0 0;padding:6px 10px;border-radius:6px;background:#2b2a1c;border:1px solid #c9b57c;font:600 14px system-ui}
 .removals.none-left{border-color:#ff8585;color:#ffc2c2}
+/* 0.2.2 · Centro de tutoriales y lecciones de compuertas. */
+.tutorial-hub{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin:8px 0}
+.hub-card{position:relative;padding:22px 24px 20px 74px}
+.hub-card h2{margin:0 0 8px}
+.hub-number{position:absolute;left:20px;top:20px;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--gold);color:#1b1a12;font:800 20px/1 system-ui}
+.hub-meta{color:var(--muted);font:600 14px system-ui}
+.lesson{display:flex;flex-direction:column;gap:12px;padding:16px 20px}
+.lesson-head{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px}
+.lesson-head h2{margin:0;flex:1 1 280px;font-size:clamp(20px,2.4vw,28px)}
+.lesson-head .coach-step{flex-basis:100%;margin:0}
+.lesson-dots{display:flex;gap:6px}
+.lesson-dots button{min-width:32px;min-height:32px;padding:0;border-radius:50%;font:700 13px system-ui}
+.lesson-dots .current{background:var(--gold);color:#1b1a12}
+.lesson-body{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px;align-items:start}
+.lesson-text{font:16px/1.55 system-ui}
+.lesson-text p{margin:0 0 10px}
+.analogy{font-size:15px}
+.circuit-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.circuit-tabs button{min-height:36px;padding:4px 12px;border-radius:18px;font:700 14px ui-monospace,monospace}
+.circuit-tabs .current{background:#2f4a36;border-color:var(--gold);color:#fff6d0}
+.lesson-gates{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:14px}
+.lesson-gates li{border-left:4px solid var(--gate-color);padding:4px 8px;background:#1c231c}
+.gate-demo{display:flex;flex-direction:column;align-items:center;gap:6px;background:#121a16;border:1px solid var(--line);border-radius:8px;padding:10px}
+.demo-sphere{width:min(100%,calc(100svh - 470px),360px);min-width:200px;aspect-ratio:1}
+.demo-sphere canvas{width:100%;height:100%}
+.demo-caption{margin:0;text-align:center;font:600 15px/1.4 system-ui;color:#f2e2b5}
+.demo-odds{width:100%;display:grid;gap:4px}
+.odds-row{display:grid;grid-template-columns:110px 1fr 64px;align-items:center;gap:8px;font:14px system-ui}
+.odds-row strong{text-align:right}
+.gate-demo .sphere-caption{margin:0}
+.lesson-nav{justify-content:space-between;margin:0}
+.quantum-composer .coach{margin:0 0 12px;font-size:15px}
+@media(max-width:800px){.lesson-body{grid-template-columns:1fr}.demo-sphere{width:min(100%,320px)}}
+.odds-row .probability-track{height:10px;margin:0;border-radius:5px;background:#2a332c;overflow:hidden}
+.odds-row .probability-track span{display:block;height:100%;background:linear-gradient(90deg,#77e08b,#f6d57a)}

@@ -77,7 +77,7 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     assert.match(await page.locator('.hand-summary').innerText(),/Truco no querido/);
     await noOverflow();
     // Truco tutorial with Bot Q on a phone-sized screen, through the highlighted controls.
-    await click('#tutorial');
+    await click('#tutorial');await click('#hub-truco');
     for(let step=0;step<60;step++){
       if(await page.locator('#coach-play').count())break;
       if(await page.locator('#coach-next').count())await click('#coach-next');
