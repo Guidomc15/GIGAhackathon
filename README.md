@@ -1,4 +1,4 @@
-# Qriollo · Quantum Truco 0.2.4
+# Qriollo · Quantum Truco 0.2.5
 
 **A truly Argentine way to learn quantum computing.**
 
@@ -61,7 +61,7 @@ The two qubits are independent: there is no entanglement and no claim of quantum
 2. On the home screen, pick a language with 🌐.
 3. Start with **Tutorial → Truco with Bot Q**, or go straight to **Quick game**.
 
-The footer shows the running version (**v0.2.4**).
+The footer shows the running version (**v0.2.5**).
 
 ### Locally
 
@@ -127,7 +127,7 @@ Full notices are in `THIRD_PARTY_NOTICES.md`.
 
 ---
 
-# Qriollo · Truco Cuántico 0.2.4 (español)
+# Qriollo · Truco Cuántico 0.2.5 (español)
 
 **Una forma bien argenta de aprender computación cuántica.**
 
@@ -186,7 +186,7 @@ Los dos qubits son independientes: no hay entrelazamiento ni se afirma una venta
 2. En el inicio, elegí el idioma con 🌐.
 3. Empezá por **Tutorial → Truco con Bot Q**, o andá directo a **Partida rápida**.
 
-El pie de página muestra la versión en ejecución (**v0.2.4**).
+El pie de página muestra la versión en ejecución (**v0.2.5**).
 
 ### En tu computadora
 

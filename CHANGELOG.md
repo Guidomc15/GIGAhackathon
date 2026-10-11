@@ -1,5 +1,9 @@
 # Cambios
 
+## 0.2.5
+
+Entrega en Qollab con solo los 30 archivos de `QOLLAB_0.2.5.zip`: se quitaron del proyecto los tests, el servidor local y los módulos sueltos de `truco/`, que ya van dentro de `qollab_engine.py`. El juego no cambia.
+
 ## 0.2.4
 
 Al terminar una mano, la mesa queda a la vista con las cartas de cada baza: la ganadora de cada baza se marca en dorado, la perdedora se atenúa y la última carta jugada cae sobre la mesa con una animación. El compositor de circuitos es más ancho en escritorio y las compuertas del circuito se ven más grandes (nombre y ángulo en dos líneas). En el inicio, la placa grande es «Partida personalizada» y «Partida rápida» pasa al enlace de abajo. Cartas retocadas: el 2 de espada tiene dos espadas y el rey del 12 de espada sostiene una espada en lugar del cetro. El botón «Repositorio» lleva al repositorio público.

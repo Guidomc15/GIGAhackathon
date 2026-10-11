@@ -29,7 +29,7 @@ jobs:
         run: |
           python -m pip check
           python -m unittest discover -s tests -v
-          python build_qollab.py --check --verify-zip QOLLAB_0.2.4.zip
+          python build_qollab.py --check --verify-zip QOLLAB_0.2.5.zip
       - name: Check JavaScript syntax
         run: |
           for module in *.js; do node --check "$module"; done
