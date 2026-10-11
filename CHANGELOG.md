@@ -10,7 +10,7 @@ La partida con Bot Q pasa a ser una práctica de cuatro manos y 33 pasos: 6 desa
 
 Ayuda rápida: «Valores de las cartas» muestra la escala ilustrada de las diapositivas con las 40 cartas. El resumen de la mano se puede recorrer con rueda, trackpad, teclado o toque (sin barra visible) hasta el registro de cada medición. Cada medición se escribe en la consola del navegador como «[Qriollo] Medición», con el registro crudo de Qiskit o IonQ; la versión se ve en el pie de página y en la consola.
 
-Mazo de fichas rebalanceado a 41: H, Z, RX, RY y RZ con 8 fichas cada una (cerca de 20 % cada familia) y una sola X (2,4 %). Entrega plana `QOLLAB_0.2.3.zip`; los módulos nuevos son `slides.js` y `home-art.js`, y `menu-art.js` ya no se usa.
+La esfera de Bloch rotula los seis polos: |0⟩ y |1⟩ en Z, |+⟩ y |−⟩ en X, |+i⟩ y |−i⟩ en Y, con el color de cada eje. Mazo de fichas rebalanceado a 41: H, Z, RX, RY y RZ con 8 fichas cada una (cerca de 20 % cada familia) y una sola X (2,4 %). Entrega plana `QOLLAB_0.2.3.zip`; los módulos nuevos son `slides.js` y `home-art.js`, y `menu-art.js` ya no se usa.
 
 ## 0.2.2
 

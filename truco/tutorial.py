@@ -166,7 +166,7 @@ STEPS = (
      'text_en': 'My 6 of Swords and your 6 of Coins have the same strength: the second baza is a '
                 'parda. Who wins the hand?',
      'target': '.outcome',
-     'quiz': {'options': (('Vos, porque ganaste la primera', 'You, because you won the first one'),
+     'quiz': {'options': (('Yo, porque gané la primera', 'Me, because I won the first one'),
                           ('Bot Q, porque es mano', 'Bot Q, because it is mano'),
                           ('Hay que jugar la tercera', 'The third baza must be played')),
               'answer': 0},
@@ -204,7 +204,7 @@ STEPS = (
      'title_en': 'I said “Quiero”',
      'text_en': 'I accepted the Truco: the hand is worth 2. Who may call Retruco now?',
      'target': '.table-status',
-     'quiz': {'options': (('Vos, porque cantaste Truco', 'You, because you called Truco'),
+     'quiz': {'options': (('Yo, porque canté Truco', 'Me, because I called Truco'),
                           ('Bot Q, porque aceptó', 'Bot Q, because it accepted'),
                           ('Cualquiera de los dos', 'Either player')),
               'answer': 1},

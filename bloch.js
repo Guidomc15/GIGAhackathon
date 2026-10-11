@@ -67,6 +67,11 @@ const AXES = [
   { a: [0, 0, 1], lab: 'Z', c: AXIS_COLORS.Z }, { a: [0, 0, -1], lab: '', c: AXIS_COLORS.Z }
 ];
 const POLES = [{ a: [0, 0, 1], lab: '|0⟩' }, { a: [0, 0, -1], lab: '|1⟩' }];
+// The other four poles: the equator states of the X and Y axes, in the colour of their axis.
+const EQUATOR_POLES = [
+  { a: [1, 0, 0], lab: '|+⟩', c: AXIS_COLORS.X }, { a: [-1, 0, 0], lab: '|−⟩', c: AXIS_COLORS.X },
+  { a: [0, 1, 0], lab: '|+i⟩', c: AXIS_COLORS.Y }, { a: [0, -1, 0], lab: '|−i⟩', c: AXIS_COLORS.Y }
+];
 
 function axis(v, front) {
   const o = project([0, 0, 0]);
@@ -178,7 +183,7 @@ function draw() {
   ctx.textBaseline = 'middle';
   for (let i = 0; i < AXES.length; i++) {
     if (!AXES[i].lab) { continue; }
-    const a = AXES[i].a, k = a[2] ? 1.42 : 1.2;
+    const a = AXES[i].a, k = a[2] ? 1.42 : 1.4;
     const p = project([a[0] * k, a[1] * k, a[2] * k]);
     ctx.globalAlpha = (p.d <= 0) ? 1 : .45;
     ctx.fillStyle = AXES[i].c;
@@ -191,6 +196,17 @@ function draw() {
     ctx.fillStyle = (p.d <= 0) ? '#f4f1e6' : 'rgba(244,241,230,0.5)';
     ctx.fillText(POLES[i].lab, p.x + 34, p.y);
   }
+  ctx.font = '700 32px ui-monospace, Menlo, monospace';
+  ctx.lineWidth = 6;
+  ctx.strokeStyle = 'rgba(10,16,14,0.85)';
+  for (const pole of EQUATOR_POLES) {
+    const p = project(pole.a.map(v => v * 1.14));
+    ctx.globalAlpha = (p.d <= 0) ? 1 : .7;
+    ctx.fillStyle = pole.c;
+    ctx.strokeText(pole.lab, p.x, p.y);
+    ctx.fillText(pole.lab, p.x, p.y);
+  }
+  ctx.globalAlpha = 1;
 
   state.az=az; state.el=el; state.shown=shown; state.autoSpin=autoSpin;
 }
