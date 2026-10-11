@@ -22,8 +22,10 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
       return await r.json();
     };
     await page.goto(base);await page.locator('#start').waitFor();await noOverflow();
-    await click('#values');await page.locator('.deck-gallery summary').click();await noOverflow();
-    assert.equal(await page.locator('.deck-gallery .card').count(),40);
+    // Quick help shows the same 14-level ladder as the slides, with all 40 cards.
+    await click('#values');await noOverflow();
+    assert.equal(await page.locator('.help-ladder .ladder li').count(),14);
+    assert.equal(await page.locator('.help-ladder .card').count(),40);
     await click('#values-home');await click('#start');await page.locator('#privacy-mode').check();await click('#deal');
     await page.locator('#alone').check();await click('#reveal');
     await page.getByText('1 · Elegí tu carta cuántica',{exact:true}).waitFor();

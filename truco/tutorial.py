@@ -106,11 +106,11 @@ STEPS = (
                           'The 5 is near the bottom of the ladder; the 12 is well above it.')}},
     {'bot': ['play', 2]},
     {'title': 'Ganaste la mano',
-     'text': 'Tu 12 le ganó a mi 11: dos bazas, y como nadie cantó, sumás 1 punto. «Ver resumen» '
-             'repasa cada baza. Tocá «Nueva mano»: ahora soy mano yo.',
+     'text': 'Tu 12 le ganó a mi 11: dos bazas, y como nadie cantó, sumás 1 punto. Tocá «Nueva '
+             'mano»: ahora soy mano yo.',
      'title_en': 'You won the hand',
-     'text_en': 'Your 12 beat my 11: two bazas, and since nobody called, you score 1 point. “See '
-                'summary” goes over each baza. Press “Next hand”: now I am mano.',
+     'text_en': 'Your 12 beat my 11: two bazas, and since nobody called, you score 1 point. Press “Next '
+                'hand”: now I am mano.',
      'target': '[data-action="next"]', 'expect': ['next', None]},
 
     # ---------- Hand 2 · Envido and parda ----------
@@ -358,11 +358,13 @@ STEPS = (
      'target': '[data-card="1"]', 'expect': ['play', 1]},
     {'title': '¡Terminaste el tutorial de Truco!',
      'text': 'Baza parda: como ganaste la primera, la mano es tuya. Ya sabés jugar al Truco y usar la '
-             'carta cuántica. Seguí con «Compuertas y esfera de Bloch» para entender qué hace cada '
-             'ficha.',
+             'carta cuántica. Con «Ver resumen» repasás esta mano: cada baza y cómo se midieron las '
+             'cartas cuánticas. Después seguí con «Compuertas y esfera de Bloch» para entender qué '
+             'hace cada ficha.',
      'title_en': 'You finished the Truco tutorial!',
      'text_en': 'A parda: since you won the first baza, the hand is yours. You can now play Truco and use '
-                'the quantum card. Continue with “Gates and the Bloch sphere” to learn what each token '
+                'the quantum card. “See summary” goes over this hand: each baza and how the quantum cards '
+                'were measured. Then continue with “Gates and the Bloch sphere” to learn what each token '
                 'does.',
      'target': '.outcome', 'final': True},
 )

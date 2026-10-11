@@ -148,8 +148,12 @@ function suitsPart(state){
   const suit=SUITS[state.suit||0];
   return `<div class="slide-visual"><div class="suit-tabs" role="tablist">${SUITS.map((s,i)=>`<button role="tab" data-suit="${i}" aria-selected="${s===suit}" class="${s===suit?'current':''}">${esc(suitName(s))}</button>`).join('')}</div><div class="suit-row" role="tabpanel" aria-label="${esc(suitName(suit))}">${NUMBERS.map(n=>`<figure>${card({number:n,suit})}<figcaption>${n}</figcaption></figure>`).join('')}</div></div>`;
 }
+// The 14-level strength ladder with every card; also used in Quick help.
+export function ladderHtml(){
+  return `<ol class="ladder">${LADDER.map((level,i)=>`<li class="${i<4?'brava':level.length===2&&level[0][0]===1?'falso':''}"><span class="ladder-rank">${i+1}</span><span class="ladder-cards">${level.map(c=>card(cardData(c))).join('')}</span><span class="ladder-name">${esc(level.length===1?cardName(cardData(level[0])):level.length===4?L(`Todos los ${level[0][0]}`,`All ${level[0][0]}s`):level.map(c=>cardName(cardData(c))).join(L(' y ',' and ')))}</span></li>`).join('')}</ol>`;
+}
 function ladderPart(){
-  return `<div class="slide-visual"><ol class="ladder">${LADDER.map((level,i)=>`<li class="${i<4?'brava':level.length===2&&level[0][0]===1?'falso':''}"><span class="ladder-rank">${i+1}</span><span class="ladder-cards">${level.map(c=>card(cardData(c))).join('')}</span><span class="ladder-name">${esc(level.length===1?cardName(cardData(level[0])):level.length===4?L(`Todos los ${level[0][0]}`,`All ${level[0][0]}s`):level.map(c=>cardName(cardData(c))).join(L(' y ',' and ')))}</span></li>`).join('')}</ol><button type="button" class="slide-help" data-quick-help>${L('Ver en Ayuda rápida','Open Quick help')}</button></div>`;
+  return `<div class="slide-visual">${ladderHtml()}<button type="button" class="slide-help" data-quick-help>${L('Ver en Ayuda rápida','Open Quick help')}</button></div>`;
 }
 function duelPart(state){
   const round=state.round||0;

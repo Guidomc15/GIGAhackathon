@@ -7,4 +7,6 @@ ROTATIONS = {f'{axis}:{name}': (axis.lower(), angle)
 # Compatibility aliases for saved circuits; the new deck uses explicit angles.
 ROTATIONS.update({'RY+': ('ry', math.pi/6), 'RY-': ('ry', -math.pi/6)})
 VALID = ('H', 'X', 'Z', *ROTATIONS)
-DECK = ('H',)*6 + ('X',) + ('Z',)*3 + tuple(g for g in ROTATIONS if ':' in g)*2
+# Token deck: H, Z, RX, RY and RZ are equally likely (8 tokens each; each rotation axis
+# has 4 angles x 2 copies) and X is rare (1 token): about 20 % each and 2.4 % for X.
+DECK = ('H',)*8 + ('X',) + ('Z',)*8 + tuple(g for g in ROTATIONS if ':' in g)*2

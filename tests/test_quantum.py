@@ -1,3 +1,4 @@
+from collections import Counter
 import math
 import unittest
 
@@ -24,7 +25,9 @@ class QuantumTests(unittest.TestCase):
         self.assertAlmostEqual(preview(['H','RY:-pi/6'])['probabilities'][1], .25)
 
     def test_deck_has_one_x_and_every_fixed_rotation(self):
-        self.assertEqual(len(GATES),34)  # 6 H, 1 X, 3 Z and two of each of the 12 fixed rotations
+        self.assertEqual(len(GATES),41)  # 8 H, 1 X, 8 Z and two of each of the 12 fixed rotations
+        families=Counter(g.split(':')[0] for g in GATES)
+        self.assertEqual(families,{'H':8,'Z':8,'RX':8,'RY':8,'RZ':8,'X':1})
         self.assertEqual(GATES.count('X'),1)
         for gate in ROTATIONS:
             if ':' in gate: self.assertEqual(GATES.count(gate),2)

@@ -10,6 +10,8 @@ Niveles Aprendizaje y Difícil (2 retiros de compuertas por jugador y por mano).
 
 Inicio nuevo según el boceto del equipo: logo de Qriollo, lema bilingüe, placas Tutorial, Partida rápida, Ayuda rápida y Créditos, y la carta Q con la esfera de Bloch; ocupa toda la ventana y en celulares se apila.
 
+Ayuda rápida: «Valores de las cartas» muestra la misma escala ilustrada de las diapositivas, de la más alta a la más baja, con las 40 cartas. Textos en segunda persona para el jugador «Vos»/«You» de la práctica (por ejemplo «Ganaste la baza», «Tu carta se midió», «Te toca responder»). En la práctica, «Ver resumen» aparece recién en el paso final, después de la mano cuántica. Mazo de fichas rebalanceado a 41: H, Z, RX, RY y RZ con 8 fichas cada una (cerca de 20 % cada familia) y una sola X (2,4 %).
+
 Se quitaron el ruido cuántico educativo, su lección y su documento, y la rotación π/67 (el mazo de fichas pasa de 40 a 34). Pruebas nuevas: `test_modes.py`, `browser_0.2.2.cjs` y `browser_tutorial.cjs`. Entrega plana `QOLLAB_0.2.2.zip`.
 
 ## 0.2.1

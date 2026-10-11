@@ -658,3 +658,17 @@ nav .nav-language{margin-left:auto}
 .coach-feedback{margin:0 0 8px;padding:6px 10px;border-radius:6px;font:600 14px/1.4 system-ui}
 .coach-feedback.ok{background:#1f4a2c;color:#bff5c9;border-left:3px solid #77e08b}
 .coach-feedback.bad{background:#4a2420;color:#ffd1c9;border-left:3px solid #ff8585}
+/* Ayuda rápida: la misma escala de las diapositivas, con cartas más grandes. */
+.help-ladder{margin:8px 0 14px}
+.help-ladder .ladder .card{width:clamp(26px,3vw,40px)}
+.help-ladder .ladder-name{font-size:14px}
+@media(min-width:900px) and (min-height:540px){
+  .values-help{max-width:none;display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:28px;align-items:start}
+  .values-help h2{margin:2px 0 6px}
+  .values-help .values-main>p{margin:0 0 6px}
+  .values-help .values-side{font-size:15px;line-height:1.5}
+  .values-help .values-side h3{margin:4px 0 6px}
+  .values-help .values-side .actions{flex-wrap:wrap}
+  .help-ladder{margin:6px 0 0}
+  .help-ladder .ladder .card{width:clamp(20px,3.4vh,40px)}
+}

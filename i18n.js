@@ -9,3 +9,7 @@ export const cardName=c=>c?L(`${c.number} de ${SUITS[c.suit][0]}`,`${c.number} o
 export const AXIS_COLORS={X:'#ff8585',Y:'#d2a0ff',Z:'#67d3ff'};
 // Text already escaped: [X], [Y] and [Z] become axis letters in the colour of their axis.
 export const axes=html=>String(html).replace(/\[(X|Y|Z)\]/g,(_,a)=>`<b class="axis axis-${a.toLowerCase()}" style="color:${AXIS_COLORS[a]}">${a}</b>`);
+
+// In the practice with Bot Q the player is called «Vos» / «You»: texts about that player
+// use the second person («Ganaste la baza») instead of «Ganó la baza Vos».
+export const isYou=name=>name==='Vos'||name==='You';

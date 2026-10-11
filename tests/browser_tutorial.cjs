@@ -30,6 +30,7 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
       const title=await page.locator('.coach h2').textContent();
       if(!seen.includes(step)){seen.push(step);await page.screenshot({path:path.join(output,`tutorial-${String(seen.length).padStart(2,'0')}.png`),fullPage:true});}
       if(await page.locator('#coach-play').count())break;
+      assert.equal(await page.locator('#view-summary').count(),0,`«Ver resumen» se oculta hasta el final, pero aparece en «${title}»`);
       assert.equal(await page.locator('.coach-target').count(),1,`Sin elemento resaltado en «${title}»`);
       const kind=await coachStep(page,idle,assert);
       kinds[kind]=(kinds[kind]||0)+1;
@@ -37,6 +38,7 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     assert.match(await page.locator('.coach h2').textContent(),/Terminaste el tutorial|You finished the Truco tutorial/);
     assert.match(await page.locator('.round-meta').textContent(),/(Vos|You): 8 · Bot Q: 0/);
     assert.equal(seen.length,33);
+    assert.equal(await page.locator('#view-summary').count(),1,'El paso final muestra «Ver resumen»');
     assert.equal(kinds.challenge,6,'Six challenges');assert.equal(kinds.quiz,6,'Six quick questions');
     await page.locator('#coach-play').click();
     await page.locator('#deal').waitFor();
